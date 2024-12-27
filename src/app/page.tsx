@@ -1,101 +1,89 @@
-import Image from "next/image";
+"use client";
+import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import localFont from "next/font/local";
+// import Metaball from "./metaballs";
 
-export default function Home() {
+const soloviev = localFont({ src: "./Soloviev.otf" });
+
+type MetaballProps = {
+  x: number;
+  y: number;
+  size: number;
+};
+
+function Metaball({ x, y, size }: { x: number; y: number; size: number }) {
+  const [animationX, setAnimationX] = useState([
+    x,
+    x + Math.random() * 100 - 50,
+    x,
+  ]);
+  const [animationY, setAnimationY] = useState([
+    y,
+    y + Math.random() * 100 - 50,
+    y,
+  ]);
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+    <motion.circle
+      style={{
+        width: size,
+        height: size,
+        left: x,
+        top: y,
+      }}
+      animate={{ x: animationX, y: animationY }}
+      transition={{ repeat: Infinity, repeatType: "loop", duration: 3 }}
+      r={size / 2}
+    />
+  );
+}
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+export default function Page() {
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  const metaballs = [
+    { x: 100, y: 100, size: 100 },
+    { x: 200, y: 200, size: 150 },
+    { x: 300, y: 300, size: 120 },
+  ];
+
+  return (
+    <main className={`bg-[#C41A17] min-h-screen relative overflow-hidden`}>
+      {isClient && (
+        <svg className="z-50 absolute inset-0 w-full h-full">
+          <defs>
+            <filter id="metaballs">
+              <feGaussianBlur
+                in="SourceGraphic"
+                stdDeviation="30"
+                result="blur"
+              />
+              <feColorMatrix
+                in="blur"
+                mode="matrix"
+                values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 30 -15"
+                result="metaballs"
+              />
+              <feBlend in="SourceGraphic" in2="metaballs" />
+            </filter>
+          </defs>
+          <g filter="url(#metaballs)">
+            {metaballs.map((ball, index) => (
+              <Metaball key={index} x={ball.x} y={ball.y} size={ball.size} />
+            ))}
+          </g>
+        </svg>
+      )}
+      <div className="flex items-center justify-center h-full w-full absolute inset-0 pointer-events-none">
+        <h1 className="text-[#E5DACB] text-9xl text-center">
+          <span className={soloviev.className}>Ben Klosky!</span>
+        </h1>
+      </div>
+    </main>
   );
 }
