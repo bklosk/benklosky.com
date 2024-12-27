@@ -1,70 +1,38 @@
 "use client";
 import { useEffect, useState } from "react";
-import { motion, useSpring, useMotionValue } from "framer-motion";
+import { motion } from "framer-motion";
 import localFont from "next/font/local";
 
 const soloviev = localFont({ src: "./Soloviev.otf" });
 
-type MetaballProps = {
-  x: number;
-  y: number;
-  size: number;
-};
+const random = (min, max) => Math.floor(min + Math.random() * (max - min));
+const remain = (n) => 100 - n;
 
-function Metaball({ x, y, size }: MetaballProps) {
-  const spring = { damping: 30, stiffness: 2, restDelta: 1 };
-
-  const motionX = useMotionValue(x);
-  const motionY = useMotionValue(y);
-
-  const newX = useSpring(motionX, spring);
-  const newY = useSpring(motionY, spring);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const mainbox = document.getElementById("mainbox");
-      if (mainbox) {
-        const { width, height, left, top } = mainbox.getBoundingClientRect();
-        motionX.set(left + Math.random() * width);
-        motionY.set(top + Math.random() * height + 100);
-      }
-    }, Math.random() * 4000 + 50); // Random interval between 2s and 5s
-
-    return () => clearInterval(interval);
-  }, [motionX, motionY]);
-
-  const isOval = Math.random() > 0.5;
-  const radiusX = isOval ? size * 1.2 : size;
-  const radiusY = size;
-
-  return (
-    <motion.ellipse
-      cx={newX}
-      cy={newY}
-      rx={radiusX}
-      ry={radiusY}
-      initial={{ scale: 0 }}
-      animate={{ scale: 1 }}
-      transition={{ delay: 0.2, duration: 0.5 }}
-      fill="#820460"
-    />
-  );
+function createBlob() {
+  let offset = 10;
+  let r = [];
+  for (let i = 0; i < 4; i++) {
+    let n = random(offset, remain(offset));
+    r.push(n);
+    r.push(remain(n));
+  }
+  return `${r[0]}% ${r[1]}% ${r[2]}% ${r[3]}% / ${r[4]}% ${r[6]}% ${r[7]}% ${r[5]}%`;
 }
 
 export default function Page() {
   const [isClient, setIsClient] = useState(false);
+  const [borderRadius, setBorderRadius] = useState(createBlob());
+  const [rotation, setRotation] = useState(0);
 
   useEffect(() => {
     setIsClient(true);
-  }, []);
+    const interval = setInterval(() => {
+      setBorderRadius(createBlob());
+      setRotation((prev) => prev + 40);
+    }, 1200); // Change every 3 seconds
 
-  const metaballs = isClient
-    ? Array.from({ length: 9 }, () => ({
-        x: Math.random() * 0.8 * window.innerWidth,
-        y: Math.random() * 0.8 * window.innerHeight,
-        size: 100 + Math.random() * 50,
-      }))
-    : [];
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <main className={`bg-[#C41A17] min-h-screen h-[1500px] relative`}>
@@ -75,29 +43,15 @@ export default function Page() {
         <div className="absolute top-0 left-0 w-32 h-16 bg-green-700 rounded-tl-full transform rotate-180" />
         <div className="absolute bottom-0 right-0 w-32 h-16 bg-green-700 rounded-br-full transform rotate-180" />
         {isClient && (
-          <svg className="absolute z-0 w-full h-full">
-            <defs>
-              <filter id="metaballs">
-                <feGaussianBlur
-                  in="SourceGraphic"
-                  stdDeviation="8" // Increased resolution
-                  result="blur"
-                />
-                <feColorMatrix
-                  in="blur"
-                  mode="matrix"
-                  values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 30 -10"
-                  result="metaballs"
-                />
-                <feBlend in="SourceGraphic" in2="metaballs" />
-              </filter>
-            </defs>
-            <g filter="url(#metaballs)">
-              {metaballs.map((ball, index) => (
-                <Metaball key={index} x={ball.x} y={ball.y} size={ball.size} />
-              ))}
-            </g>
-          </svg>
+          <div
+            id="blob"
+            className="absolute inset-0 m-auto w-[500px] h-[500px] bg-[#820460]"
+            style={{
+              borderRadius: borderRadius,
+              transform: `rotate(${rotation}deg)`,
+              transition: "border-radius 3s, transform 3s",
+            }}
+          />
         )}
         <h1 className="text-[#E5DACB] z-50 text-9xl text-center absolute inset-0 flex items-center justify-center">
           <motion.span
