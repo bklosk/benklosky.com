@@ -5,9 +5,9 @@ import localFont from "next/font/local";
 
 const soloviev = localFont({ src: "./Soloviev.otf" });
 
-const random = (min, max) => Math.floor(min + Math.random() * (max - min));
-
 function createBlob() {
+  const random = (min: number, max: number) =>
+    Math.floor(min + Math.random() * (max - min));
   let offset = 10;
   let r = [];
   for (let i = 0; i < 4; i++) {
@@ -31,7 +31,7 @@ export default function Page() {
       controls.start({
         borderRadius: createBlob(),
         rotate: "+=40deg",
-        transition: { duration: 3 },
+        transition: { duration: 2 },
       });
     }, 900); // Change every 3 seconds
 
@@ -52,9 +52,12 @@ export default function Page() {
             className="absolute inset-0 m-auto w-[400px] h-[400px] bg-[#820460]" // Made smaller
             animate={controls}
             initial={{ borderRadius: createBlob(), rotate: "0deg" }}
+            whileHover={{ scale: 1.2, transition: { duration: 0.1 } }}
+            whileTap={{ scale: 0.9 }}
+            drag
           />
         )}
-        <h1 className="text-[#E5DACB] z-50 text-9xl text-center absolute inset-0 flex items-center justify-center">
+        <h1 className="text-[#E5DACB] z-50 text-9xl text-center absolute inset-0 flex items-center justify-center pointer-events-none">
           <motion.span
             className={`${soloviev.className} inline-block`}
             initial={{ x: -2000, y: -50, rotate: 2 }}
@@ -117,8 +120,8 @@ export default function Page() {
           alt="Exclamation Mark"
           className="absolute right-0 top-1/5 transform -translate-y-1/2" // Moved up
           initial={{ scale: 0, y: 150, x: -50 }}
-          animate={{ scale: 0.5 }}
-          transition={{ delay: 3, duration: 0.5 }}
+          animate={{ scale: 0.6 }}
+          transition={{ delay: 3, duration: 0.1 }}
         />
       </div>
     </main>
