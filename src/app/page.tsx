@@ -40,10 +40,7 @@ export default function Page() {
 
   return (
     <main className={`bg-[#C41A17] min-h-screen h-[1500px] relative`}>
-      <div
-        id="mainbox"
-        className="h-screen w-full absolute overflow-visible pointer-events-none"
-      >
+      <div id="mainbox" className="h-screen w-full absolute overflow-visible">
         <div className="absolute top-0 left-0 w-32 h-16 bg-green-700 rounded-tl-full transform rotate-180" />
         <div className="absolute bottom-0 right-0 w-32 h-16 bg-green-700 rounded-br-full transform rotate-180" />
         {isClient && (
@@ -52,21 +49,16 @@ export default function Page() {
             className="absolute inset-0 m-auto w-[400px] h-[400px] bg-[#820460]" // Made smaller
             animate={controls}
             initial={{ borderRadius: createBlob(), rotate: "0deg" }}
-            whileHover={{ scale: 1.2, transition: { duration: 0.1 } }}
-            whileTap={{ scale: 0.9 }}
-            drag
           />
         )}
-        <h1 className="text-[#E5DACB] z-50 text-9xl text-center absolute inset-0 flex items-center justify-center pointer-events-none">
+        <h1 className="text-[#E5DACB] z-50 text-9xl text-center absolute inset-0 flex items-center justify-center">
           <motion.span
             className={`${soloviev.className} inline-block`}
-            initial={{ x: -2000, y: -50, rotate: 2 }}
-            animate={{ x: 30 }}
-            transition={{
-              delay: 0.8,
-              duration: 2,
-              easing: "easeInOut",
-            }}
+            initial={{ x: 30, y: -50, rotate: 2 }}
+            whileHover={{ scale: 1.2 }}
+            whileTap={{ scale: 0.8, rotate: 5 }}
+            drag
+            dragConstraints={{ left: -100, right: 100, top: -100, bottom: 100 }}
             style={{ display: "inline-block" }}
           >
             {Array.from("Ben").map((char, index) => (
@@ -88,13 +80,11 @@ export default function Page() {
           </motion.span>
           <motion.span
             className={`${soloviev.className} inline-block`}
-            initial={{ x: 2000, y: 50, rotate: -10 }}
-            animate={{ x: 50, y: 50 }}
-            transition={{
-              delay: 1,
-              duration: 1,
-              easing: "easeInOut",
-            }}
+            initial={{ rotate: -10 }}
+            whileHover={{ scale: 1.2 }}
+            whileTap={{ scale: 0.8, rotate: -5 }}
+            drag
+            dragConstraints={{ left: -100, right: 100, top: -100, bottom: 100 }}
             style={{ display: "inline-block" }}
           >
             {Array.from("Klosky").map((char, index) => (
@@ -119,9 +109,10 @@ export default function Page() {
           src="/exclamation_mark.svg"
           alt="Exclamation Mark"
           className="absolute right-0 top-1/5 transform -translate-y-1/2" // Moved up
-          initial={{ scale: 0, y: 150, x: -50 }}
+          initial={{ scale: 0 }}
           animate={{ scale: 0.6 }}
-          transition={{ delay: 3, duration: 0.1 }}
+          transition={{ delay: 0.5, duration: 0.1 }}
+          drag
         />
       </div>
     </main>
