@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { motion, useAnimation } from "framer-motion";
 import localFont from "next/font/local";
+import Link from "next/link";
 
 const soloviev = localFont({ src: "./Soloviev.otf" });
 
@@ -39,82 +40,90 @@ export default function Page() {
   }, [controls]);
 
   return (
-    <main className={`bg-[#C41A17] min-h-screen h-[1500px] relative`}>
-      <div id="mainbox" className="h-screen w-full absolute overflow-visible">
-        <div className="absolute top-0 left-0 w-32 h-16 bg-green-700 rounded-tl-full transform rotate-180" />
-        <div className="absolute bottom-0 right-0 w-32 h-16 bg-green-700 rounded-br-full transform rotate-180" />
-        {isClient && (
-          <motion.div
-            id="blob"
-            className="absolute inset-0 m-auto w-[400px] h-[400px] bg-[#820460]" // Made smaller
-            animate={controls}
-            initial={{ borderRadius: createBlob(), rotate: "0deg" }}
-          />
-        )}
-        <h1 className="text-[#E5DACB] z-50 text-9xl text-center absolute inset-0 flex items-center justify-center">
-          <motion.span
-            className={`${soloviev.className} inline-block`}
-            initial={{ x: 30, y: -50, rotate: 2 }}
-            whileHover={{ scale: 1.2 }}
-            whileTap={{ scale: 0.8, rotate: 5 }}
-            drag
-            dragConstraints={{ left: -100, right: 100, top: -100, bottom: 100 }}
-            style={{ display: "inline-block" }}
-          >
-            {Array.from("Ben").map((char, index) => (
-              <motion.span
-                key={index}
-                initial={{ rotate: 0 }}
-                animate={{ rotate: [0, 5, -5, 0] }}
-                transition={{
-                  repeat: Infinity,
-                  repeatType: "mirror",
-                  duration: 2,
-                  delay: index * 0.1,
-                }}
-                style={{ display: "inline-block" }}
-              >
-                {char}
-              </motion.span>
-            ))}
-          </motion.span>
-          <motion.span
-            className={`${soloviev.className} inline-block`}
-            initial={{ rotate: -10 }}
-            whileHover={{ scale: 1.2 }}
-            whileTap={{ scale: 0.8, rotate: -5 }}
-            drag
-            dragConstraints={{ left: -100, right: 100, top: -100, bottom: 100 }}
-            style={{ display: "inline-block" }}
-          >
-            {Array.from("Klosky").map((char, index) => (
-              <motion.span
-                key={index}
-                initial={{ rotate: 0 }}
-                animate={{ rotate: [0, 5, -5, 0] }}
-                transition={{
-                  repeat: Infinity,
-                  repeatType: "mirror",
-                  duration: 2,
-                  delay: index * 0.1,
-                }}
-                style={{ display: "inline-block" }}
-              >
-                {char}
-              </motion.span>
-            ))}
-          </motion.span>
-        </h1>
-        <motion.img
-          src="/exclamation_mark.svg"
-          alt="Exclamation Mark"
-          className="absolute right-0 top-1/5 transform -translate-y-1/2" // Moved up
-          initial={{ scale: 0 }}
-          animate={{ scale: 0.6 }}
-          transition={{ delay: 0.5, duration: 0.1 }}
-          drag
+    <main
+      className={`bg-gradient-to-r from-[#C41A17] to-[#E4321B] w-screen h-screen relative`}
+    >
+      <div className="absolute bottom-0 right-0 w-32 h-16 bg-[#048226] rounded-br-full transform rotate-180" />
+      {isClient && (
+        <motion.div
+          id="blob"
+          className="absolute inset-0 m-auto w-[400px] h-[400px] bg-[#820460]" // Made smaller
+          animate={controls}
+          initial={{ borderRadius: createBlob(), rotate: "0deg" }}
+          whileHover={{ scale: 1.1 }}
+          transition={{ type: "spring", stiffness: 100 }}
         />
-      </div>
+      )}
+      <h1 className="text-[#E5DACB] z-50 text-9xl text-center absolute inset-0 flex items-center justify-center">
+        <motion.span
+          className={`${soloviev.className} inline-block`}
+          initial={{ x: 30, y: -50, rotate: 2 }}
+          whileHover={{ scale: 1.2 }}
+          whileTap={{ scale: 0.8, rotate: 5 }}
+          drag
+          dragConstraints={{ left: -100, right: 100, top: -100, bottom: 100 }}
+          style={{ display: "inline-block" }}
+        >
+          {Array.from("Ben").map((char, index) => (
+            <motion.span
+              key={index}
+              initial={{ rotate: 0 }}
+              animate={{ rotate: [0, 5, -5, 0] }}
+              transition={{
+                repeat: Infinity,
+                repeatType: "mirror",
+                duration: 2,
+                delay: index * 0.1,
+              }}
+              style={{ display: "inline-block" }}
+            >
+              {char}
+            </motion.span>
+          ))}
+        </motion.span>
+        <motion.span
+          className={`${soloviev.className} inline-block`}
+          initial={{ rotate: -10 }}
+          whileHover={{ scale: 1.2 }}
+          whileTap={{ scale: 0.8, rotate: -5 }}
+          drag
+          dragConstraints={{ left: -100, right: 100, top: -100, bottom: 100 }}
+          style={{ display: "inline-block" }}
+        >
+          {Array.from("Klosky").map((char, index) => (
+            <motion.span
+              key={index}
+              initial={{ rotate: 0 }}
+              animate={{ rotate: [0, 5, -5, 0] }}
+              transition={{
+                repeat: Infinity,
+                repeatType: "mirror",
+                duration: 2,
+                delay: index * 0.1,
+              }}
+              style={{ display: "inline-block" }}
+            >
+              {char}
+            </motion.span>
+          ))}
+        </motion.span>
+      </h1>
+      <motion.img
+        src="/exclamation_mark.svg"
+        alt="Exclamation Mark"
+        className="absolute right-0 m-0 top-[5vw]"
+      />
+      <Link href="/test" className="absolute top-0 left-0 m-0">
+        <motion.img src="/mywork.svg" alt="My work" className="h-64 " />
+        <motion.h1
+          className={`${soloviev.className} text-[#E5DACB] absolute z-50 top-7 left-6 m-0 text-5xl inline-block`}
+          initial={{ rotate: -6 }}
+          whileHover={{ scale: 1.1, rotate: -2 }}
+          whileTap={{ scale: 0.8, rotate: 2 }}
+        >
+          Projects
+        </motion.h1>
+      </Link>
     </main>
   );
 }
