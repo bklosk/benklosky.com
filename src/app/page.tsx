@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 
 export default function Home() {
   const [activeSection, setActiveSection] = useState("home");
@@ -67,19 +68,41 @@ export default function Home() {
         className="h-screen bg-background transition-colors duration-300 snap-start snap-always relative"
       >
         <div className="absolute top-24 left-14 md:left-10 md:top-32 z-10">
-          <p className="text-foreground text-5xl font-black font-gotham text-left leading-tight tracking-tight">
-            Hey! <br /> I&apos;m Ben Klosky.
-          </p>
+          <motion.p
+            className="text-foreground text-5xl font-black font-gotham text-left leading-tight tracking-tight"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+          >
+            Hey!
+          </motion.p>
+          <motion.p
+            className="text-foreground text-5xl font-black font-gotham text-left leading-tight tracking-tight"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: "easeOut", delay: 0.8 }}
+          >
+            I&apos;m Ben Klosky.
+          </motion.p>
         </div>
 
         <div className="absolute top-96 mt-32 left-1/2 transform -translate-x-1/2 md:top-1/2 md:left-1/2 md:transform md:-translate-x-1/2 md:-translate-y-1/2 z-10">
-          <Image
-            src="/ben.png"
-            alt="Ben Klosky"
-            width={640}
-            height={640}
-            className="w-72 h-72 md:w-96 md:h-96 object-contain rounded-full"
-          />
+          <div className="relative">
+            <Image
+              src="/ben.png"
+              alt="Ben Klosky"
+              width={640}
+              height={640}
+              className="w-72 h-72 md:w-96 md:h-96 object-contain rounded-full relative z-10"
+            />
+            <Image
+              src="/bike.png"
+              alt="Ben Klosky"
+              width={640}
+              height={640}
+              className="w-72 h-72 md:w-96 md:h-96 object-contain rounded-full absolute top-1/3 left-3/4 transform -translate-x-1/2 -translate-y-1/2 rotate-[-50deg] z-0"
+            />
+          </div>
         </div>
 
         {/* Navigation Menu */}
@@ -143,7 +166,7 @@ export default function Home() {
         <div className="flex items-center justify-center h-full">
           <div className="text-center">
             <h2 className="text-foreground text-4xl font-black font-gotham mb-8">
-              jobs i've held
+              jobs i&apos;ve held
             </h2>
           </div>
         </div>
