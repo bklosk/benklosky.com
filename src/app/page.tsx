@@ -1,148 +1,146 @@
 "use client";
-import { useEffect, useState } from "react";
-import { motion, useAnimation } from "framer-motion";
-import localFont from "next/font/local";
-import Link from "next/link";
 
-const soloviev = localFont({ src: "./Soloviev.otf" });
+import Image from "next/image";
+import { useState, useEffect } from "react";
 
-function createBlob() {
-  const random = (min: number, max: number) =>
-    Math.floor(min + Math.random() * (max - min));
-  let offset = 10;
-  let r = [];
-  for (let i = 0; i < 4; i++) {
-    let n = random(offset, 100 - offset);
-    r.push(n);
-    r.push(100 - n);
-  }
-  return `${r[0]}% ${r[1]}% ${r[2]}% ${r[3]}% / ${r[4]}% ${r[6]}% ${r[7]}% ${r[5]}%`;
-}
-
-export default function Page() {
-  const [isClient, setIsClient] = useState(false);
-  const controls = useAnimation();
+export default function Home() {
+  const [activeSection, setActiveSection] = useState("home");
 
   useEffect(() => {
-    setIsClient(true);
+    const handleScroll = () => {
+      const mainElement = document.querySelector("main");
+      if (!mainElement) return;
+
+      const sections = ["home", "about"];
+      const scrollPosition =
+        mainElement.scrollTop + mainElement.clientHeight / 2;
+
+      for (const section of sections) {
+        const element = document.getElementById(section);
+        if (element) {
+          const offsetTop = element.offsetTop;
+          const height = element.offsetHeight;
+
+          if (
+            scrollPosition >= offsetTop &&
+            scrollPosition < offsetTop + height
+          ) {
+            setActiveSection(section);
+            break;
+          }
+        }
+      }
+    };
+
+    const mainElement = document.querySelector("main");
+    if (mainElement) {
+      mainElement.addEventListener("scroll", handleScroll);
+      return () => mainElement.removeEventListener("scroll", handleScroll);
+    }
   }, []);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      controls.start({
-        borderRadius: createBlob(),
-        rotate: "+=40deg",
-        transition: { duration: 2 },
-      });
-    }, 900); // Change every 3 seconds
-
-    return () => clearInterval(interval);
-  }, [controls]);
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+  };
 
   return (
-    <main className="">
-      <div
-        className={`bg-gradient-to-r from-[#C41A17] to-[#E4321B] w-screen h-screen relative`}
+    <main
+      className="h-screen overflow-y-scroll snap-y snap-mandatory snap-container"
+      style={{ scrollSnapType: "y mandatory" }}
+    >
+      {/* First Section */}
+      <section
+        id="home"
+        className="h-screen bg-background transition-colors duration-300 snap-start snap-always relative"
       >
-        {isClient ? (
-          <>
-            <motion.div
-              id="blob"
-              className="absolute inset-0 m-auto w-[400px] h-[400px] bg-[#820460]" // Made smaller
-              animate={controls}
-              initial={{ borderRadius: createBlob(), rotate: "0deg" }}
-              whileHover={{ scale: 1.1 }}
-              transition={{ type: "spring", stiffness: 100 }}
-            />
-            <h1 className="text-[#E5DACB] z-50 text-9xl text-center absolute inset-0 flex items-center justify-center">
-              <motion.span
-                className={`${soloviev.className} inline-block`}
-                initial={{ x: 30, y: -50, rotate: 2 }}
-                whileHover={{ scale: 1.2 }}
-                whileTap={{ scale: 0.8, rotate: 5 }}
-                drag
-                dragConstraints={{
-                  left: -100,
-                  right: 100,
-                  top: -100,
-                  bottom: 100,
-                }}
-                style={{ display: "inline-block" }}
-              >
-                {Array.from("Ben").map((char, index) => (
-                  <motion.span
-                    key={index}
-                    initial={{ rotate: 0 }}
-                    animate={{ rotate: [0, 5, -5, 0] }}
-                    transition={{
-                      repeat: Infinity,
-                      repeatType: "mirror",
-                      duration: 3,
-                      delay: index * 0.1,
-                    }}
-                    style={{ display: "inline-block" }}
-                  >
-                    {char}
-                  </motion.span>
-                ))}
-              </motion.span>
-              <motion.span
-                className={`${soloviev.className} inline-block mt-20`}
-                initial={{ rotate: -10 }}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.8, rotate: -5 }}
-                drag
-                dragConstraints={{
-                  left: -100,
-                  right: 100,
-                  top: -100,
-                  bottom: 100,
-                }}
-                style={{ display: "inline-block" }}
-              >
-                {Array.from("Klosky").map((char, index) => (
-                  <motion.span
-                    key={index}
-                    initial={{ rotate: 0 }}
-                    animate={{ rotate: [0, 5, -5, 0] }}
-                    transition={{
-                      repeat: Infinity,
-                      repeatType: "mirror",
-                      duration: 3,
-                      delay: index * 0.1,
-                    }}
-                    style={{ display: "inline-block" }}
-                  >
-                    {char}
-                  </motion.span>
-                ))}
-              </motion.span>
-            </h1>
-          </>
-        ) : (
-          ""
-        )}
+        <div className="absolute top-24 left-14 md:left-10 md:top-32 z-10">
+          <p className="text-foreground text-5xl font-black font-gotham text-left leading-tight tracking-tight">
+            Hey! <br /> I&apos;m Ben Klosky.
+          </p>
+        </div>
 
-        <Link href="/test" className="absolute top-0 left-0 m-0">
-          <motion.img src="/mywork.svg" alt="My work" className="h-64 " />
-          <motion.h1
-            className={`${soloviev.className} text-[#E5DACB] absolute z-50 top-7 left-6 m-0 text-5xl inline-block`}
-            initial={{ rotate: -6 }}
-            whileHover={{ scale: 1.1, rotate: -2 }}
-            whileTap={{ scale: 0.8, rotate: 2 }}
-          >
-            Projects
-          </motion.h1>
-        </Link>
-        <motion.div
-          className="absolute -bottom-8 -right-8 m-4 w-[200px] h-[200px] bg-[#097812]"
-          animate={controls}
-          initial={{ borderRadius: createBlob(), rotate: "0deg" }}
-          whileHover={{ scale: 1.1 }}
-          transition={{ type: "spring", stiffness: 100 }}
-        />
-      </div>
-      <div className="bg-gradient-to-r from-[#C41A17] to-[#E4321B] w-screen h-screen relative" />
+        <div className="absolute top-96 mt-8 left-1/2 transform -translate-x-1/2 md:top-1/2 md:left-1/2 md:transform md:-translate-x-1/2 md:-translate-y-1/2 z-10">
+          <Image
+            src="/ben.png"
+            alt="Ben Klosky"
+            width={640}
+            height={640}
+            className="w-72 h-72 md:w-96 md:h-96 object-contain rounded-full"
+          />
+        </div>
+
+        {/* Navigation Menu */}
+        <div className="fixed bottom-8 right-8 z-20">
+          <nav className="flex flex-col space-y-3">
+            <div className="flex items-center space-x-3">
+              <button
+                onClick={() => scrollToSection("home")}
+                className={`text-sm font-medium transition-all duration-300 ${
+                  activeSection === "home"
+                    ? "text-foreground opacity-100"
+                    : "text-foreground opacity-40 hover:opacity-70"
+                }`}
+                aria-label="Go to home section"
+              >
+                Home
+              </button>
+              <button
+                onClick={() => scrollToSection("home")}
+                className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                  activeSection === "home"
+                    ? "bg-foreground opacity-100 scale-110"
+                    : "bg-foreground opacity-40 hover:opacity-70"
+                }`}
+                aria-label="Go to home section"
+              />
+            </div>
+            <div className="flex items-center space-x-3">
+              <button
+                onClick={() => scrollToSection("about")}
+                className={`text-sm font-medium transition-all duration-300 ${
+                  activeSection === "about"
+                    ? "text-foreground opacity-100"
+                    : "text-foreground opacity-40 hover:opacity-70"
+                }`}
+                aria-label="Go to about section"
+              >
+                About
+              </button>
+              <button
+                onClick={() => scrollToSection("about")}
+                className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                  activeSection === "about"
+                    ? "bg-foreground opacity-100 scale-110"
+                    : "bg-foreground opacity-40 hover:opacity-70"
+                }`}
+                aria-label="Go to about section"
+              />
+            </div>
+          </nav>
+        </div>
+      </section>
+
+      {/* Second Section - Placeholder */}
+      <section
+        id="about"
+        className="h-screen bg-background transition-colors duration-300 snap-start snap-always relative"
+      >
+        <div className="flex items-center justify-center h-full">
+          <div className="text-center">
+            <h2 className="text-foreground text-4xl font-black font-gotham mb-8">
+              About Me
+            </h2>
+            <p className="text-foreground text-lg max-w-2xl mx-auto px-6 leading-relaxed">
+              This is a placeholder section. You can add your content here -
+              perhaps information about your background, skills, projects, or
+              whatever you&apos;d like to share.
+            </p>
+          </div>
+        </div>
+      </section>
     </main>
   );
 }

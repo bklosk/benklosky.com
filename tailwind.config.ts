@@ -14,6 +14,7 @@ export default {
       },
       fontFamily: {
         soloviev: ["var(--font-soloviev)"],
+        gotham: ["Gotham", "Arial", "sans-serif"],
       },
     },
   },
