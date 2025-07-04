@@ -52,6 +52,14 @@ export default function HomeSection() {
             className="w-72 h-72 md:w-96 md:h-96 object-contain rounded-full absolute top-1/4 left-1/6 transform -translate-x-1/2 -translate-y-1/2 rotate-[70deg] z-0 grayscale"
             style={{ left: "calc(10%)" }}
           />
+          <Image
+            src="/tat.png"
+            alt="Ben Klosky"
+            width={640}
+            height={640}
+            className="w-48 h-48 md:w-64 md:h-64 object-contain rounded-full absolute top-3/4 left-1/6 transform -translate-x-1/2 -translate-y-1/2 rotate-[70deg] z-20 grayscale"
+            style={{ left: "calc(10%)" }}
+          />
         </div>
       </div>
     </section>
