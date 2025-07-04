@@ -17,20 +17,19 @@ export default function HireMeSection() {
             transition={{ duration: 0.6, ease: "easeOut" }}
             viewport={{ once: true }}
           >
-            Let&apos;s work together
+            work with me!
           </motion.h2>
 
           <motion.p
-            className="text-foreground text-lg mb-8 leading-relaxed"
+            className="text-foreground text-lg mb-8 max-w-lg leading-relaxed"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
             viewport={{ once: true }}
           >
-            I&apos;m always excited to take on new challenges and collaborate on
-            innovative projects. Whether you need help with web development,
-            design, or have an interesting idea to explore, I&apos;d love to
-            hear from you.
+            I build things quickly. I like untangling gnarly problems. I’ve
+            shipped full-stack ML apps, closed seven-figure deals, and designed
+            all kinds of products. If you need a problem solver, let’s talk.
           </motion.p>
 
           <motion.div
@@ -41,18 +40,18 @@ export default function HireMeSection() {
             viewport={{ once: true }}
           >
             <a
-              href="mailto:your-email@example.com"
-              className="bg-foreground text-background px-8 py-3 rounded-lg font-bold hover:opacity-80 transition-opacity duration-200"
+              href="mailto:ben.klosky@gmail.com"
+              className="bg-foreground text-background px-8 py-3 rounded-lg font-bold border-2 border-foreground hover:bg-background hover:text-foreground transition-colors duration-200"
             >
-              Get in touch
+              Email me
             </a>
             <a
-              href="/resume.pdf"
+              href="https://cal.com/benklosky/15min"
               target="_blank"
               rel="noopener noreferrer"
               className="border-2 border-foreground text-foreground px-8 py-3 rounded-lg font-bold hover:bg-foreground hover:text-background transition-colors duration-200"
             >
-              View resume
+              Schedule a call
             </a>
           </motion.div>
 

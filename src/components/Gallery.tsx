@@ -11,6 +11,7 @@ interface GalleryItem {
   width: number;
   height: number;
   alt: string;
+  caption?: string;
 }
 
 interface GalleryProps {
@@ -49,6 +50,43 @@ export default function Gallery({ items, galleryID }: GalleryProps) {
         zoomTitle: "Zoom",
         arrowPrevTitle: "Previous (arrow left)",
         arrowNextTitle: "Next (arrow right)",
+      });
+
+      // Register custom caption element
+      lightbox.on("uiRegister", function () {
+        if (!lightbox?.pswp?.ui) return;
+
+        lightbox.pswp.ui.registerElement({
+          name: "custom-caption",
+          order: 9,
+          isButton: false,
+          appendTo: "root",
+          html: "Caption text",
+          onInit: (el) => {
+            // Style the caption element using Tailwind classes
+            el.className =
+              "fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-black/75 text-white px-4 py-2 rounded max-w-md mx-4 text-sm text-center backdrop-blur-sm";
+
+            lightbox?.pswp?.on("change", () => {
+              const currSlideElement = lightbox?.pswp?.currSlide?.data?.element;
+              let captionHTML = "";
+              if (currSlideElement) {
+                const hiddenCaption = currSlideElement.querySelector(
+                  ".hidden-caption-content"
+                );
+                if (hiddenCaption) {
+                  // Get caption from element with class hidden-caption-content
+                  captionHTML = hiddenCaption.innerHTML;
+                } else {
+                  // Get caption from alt attribute as fallback
+                  const img = currSlideElement.querySelector("img");
+                  captionHTML = img ? img.getAttribute("alt") || "" : "";
+                }
+              }
+              el.innerHTML = captionHTML || "";
+            });
+          },
+        });
       });
 
       lightbox.init();
@@ -101,6 +139,11 @@ export default function Gallery({ items, galleryID }: GalleryProps) {
                 className="object-cover hover:scale-105 transition-transform duration-300"
               />
             </div>
+            {item.caption && (
+              <div className="hidden-caption-content hidden">
+                {item.caption}
+              </div>
+            )}
           </a>
         );
       })}
