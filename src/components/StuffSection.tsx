@@ -3,61 +3,23 @@
 import { motion } from "framer-motion";
 import Gallery from "./Gallery";
 
-// Placeholder images using picsum.photos for demonstration
+// Gallery items using local images
 const galleryItems = [
   {
-    src: "https://picsum.photos/1200/800?random=1",
-    thumbnail: "https://picsum.photos/400/267?random=1",
+    src: "/gallery/risc.png",
+    thumbnail: "/gallery/risc.png",
     width: 1200,
     height: 800,
-    alt: "Project 1 - Web Development",
-    caption:
-      "A modern web application built with React and TypeScript. Features responsive design and interactive user interface.",
+    alt: "RISC Project",
+    caption: "RISC processor implementation and design work.",
   },
   {
-    src: "https://picsum.photos/800/1200?random=2",
-    thumbnail: "https://picsum.photos/400/600?random=2",
+    src: "/gallery/tll.png",
+    thumbnail: "/gallery/tll.png",
     width: 800,
     height: 1200,
-    alt: "Project 2 - Design Work",
-    caption:
-      "Creative design work showcasing modern aesthetics and user-centered design principles.",
-  },
-  {
-    src: "https://picsum.photos/1000/1000?random=3",
-    thumbnail: "https://picsum.photos/400/400?random=3",
-    width: 1000,
-    height: 1000,
-    alt: "Project 3 - Mobile App",
-    caption:
-      "Native mobile application with intuitive navigation and seamless user experience across platforms.",
-  },
-  {
-    src: "https://picsum.photos/1600/800?random=4",
-    thumbnail: "https://picsum.photos/400/200?random=4",
-    width: 1600,
-    height: 800,
-    alt: "Project 4 - Branding",
-    caption:
-      "Complete brand identity package including logo design, color palette, and typography system.",
-  },
-  {
-    src: "https://picsum.photos/900/1200?random=5",
-    thumbnail: "https://picsum.photos/400/533?random=5",
-    width: 900,
-    height: 1200,
-    alt: "Project 5 - Photography",
-    caption:
-      "Professional photography work capturing moments with artistic composition and lighting.",
-  },
-  {
-    src: "https://picsum.photos/1200/900?random=6",
-    thumbnail: "https://picsum.photos/400/300?random=6",
-    width: 1200,
-    height: 900,
-    alt: "Project 6 - Art Direction",
-    caption:
-      "Art direction and visual storytelling for multimedia campaigns and digital content.",
+    alt: "TLL Project",
+    caption: "TLL project showcasing technical implementation.",
   },
 ];
 

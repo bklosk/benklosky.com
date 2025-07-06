@@ -2,8 +2,12 @@
 
 import { useEffect, useRef } from "react";
 import Image from "next/image";
-import PhotoSwipeLightbox from "photoswipe/lightbox";
-import "photoswipe/style.css";
+import { motion } from "framer-motion";
+import "glightbox/dist/css/glightbox.min.css";
+
+// Dynamic imports for GLightbox and Macy
+const loadGLightbox = () => import("glightbox");
+const loadMacy = () => import("macy");
 
 interface GalleryItem {
   src: string;
@@ -23,130 +27,102 @@ export default function Gallery({ items, galleryID }: GalleryProps) {
   const galleryRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    let lightbox: PhotoSwipeLightbox | null = null;
+    let macy: { destroy: () => void } | null = null;
+    let glightbox: { destroy: () => void } | null = null;
 
-    if (galleryRef.current) {
-      lightbox = new PhotoSwipeLightbox({
-        gallery: `#${galleryID}`,
-        children: "a",
-        pswpModule: () => import("photoswipe"),
-        bgOpacity: 0.9,
-        showHideAnimationType: "zoom",
-        initialZoomLevel: "fit",
-        secondaryZoomLevel: 1.5,
-        maxZoomLevel: 3,
-        wheelToZoom: true,
-        pinchToClose: true,
-        closeOnVerticalDrag: true,
-        padding: { top: 20, bottom: 40, left: 100, right: 100 },
-        spacing: 0.12,
-        allowPanToNext: true,
-        loop: true,
-        tapAction: "close",
-        doubleTapAction: "zoom",
-        preloaderDelay: 2000,
-        errorMsg: "Image cannot be loaded",
-        closeTitle: "Close (Esc)",
-        zoomTitle: "Zoom",
-        arrowPrevTitle: "Previous (arrow left)",
-        arrowNextTitle: "Next (arrow right)",
-      });
+    const initializeGallery = async () => {
+      try {
+        // Initialize Macy for masonry layout
+        const MacyModule = await loadMacy();
+        const MacyClass = MacyModule.default;
 
-      // Register custom caption element
-      lightbox.on("uiRegister", function () {
-        if (!lightbox?.pswp?.ui) return;
+        if (galleryRef.current) {
+          macy = new MacyClass({
+            container: `#${galleryID}`,
+            trueOrder: false,
+            waitForImages: true,
+            margin: 8,
+            columns: 4,
+            breakAt: {
+              1024: 3,
+              768: 2,
+              640: 1,
+            },
+          });
+        }
 
-        lightbox.pswp.ui.registerElement({
-          name: "custom-caption",
-          order: 9,
-          isButton: false,
-          appendTo: "root",
-          html: "Caption text",
-          onInit: (el) => {
-            // Style the caption element using Tailwind classes
-            el.className =
-              "fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-black/75 text-white px-4 py-2 rounded max-w-md mx-4 text-sm text-center backdrop-blur-sm";
+        // Initialize GLightbox
+        const GLightboxModule = await loadGLightbox();
+        const GLightboxClass = GLightboxModule.default;
 
-            lightbox?.pswp?.on("change", () => {
-              const currSlideElement = lightbox?.pswp?.currSlide?.data?.element;
-              let captionHTML = "";
-              if (currSlideElement) {
-                const hiddenCaption = currSlideElement.querySelector(
-                  ".hidden-caption-content"
-                );
-                if (hiddenCaption) {
-                  // Get caption from element with class hidden-caption-content
-                  captionHTML = hiddenCaption.innerHTML;
-                } else {
-                  // Get caption from alt attribute as fallback
-                  const img = currSlideElement.querySelector("img");
-                  captionHTML = img ? img.getAttribute("alt") || "" : "";
-                }
-              }
-              el.innerHTML = captionHTML || "";
-            });
-          },
+        glightbox = new GLightboxClass({
+          selector: `#${galleryID} [data-glightbox]`,
+          loop: true,
+          openEffect: "fade",
+          closeEffect: "fade",
+          slideEffect: "slide",
+          moreText: "See more",
+          moreLength: 60,
+          closeButton: true,
+          touchNavigation: true,
+          keyboardNavigation: true,
+          closeOnOutsideClick: true,
         });
-      });
+      } catch (error) {
+        console.error("Error initializing gallery:", error);
+      }
+    };
 
-      lightbox.init();
-    }
+    initializeGallery();
 
     return () => {
-      if (lightbox) {
-        lightbox.destroy();
+      if (macy && typeof macy.destroy === "function") {
+        macy.destroy();
+      }
+      if (glightbox && typeof glightbox.destroy === "function") {
+        glightbox.destroy();
       }
     };
   }, [galleryID]);
+
   return (
-    <div
-      ref={galleryRef}
-      id={galleryID}
-      className="columns-2 md:columns-3 lg:columns-4 gap-2 max-w-4xl mx-auto px-4 pr-20"
-    >
-      {items.map((item, index) => {
-        // Calculate aspect ratio for dynamic sizing
-        const aspectRatio = item.width / item.height;
-        const isWide = aspectRatio > 1.5;
-        const isTall = aspectRatio < 0.7;
-
-        // Simple height classes based on aspect ratio
-        let heightClass = "h-40";
-        if (isWide) {
-          heightClass = "h-32";
-        } else if (isTall) {
-          heightClass = "h-48";
-        }
-
-        return (
+    <div ref={galleryRef} id={galleryID} className="max-w-6xl mx-auto px-4">
+      {items.map((item, index) => (
+        <div
+          key={index}
+          className="mb-2 break-inside-avoid cursor-pointer group"
+        >
           <a
-            key={index}
             href={item.src}
-            data-pswp-width={item.width}
-            data-pswp-height={item.height}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="block cursor-pointer mb-2 break-inside-avoid"
+            data-glightbox={`title: ${item.caption || item.alt}; description: ${
+              item.caption || ""
+            }`}
+            data-gallery={galleryID}
+            className="block relative overflow-hidden rounded-lg"
           >
-            <div
-              className={`relative ${heightClass} bg-gray-100 overflow-hidden`}
-            >
+            <div className="relative overflow-hidden">
               <Image
                 src={item.thumbnail}
                 alt={item.alt}
-                fill
-                sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                className="object-cover hover:scale-105 transition-transform duration-300"
+                width={item.width}
+                height={item.height}
+                sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                className="w-full h-auto hover:scale-105 transition-transform duration-300"
               />
+              {item.caption && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  whileHover={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="absolute bottom-0 left-0 right-0 bg-black/75 text-white p-3 text-sm backdrop-blur-sm"
+                >
+                  {item.caption}
+                </motion.div>
+              )}
             </div>
-            {item.caption && (
-              <div className="hidden-caption-content hidden">
-                {item.caption}
-              </div>
-            )}
           </a>
-        );
-      })}
+        </div>
+      ))}
     </div>
   );
 }

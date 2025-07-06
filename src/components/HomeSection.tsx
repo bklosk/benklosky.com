@@ -37,31 +37,6 @@ export default function HomeSection() {
             height={640}
             className="w-72 h-72 md:w-96 md:h-96 object-contain rounded-full relative z-10 "
           />
-          <Image
-            src="/bike.png"
-            alt="Ben Klosky"
-            width={640}
-            height={640}
-            className="w-72 h-72 md:w-96 md:h-96 object-contain rounded-full absolute top-1/3 left-3/4 transform -translate-x-1/2 -translate-y-1/2 rotate-[-50deg] z-0 grayscale"
-          />
-          <Image
-            src="/piano.png"
-            alt="Ben Klosky"
-            width={640}
-            height={640}
-            className="w-72 h-72 md:w-96 md:h-96 object-contain rounded-full absolute top-1/4 left-1/6 transform -translate-x-1/2 -translate-y-1/2 rotate-[70deg] z-0 grayscale"
-            style={{ left: "calc(10%)" }}
-          />
-          <Image
-            src="/sisyphus.png"
-            alt="Ben Klosky"
-            width={640}
-            height={640}
-            className="w-72 h-72 md:w-96 md:h-96 object-contain rounded-full absolute bottom-0 right-0 transform translate-x-1/2 z-5 grayscale"
-            style={{
-              transform: "translateX(50%) translateY(calc(25% - 45px))",
-            }}
-          />
         </div>
       </div>
     </section>
