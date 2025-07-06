@@ -177,7 +177,7 @@ export default function Gallery({ items, galleryID }: GalleryProps) {
               initial={{ backdropFilter: "blur(0px)" }}
               animate={{ backdropFilter: "blur(20px)" }}
               exit={{ backdropFilter: "blur(0px)" }}
-              transition={{ duration: 0.3, ease: "easeInOut" }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
               className="absolute inset-0 bg-black/20"
             />
 
@@ -186,7 +186,7 @@ export default function Gallery({ items, galleryID }: GalleryProps) {
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.8, opacity: 0 }}
-              transition={{ duration: 0.2, ease: "easeOut" }}
+              transition={{ duration: 0.2, ease: "easeOut", delay: 0.1 }}
               className="relative max-w-7xl w-full h-full flex flex-col md:flex-row items-center justify-center gap-4 md:gap-6 p-4 md:p-8"
             >
               {/* Main image */}
