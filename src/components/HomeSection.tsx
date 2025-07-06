@@ -53,12 +53,14 @@ export default function HomeSection() {
             style={{ left: "calc(10%)" }}
           />
           <Image
-            src="/tat.png"
+            src="/sisyphus.png"
             alt="Ben Klosky"
             width={640}
             height={640}
-            className="w-48 h-48 md:w-64 md:h-64 object-contain rounded-full absolute top-3/4 left-1/6 transform -translate-x-1/2 -translate-y-1/2 rotate-[70deg] z-20 grayscale"
-            style={{ left: "calc(10%)" }}
+            className="w-72 h-72 md:w-96 md:h-96 object-contain rounded-full absolute bottom-0 right-0 transform translate-x-1/2 z-5 grayscale"
+            style={{
+              transform: "translateX(50%) translateY(calc(25% - 45px))",
+            }}
           />
         </div>
       </div>
