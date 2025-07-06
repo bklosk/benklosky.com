@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "framer-motion": "^11.15.0",
-    "glightbox": "^3.3.1",
     "macy": "^2.5.1",
     "motion": "^11.15.0",
     "next": "15.1.3",
