@@ -1,0 +1,21 @@
+import { StaticImageData } from "next/image";
+
+// View types for navigation
+export type ViewType = "home" | "about" | "resume" | "project";
+
+// Project data structure
+export interface Project {
+  id: number;
+  title: string;
+  subtitle: string;
+  category: string;
+  year: string;
+  image: string | StaticImageData;
+  color: string;
+}
+
+// About content structure
+export interface AboutContent {
+  image: string | StaticImageData;
+  blurb: string;
+}

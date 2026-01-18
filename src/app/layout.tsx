@@ -18,8 +18,8 @@ const satoshi = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Ben Klosky | Portfolio",
-  description: "Personal portfolio showcasing projects and work",
+  title: "Ben Klosky",
+  description: "Economist and developer based in Chicago, looking for opportunities at San Francisco area startups.",
 };
 
 export default function RootLayout({
