@@ -1,0 +1,16 @@
+{
+  "colors": {
+    "tiger-flame": "#ff6933ff",
+    "taupe": "#463f3aff",
+    "parchment": "#f4f3eeff",
+    "wisteria-blue": "#8b95c9ff",
+    "dusty-olive": "#7f9172ff"
+  },
+  "semantic": {
+    "background": "parchment",
+    "foreground": "taupe",
+    "accent": "tiger-flame",
+    "secondary": "wisteria-blue",
+    "tertiary": "dusty-olive"
+  }
+}

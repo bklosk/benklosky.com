@@ -1,26 +1,149 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --tiger-flame: #ff6933;
+  --taupe: #463f3a;
+  --parchment: #f4f3ee;
+  --wisteria-blue: #8b95c9;
+  --dusty-olive: #7f9172;
+  
+  --background: var(--parchment);
+  --foreground: var(--taupe);
+  --accent: var(--tiger-flame);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-accent: var(--accent);
+  --color-tiger-flame: var(--tiger-flame);
+  --color-taupe: var(--taupe);
+  --color-parchment: var(--parchment);
+  --color-wisteria-blue: var(--wisteria-blue);
+  --color-dusty-olive: var(--dusty-olive);
+  --font-satoshi: var(--font-satoshi);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-satoshi), system-ui, sans-serif;
+  overflow: hidden;
+}
+
+/* Monospace styling for brackets and numbers */
+.mono {
+  font-family: "SF Mono", "Fira Code", "Fira Mono", "Roboto Mono", "Courier New", monospace;
+  letter-spacing: 0.08em;
+  font-weight: 400;
+}
+
+/* Vertical text helper */
+.vertical-text {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  transform: rotate(180deg);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 3px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--taupe);
+  border-radius: 2px;
+  opacity: 0.3;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--tiger-flame);
+}
+
+/* Selection */
+::selection {
+  background: var(--tiger-flame);
+  color: var(--parchment);
+}
+
+/* Subtle texture overlay */
+.texture-overlay {
+  position: relative;
+}
+
+.texture-overlay::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  opacity: 0.015;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Line styling */
+.divider-line {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--taupe), transparent);
+  opacity: 0.15;
+}
+
+/* Link hover effect */
+.link-hover {
+  position: relative;
+  display: inline-block;
+}
+
+.link-hover::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: var(--tiger-flame);
+  transition: width 0.3s ease;
+}
+
+.link-hover:hover::after {
+  width: 100%;
+}
+
+/* Project image styling */
+.project-image {
+  box-shadow: 0 4px 20px rgba(70, 63, 58, 0.08);
+}
+
+/* Thumbnail active state */
+.thumbnail-active {
+  box-shadow: 0 0 0 2px var(--tiger-flame);
+}
+
+/* Focus styles */
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--tiger-flame);
+  outline-offset: 2px;
+}
+
+/* Hide scrollbar utility */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }
