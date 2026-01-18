@@ -4,6 +4,9 @@ import { useState, useCallback, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import Image from "next/image";
 
+// View types
+type ViewType = "home" | "about" | "resume" | "project";
+
 // Project data - replace with your actual projects
 const projects = [
   {
@@ -89,7 +92,17 @@ const projects = [
   },
 ];
 
-const bio = "CRAFTING DIGITAL EXPERIENCES WITH CODE AND CREATIVITY. FOCUSED ON BUILDING ELEGANT, PERFORMANT SOLUTIONS THAT PUSH BOUNDARIES.";
+const bio = "RESUME. ABOUT ME. CONTACT. ";
+
+// About content
+const aboutContent = {
+  image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&q=80",
+  blurb: `I'm an economist and developer based in Chicago, looking for opportunities at San Francisco area startups.
+  
+  I work for Steve Levitt (of *Freakonomics* fame) at the Center for Radical Innovation for Social Change at the University of Chicago, where I design and pilot solutions to the world's hardest problems. 
+  
+  I was an apprentice at a police department while I went to community college. I've worked as a machine learning engineer and did labor/workforce research at the Urban Institute. I have a masters degree in economics. (Yes, I took real analysis.)`,
+};
 
 // Animation variants
 const slideVariants = {
@@ -121,6 +134,7 @@ const staggerContainer = {
 };
 
 export default function Home() {
+  const [currentView, setCurrentView] = useState<ViewType>("home");
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [direction, setDirection] = useState(0);
 
@@ -137,9 +151,18 @@ export default function Home() {
         setDirection(1);
       }
       setSelectedIndex(index);
+      setCurrentView("project");
     },
     [selectedIndex]
   );
+
+  const handleViewChange = useCallback((view: ViewType) => {
+    setDirection(1);
+    setCurrentView(view);
+    if (view !== "project") {
+      setSelectedIndex(null);
+    }
+  }, []);
 
   const handlePrevious = useCallback(() => {
     if (selectedIndex !== null && selectedIndex > 0) {
@@ -158,19 +181,20 @@ export default function Home() {
   const handleClose = useCallback(() => {
     setDirection(0);
     setSelectedIndex(null);
+    setCurrentView("home");
   }, []);
 
-  // Handle Escape key to close project view
+  // Handle Escape key to close views
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && selectedIndex !== null) {
+      if (event.key === "Escape" && currentView !== "home") {
         handleClose();
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedIndex, handleClose]);
+  }, [currentView, handleClose]);
 
   return (
     <div className="fixed inset-0 flex flex-col lg:flex-row bg-parchment overflow-hidden texture-overlay">
@@ -182,7 +206,7 @@ export default function Home() {
         transition={{ duration: 0.5, delay: 0.1 }}
       >
         <h1 className="text-base font-bold text-taupe tracking-[0.2em]">BEN KLOSKY</h1>
-        <p className="text-[10px] mono text-taupe/60">[SOFTWARE ENGINEER]</p>
+        <p className="text-[10px] mono text-taupe/60">[ECONOMIST / DEVELOPER]</p>
       </motion.header>
 
       {/* Left Sidebar - Vertical Bio */}
@@ -203,7 +227,7 @@ export default function Home() {
       {/* Main Content Area */}
       <main className="flex-1 lg:ml-14 xl:ml-16 lg:mr-28 xl:mr-36 flex flex-col overflow-hidden relative z-10 pb-28 lg:pb-0 lg:h-screen">
         <AnimatePresence mode="wait" custom={direction}>
-          {selectedProject ? (
+          {currentView === "project" && selectedProject ? (
             /* Selected Project View */
             <motion.div
               key={`project-${selectedProject.id}`}
@@ -284,6 +308,154 @@ export default function Home() {
                 </button>
               </motion.div>
             </motion.div>
+          ) : currentView === "about" ? (
+            /* About View */
+            <motion.div
+              key="about"
+              className="flex-1 flex flex-col p-4 lg:p-8 xl:p-12 overflow-hidden"
+              custom={direction}
+              variants={slideVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{
+                y: { type: "spring", stiffness: 300, damping: 30 },
+                opacity: { duration: 0.3 },
+              }}
+            >
+              {/* About Header */}
+              <motion.div
+                className="flex-shrink-0 mb-4 lg:mb-6 text-center"
+                initial={{ opacity: 0, y: -15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15, duration: 0.4 }}
+              >
+                <h2 className="text-base lg:text-lg xl:text-xl font-bold text-taupe uppercase tracking-[0.15em]">
+                  About Me
+                </h2>
+                <p className="mono text-[10px] lg:text-xs text-taupe/50 mt-1">
+                  [WHO I AM]
+                </p>
+              </motion.div>
+
+              {/* About Content */}
+              <motion.div
+                className="flex-1 relative min-h-0 flex flex-col lg:flex-row items-center justify-center gap-6 lg:gap-10 overflow-y-auto"
+                initial={{ opacity: 0, scale: 0.96 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.1, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+              >
+                {/* Photo */}
+                <div className="relative w-40 h-40 lg:w-56 lg:h-56 xl:w-64 xl:h-64 flex-shrink-0">
+                  <Image
+                    src={aboutContent.image}
+                    alt="Ben Klosky"
+                    fill
+                    className="object-cover project-image"
+                    sizes="(max-width: 768px) 160px, (max-width: 1200px) 224px, 256px"
+                    priority
+                  />
+                </div>
+                
+                {/* Bio Text */}
+                <div className="max-w-md lg:max-w-lg text-center lg:text-left">
+                  <p className="text-xs lg:text-sm text-taupe/80 leading-relaxed whitespace-pre-line">
+                    {aboutContent.blurb}
+                  </p>
+                </div>
+              </motion.div>
+
+              {/* Close button */}
+              <motion.div
+                className="flex-shrink-0 flex justify-center items-center mt-4 lg:mt-8"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.25, duration: 0.4 }}
+              >
+                <button
+                  onClick={handleClose}
+                  className="mono text-[10px] lg:text-xs text-taupe/40 hover:text-tiger-flame transition-colors duration-200"
+                >
+                  [ESC TO CLOSE]
+                </button>
+              </motion.div>
+            </motion.div>
+          ) : currentView === "resume" ? (
+            /* Resume View */
+            <motion.div
+              key="resume"
+              className="flex-1 flex flex-col p-4 lg:p-8 xl:p-12 overflow-hidden"
+              custom={direction}
+              variants={slideVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{
+                y: { type: "spring", stiffness: 300, damping: 30 },
+                opacity: { duration: 0.3 },
+              }}
+            >
+              {/* Resume Header */}
+              <motion.div
+                className="flex-shrink-0 mb-4 lg:mb-6 text-center"
+                initial={{ opacity: 0, y: -15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15, duration: 0.4 }}
+              >
+                <h2 className="text-base lg:text-lg xl:text-xl font-bold text-taupe uppercase tracking-[0.15em]">
+                  Resume
+                </h2>
+                <p className="mono text-[10px] lg:text-xs text-taupe/50 mt-1">
+                  [CURRICULUM VITAE]
+                </p>
+              </motion.div>
+
+              {/* PDF Embed */}
+              <motion.div
+                className="flex-1 relative min-h-0 flex items-center justify-center"
+                initial={{ opacity: 0, scale: 0.96 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.1, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+              >
+                <div className="relative w-full max-w-2xl xl:max-w-3xl h-full max-h-[70vh]">
+                  <iframe
+                    src="/resume.pdf"
+                    className="w-full h-full border-0 project-image"
+                    title="Ben Klosky Resume"
+                  />
+                </div>
+              </motion.div>
+
+              {/* Actions */}
+              <motion.div
+                className="flex-shrink-0 flex justify-between items-center mt-4 lg:mt-8 px-2 lg:px-8 xl:px-16"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.25, duration: 0.4 }}
+              >
+                <a
+                  href="/resume.pdf"
+                  download
+                  className="mono text-xs lg:text-sm text-taupe hover:text-tiger-flame transition-colors duration-200 tracking-wider"
+                >
+                  DOWNLOAD PDF
+                </a>
+                <button
+                  onClick={handleClose}
+                  className="mono text-[10px] lg:text-xs text-taupe/40 hover:text-tiger-flame transition-colors duration-200 hidden lg:block"
+                >
+                  [ESC TO CLOSE]
+                </button>
+                <a
+                  href="/resume.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mono text-xs lg:text-sm text-taupe hover:text-tiger-flame transition-colors duration-200 tracking-wider"
+                >
+                  OPEN IN NEW TAB
+                </a>
+              </motion.div>
+            </motion.div>
           ) : (
             /* Home View */
             <motion.div
@@ -300,36 +472,56 @@ export default function Home() {
                   BEN KLOSKY
                 </h1>
                 <p className="mono text-[10px] lg:text-xs text-taupe/60 tracking-wider">
-                  [SOFTWARE ENGINEER]
+                  [ECONOMIST / DEVELOPER]
                 </p>
               </motion.div>
 
               {/* Location */}
-              <motion.div className="text-center mb-6 lg:mb-10" variants={fadeInUp} transition={{ duration: 0.5, delay: 0.1 }}>
+              <motion.div className="text-center mb-6 lg:mb-6" variants={fadeInUp} transition={{ duration: 0.5, delay: 0.1 }}>
                 <p className="text-xs lg:text-sm text-taupe tracking-[0.2em] mb-1">
-                  SAN FRANCISCO, CA & REMOTE
+                  SAN FRANCISCO / CHICAGO
                 </p>
-                <p className="mono text-[10px] lg:text-xs text-taupe/50">
-                  [AVAILABLE FOR PROJECTS]
-                </p>
+              </motion.div>
+
+              {/* Resume & About Links */}
+              <motion.div className="text-center mb-6 lg:mb-8" variants={fadeInUp} transition={{ duration: 0.5, delay: 0.15 }}>
+                <div className="flex items-center justify-center gap-4 lg:gap-6">
+                  <motion.button
+                    onClick={() => handleViewChange("resume")}
+                    className="mono text-[10px] lg:text-xs text-taupe/60 hover:text-tiger-flame transition-colors duration-200 tracking-wider"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    [RESUME]
+                  </motion.button>
+                  <span className="text-taupe/30">•</span>
+                  <motion.button
+                    onClick={() => handleViewChange("about")}
+                    className="mono text-[10px] lg:text-xs text-taupe/60 hover:text-tiger-flame transition-colors duration-200 tracking-wider"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    [ABOUT]
+                  </motion.button>
+                </div>
               </motion.div>
 
               {/* Contact Section */}
               <motion.div className="text-center" variants={fadeInUp} transition={{ duration: 0.5, delay: 0.2 }}>
                 <p className="text-[10px] lg:text-xs text-taupe tracking-[0.2em] mb-4">
-                  CONTACT & FOLLOW ME:
+                  CONTACT:
                 </p>
                 <div className="space-y-1.5">
                   <motion.a
-                    href="mailto:hello@benklosky.com"
+                    href="mailto:benklosky@uchicago.edu"
                     className="block mono text-[10px] lg:text-xs text-taupe/60 hover:text-tiger-flame transition-colors duration-200 link-hover"
                     whileHover={{ x: 3 }}
                     transition={{ type: "spring", stiffness: 400 }}
                   >
-                    [HELLO@BENKLOSKY.COM]
+                    [benklosky@uchicago.edu]
                   </motion.a>
                   <motion.a
-                    href="https://github.com/benklosky"
+                    href="https://github.com/bklosk"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="block mono text-[10px] lg:text-xs text-taupe/60 hover:text-tiger-flame transition-colors duration-200"
@@ -339,7 +531,7 @@ export default function Home() {
                     GITHUB
                   </motion.a>
                   <motion.a
-                    href="https://linkedin.com/in/benklosky"
+                    href="https://www.linkedin.com/in/ben-klosky/"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="block mono text-[10px] lg:text-xs text-taupe/60 hover:text-tiger-flame transition-colors duration-200"
