@@ -6,16 +6,14 @@ import { slideVariants, springTransition, smoothEase } from "@/lib/animations";
 import { aboutContent } from "@/data/about";
 
 interface AboutViewProps {
-  direction: number;
   onClose: () => void;
 }
 
-export function AboutView({ direction, onClose }: AboutViewProps) {
+export function AboutView({ onClose }: AboutViewProps) {
   return (
     <motion.div
       key="about"
-      className="flex-1 flex flex-col p-4 lg:p-8 xl:p-12 overflow-hidden"
-      custom={direction}
+      className="flex-1 flex flex-col justify-center p-4 lg:p-8 xl:p-12 overflow-hidden"
       variants={slideVariants}
       initial="enter"
       animate="center"
@@ -24,7 +22,7 @@ export function AboutView({ direction, onClose }: AboutViewProps) {
     >
       {/* About Header */}
       <motion.div
-        className="shrink-0 mb-4 lg:mb-6 text-center"
+        className="shrink-0 mb-6 lg:mb-6 text-center"
         initial={{ opacity: 0, y: -15 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.05, duration: 0.3 }}
@@ -39,7 +37,7 @@ export function AboutView({ direction, onClose }: AboutViewProps) {
 
       {/* About Content */}
       <motion.div
-        className="flex-1 relative min-h-0 flex flex-col lg:flex-row items-center justify-center gap-6 lg:gap-10 overflow-y-auto"
+        className="shrink-0 relative flex flex-col lg:flex-row items-center justify-center gap-6 lg:gap-10"
         initial={{ opacity: 0, scale: 0.97 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.03, duration: 0.35, ease: smoothEase }}
@@ -66,7 +64,7 @@ export function AboutView({ direction, onClose }: AboutViewProps) {
 
       {/* Close button */}
       <motion.div
-        className="shrink-0 flex justify-center items-center mt-4 lg:mt-8"
+        className="shrink-0 flex justify-center items-center mt-6 lg:mt-8"
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1, duration: 0.3 }}

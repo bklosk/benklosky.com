@@ -14,7 +14,7 @@ export function HomeView({ onViewChange, onProjectSelect }: HomeViewProps) {
   return (
     <motion.div
       key="home"
-      className="flex-1 min-h-0 flex flex-col items-center justify-center p-6 lg:p-8 xl:p-12"
+      className="flex-1 w-full h-full flex flex-col items-center justify-start lg:justify-center pt-32 lg:pt-0 p-6 lg:p-8 xl:p-12"
       variants={staggerContainer}
       initial="initial"
       animate="animate"

@@ -11,6 +11,7 @@ export interface Project {
   category: string;
   year: string;
   image: string | StaticImageData;
+  description: string;
   color: string;
 }
 

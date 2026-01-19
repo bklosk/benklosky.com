@@ -4,16 +4,14 @@ import { motion } from "motion/react";
 import { slideVariants, springTransition, smoothEase } from "@/lib/animations";
 
 interface ResumeViewProps {
-  direction: number;
   onClose: () => void;
 }
 
-export function ResumeView({ direction, onClose }: ResumeViewProps) {
+export function ResumeView({ onClose }: ResumeViewProps) {
   return (
     <motion.div
       key="resume"
       className="flex-1 flex flex-col p-4 lg:p-8 xl:p-12 overflow-hidden"
-      custom={direction}
       variants={slideVariants}
       initial="enter"
       animate="center"

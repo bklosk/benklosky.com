@@ -32,7 +32,6 @@ import {
 export default function Home() {
   const [currentView, setCurrentView] = useState<ViewType>("home");
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
-  const [direction, setDirection] = useState(0);
 
   const selectedProject = useMemo(
     () => (selectedIndex !== null ? projects[selectedIndex] : null),
@@ -41,19 +40,13 @@ export default function Home() {
 
   const handleProjectSelect = useCallback(
     (index: number) => {
-      if (selectedIndex !== null) {
-        setDirection(index > selectedIndex ? 1 : -1);
-      } else {
-        setDirection(1);
-      }
       setSelectedIndex(index);
       setCurrentView("project");
     },
-    [selectedIndex]
+    []
   );
 
   const handleViewChange = useCallback((view: ViewType) => {
-    setDirection(1);
     setCurrentView(view);
     if (view !== "project") {
       setSelectedIndex(null);
@@ -62,20 +55,17 @@ export default function Home() {
 
   const handlePrevious = useCallback(() => {
     if (selectedIndex !== null && selectedIndex > 0) {
-      setDirection(-1);
       setSelectedIndex(selectedIndex - 1);
     }
   }, [selectedIndex]);
 
   const handleNext = useCallback(() => {
     if (selectedIndex !== null && selectedIndex < projects.length - 1) {
-      setDirection(1);
       setSelectedIndex(selectedIndex + 1);
     }
   }, [selectedIndex]);
 
   const handleClose = useCallback(() => {
-    setDirection(0);
     setSelectedIndex(null);
     setCurrentView("home");
   }, []);
@@ -104,27 +94,58 @@ export default function Home() {
       <LeftSidebar />
 
       {/* Main Content Area */}
-      <main className="flex-1 min-h-0 lg:ml-14 xl:ml-16 lg:mr-28 xl:mr-36 flex flex-col overflow-hidden relative z-10 pt-8 pb-28 lg:pt-0 lg:pb-0 lg:h-screen">
-        <AnimatePresence mode="wait" custom={direction}>
-          {currentView === "project" && selectedProject ? (
-            <ProjectView
-              project={selectedProject}
-              projectIndex={selectedIndex!}
-              totalProjects={projects.length}
-              direction={direction}
-              onPrevious={handlePrevious}
-              onNext={handleNext}
-              onClose={handleClose}
-            />
-          ) : currentView === "about" ? (
-            <AboutView direction={direction} onClose={handleClose} />
-          ) : currentView === "resume" ? (
-            <ResumeView direction={direction} onClose={handleClose} />
-          ) : (
-            <HomeView
-              onViewChange={handleViewChange}
-              onProjectSelect={handleProjectSelect}
-            />
+      <main className="flex-1 lg:ml-14 xl:ml-16 lg:mr-28 xl:mr-36 flex flex-col overflow-hidden relative z-10 pb-20 lg:pb-0 h-full lg:h-screen">
+        <div className="flex-1 flex flex-col min-h-0 relative">
+          <AnimatePresence mode="wait">
+            {currentView === "project" && selectedProject ? (
+              <ProjectView
+                project={selectedProject}
+                projectIndex={selectedIndex!}
+              />
+            ) : currentView === "about" ? (
+              <AboutView onClose={handleClose} />
+            ) : currentView === "resume" ? (
+              <ResumeView onClose={handleClose} />
+            ) : (
+              <HomeView
+                onViewChange={handleViewChange}
+                onProjectSelect={handleProjectSelect}
+              />
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Persistent Project Navigation */}
+        <AnimatePresence>
+          {currentView === "project" && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 10 }}
+              transition={{ duration: 0.25 }}
+              className="shrink-0 flex justify-between items-center pb-8 lg:pb-12 xl:pb-16 px-6 lg:px-16 xl:px-24 relative z-20"
+            >
+              <button
+                onClick={handlePrevious}
+                disabled={selectedIndex === 0}
+                className="mono text-xs lg:text-sm text-taupe hover:text-tiger-flame transition-colors duration-200 disabled:opacity-20 disabled:cursor-not-allowed tracking-wider"
+              >
+                PREVIOUS
+              </button>
+              <button
+                onClick={handleClose}
+                className="mono text-[10px] lg:text-xs text-taupe/40 hover:text-tiger-flame transition-colors duration-200 hidden lg:block"
+              >
+                [ESC TO CLOSE]
+              </button>
+              <button
+                onClick={handleNext}
+                disabled={selectedIndex === projects.length - 1}
+                className="mono text-xs lg:text-sm text-taupe hover:text-tiger-flame transition-colors duration-200 disabled:opacity-20 disabled:cursor-not-allowed tracking-wider"
+              >
+                NEXT
+              </button>
+            </motion.div>
           )}
         </AnimatePresence>
 

@@ -10,4 +10,4 @@ export const aboutContent: AboutContent = {
   I was an apprentice at a police department while I went to community college. I've worked as a machine learning engineer and did labor/workforce research at the Urban Institute. I have a masters degree in economics. (Yes, I took real analysis.)`,
 };
 
-export const bio = "RESUME. ABOUT ME. CONTACT. ";
+export const bio = "RESUME. ABOUT ME. LINKEDIN. X. GITHUB. EMAIL.";

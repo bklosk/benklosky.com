@@ -2,18 +2,18 @@ import { Variants } from "motion/react";
 
 // Slide animation variants for view transitions
 export const slideVariants: Variants = {
-  enter: (direction: number) => ({
-    y: direction > 0 ? 300 : -300,
+  enter: {
+    y: 20,
     opacity: 0,
-  }),
+  },
   center: {
     y: 0,
     opacity: 1,
   },
-  exit: (direction: number) => ({
-    y: direction < 0 ? 300 : -300,
+  exit: {
+    y: 20,
     opacity: 0,
-  }),
+  },
 };
 
 // Fade in with upward movement
@@ -33,8 +33,8 @@ export const staggerContainer: Variants = {
 
 // Spring transition config
 export const springTransition = {
-  y: { type: "spring", stiffness: 300, damping: 30 },
-  opacity: { duration: 0.3 },
+  y: { type: "spring", stiffness: 450, damping: 40, mass: 0.8 },
+  opacity: { duration: 0.2, ease: "easeOut" },
 } as const;
 
 // Smooth ease curve for elegant animations
