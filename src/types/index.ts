@@ -20,3 +20,10 @@ export interface AboutContent {
   image: string | StaticImageData;
   blurb: string;
 }
+
+export interface BioLink {
+  label: string;
+  href?: string;
+  view?: ViewType;
+  isExternal?: boolean;
+}

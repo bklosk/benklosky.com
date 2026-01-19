@@ -1,4 +1,4 @@
-import { AboutContent } from "@/types";
+import { AboutContent, BioLink } from "@/types";
 import headshot from "../../public/headshot.jpeg";
 
 export const aboutContent: AboutContent = {
@@ -10,4 +10,11 @@ export const aboutContent: AboutContent = {
   I was an apprentice at a police department while I went to community college. I've worked as a machine learning engineer and did labor/workforce research at the Urban Institute. I have a masters degree in economics. (Yes, I took real analysis.)`,
 };
 
-export const bio = "RESUME. ABOUT ME. LINKEDIN. X. GITHUB. EMAIL.";
+export const bioLinks: BioLink[] = [
+  { label: "RESUME", href: "/Resume.pdf", isExternal: true },
+  { label: "ABOUT ME", view: "about" },
+  { label: "LINKEDIN", href: "https://www.linkedin.com/in/ben-klosky/", isExternal: true },
+  { label: "X", href: "https://twitter.com/benklosky", isExternal: true },
+  { label: "GITHUB", href: "https://github.com/bklosk", isExternal: true },
+  { label: "EMAIL", href: "mailto:benklosky@uchicago.edu", isExternal: true },
+];

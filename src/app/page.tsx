@@ -91,7 +91,7 @@ export default function Home() {
       />
 
       {/* Left Sidebar - Vertical Bio */}
-      <LeftSidebar />
+      <LeftSidebar onViewChange={handleViewChange} />
 
       {/* Main Content Area */}
       <main className="flex-1 lg:ml-14 xl:ml-16 lg:mr-28 xl:mr-36 flex flex-col overflow-hidden relative z-10 pb-20 lg:pb-0 h-full lg:h-screen">
