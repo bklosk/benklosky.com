@@ -3,8 +3,6 @@
 import { motion } from "motion/react";
 import { ViewType } from "@/types";
 import { fadeInUp, staggerContainer } from "@/lib/animations";
-import { bioLinks } from "@/data/about";
-import React from "react";
 
 interface HomeViewProps {
   onViewChange: (view: ViewType) => void;
@@ -138,40 +136,6 @@ export function HomeView({ onViewChange, onProjectSelect }: HomeViewProps) {
         >
           SELECT A PROJECT →
         </motion.button>
-      </motion.div>
-
-      {/* Mobile bio */}
-      <motion.div
-        className="lg:hidden mt-auto pt-12 pb-4"
-        variants={fadeInUp}
-        transition={{ duration: 0.35 }}
-      >
-        <div className="mono text-[9px] text-taupe/40 tracking-[0.2em] uppercase text-center flex flex-wrap justify-center gap-x-2 gap-y-1 px-4">
-          {bioLinks.map((link, index) => (
-            <React.Fragment key={link.label}>
-              {link.href ? (
-                <a
-                  href={link.href}
-                  target={link.isExternal ? "_blank" : undefined}
-                  rel={link.isExternal ? "noopener noreferrer" : undefined}
-                  className="hover:text-tiger-flame transition-colors duration-200"
-                >
-                  {link.label}
-                </a>
-              ) : link.view ? (
-                <button
-                  onClick={() => onViewChange(link.view!)}
-                  className="hover:text-tiger-flame transition-colors duration-200 uppercase cursor-pointer"
-                >
-                  {link.label}
-                </button>
-              ) : (
-                <span>{link.label}</span>
-              )}
-              {index < bioLinks.length - 1 && <span className="opacity-20">.</span>}
-            </React.Fragment>
-          ))}
-        </div>
       </motion.div>
     </motion.div>
   );
