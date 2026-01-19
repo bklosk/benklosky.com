@@ -40,7 +40,7 @@ export function ResumeView({ onClose }: ResumeViewProps) {
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.03, duration: 0.35, ease: smoothEase }}
       >
-        <div className="relative w-full max-w-2xl xl:max-w-3xl h-full max-h-[70vh]">
+        <div className="relative w-full lg:max-w-2xl xl:max-w-3xl h-full max-h-[85vh] lg:max-h-[70vh]">
           <iframe
             src="/resume.pdf"
             className="w-full h-full border-0 project-image"

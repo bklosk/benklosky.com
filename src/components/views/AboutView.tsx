@@ -13,7 +13,7 @@ export function AboutView({ onClose }: AboutViewProps) {
   return (
     <motion.div
       key="about"
-      className="flex-1 flex flex-col justify-center p-4 lg:p-8 xl:p-12 overflow-hidden"
+      className="flex-1 flex flex-col justify-center p-4 lg:p-8 xl:p-12 pb-24 lg:pb-8 overflow-hidden"
       variants={slideVariants}
       initial="enter"
       animate="center"
