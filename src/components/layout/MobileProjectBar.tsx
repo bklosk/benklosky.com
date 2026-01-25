@@ -47,7 +47,7 @@ export function MobileProjectBar({
               />
             </div>
             <span
-              className={`absolute -top-1 -left-1 mono text-[8px] ${
+              className={`absolute -top-1 -left-1 mono text-[10px] ${
                 selectedIndex === index ? "text-tiger-flame" : "text-taupe/50"
               }`}
             >

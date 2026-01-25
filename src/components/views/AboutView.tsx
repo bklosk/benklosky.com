@@ -30,7 +30,7 @@ export function AboutView({ onClose }: AboutViewProps) {
         <h2 className="text-base lg:text-lg xl:text-xl font-bold text-taupe uppercase tracking-[0.15em]">
           About Me
         </h2>
-        <p className="mono text-[10px] lg:text-xs text-taupe/50 mt-1">
+        <p className="mono text-xs lg:text-xs text-taupe/50 mt-1">
           [WHO I AM]
         </p>
       </motion.div>
@@ -55,7 +55,7 @@ export function AboutView({ onClose }: AboutViewProps) {
         </div>
 
         {/* Bio Text */}
-        <div className="max-w-md lg:max-w-lg text-center lg:text-left">
+        <div className="max-w-[280px] sm:max-w-xs lg:max-w-lg text-center lg:text-left px-4 lg:px-0">
           <p className="text-xs lg:text-sm text-taupe/80 leading-relaxed whitespace-pre-line">
             {aboutContent.blurb}
           </p>
@@ -71,7 +71,7 @@ export function AboutView({ onClose }: AboutViewProps) {
       >
         <button
           onClick={onClose}
-          className="mono text-[10px] lg:text-xs text-taupe/40 hover:text-tiger-flame transition-colors duration-200"
+          className="mono text-xs lg:text-xs text-taupe/40 hover:text-tiger-flame transition-colors duration-200"
         >
           [ESC TO CLOSE]
         </button>

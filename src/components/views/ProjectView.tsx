@@ -54,13 +54,13 @@ export function ProjectView({
           transition={{ delay: 0.05, duration: 0.25 }}
         >
           <div className="mb-4">
-            <p className="mono text-[10px] lg:text-xs text-taupe/50 mb-1">
+            <p className="mono text-xs lg:text-xs text-taupe/50 mb-1">
               [{String(projectIndex + 1).padStart(2, "0")}]
             </p>
             <h2 className="text-xl lg:text-2xl xl:text-3xl font-bold text-taupe uppercase tracking-[0.15em] leading-tight">
               {project.title}
             </h2>
-            <div className="flex gap-4 mt-2 mono text-[10px] lg:text-xs text-taupe/40">
+            <div className="flex gap-4 mt-2 mono text-xs lg:text-xs text-taupe/40">
               <span>[{project.category.toUpperCase()}]</span>
               <span>[{project.year}]</span>
             </div>

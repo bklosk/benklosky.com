@@ -1,94 +1,78 @@
 "use client";
 
 import { motion } from "motion/react";
-import Image from "next/image";
-import { Project } from "@/types";
+import { Article } from "@/types";
 import { smoothEase } from "@/lib/animations";
 
 interface RightSidebarProps {
-  projects: Project[];
+  articles: Article[];
   selectedIndex: number | null;
-  onProjectSelect: (index: number) => void;
+  onArticleSelect: (index: number) => void;
 }
 
 export function RightSidebar({
-  projects,
+  articles,
   selectedIndex,
-  onProjectSelect,
+  onArticleSelect,
 }: RightSidebarProps) {
   return (
     <motion.aside
-      className="hidden lg:flex fixed right-0 top-0 bottom-0 w-28 xl:w-36 flex-col py-4 z-20 overflow-y-auto"
+      className="hidden lg:flex fixed right-0 top-0 bottom-0 w-32 xl:w-48 flex-col py-8 z-20 overflow-y-auto border-l border-taupe/5 bg-parchment/50 backdrop-blur-sm"
       initial={{ opacity: 0, x: 30 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.5, delay: 0.1, ease: smoothEase }}
     >
-      <div className="flex flex-col gap-2 pl-3 pr-3">
-        {projects.map((project, index) => (
+      <div className="px-4 mb-6">
+        <h3 className="mono text-[10px] text-taupe/40 uppercase tracking-widest">Recent Articles</h3>
+      </div>
+      
+      <div className="flex flex-col gap-4 px-4">
+        {articles.map((article, index) => (
           <motion.button
-            key={project.id}
-            onClick={() => onProjectSelect(index)}
+            key={article.id}
+            onClick={() => onArticleSelect(index)}
             className={`group relative text-left transition-all duration-300 ${
               selectedIndex === index
                 ? "opacity-100"
-                : "opacity-50 hover:opacity-90"
+                : "opacity-60 hover:opacity-100"
             }`}
             initial={{ opacity: 0, x: 15 }}
             animate={{
-              opacity: selectedIndex === index ? 1 : 0.5,
+              opacity: selectedIndex === index ? 1 : 0.6,
               x: 0,
             }}
             transition={{
-              delay: 0.15 + index * 0.02,
+              delay: 0.15 + index * 0.05,
               duration: 0.3,
               ease: smoothEase,
             }}
-            whileHover={{ x: -3 }}
-            whileTap={{ scale: 0.97 }}
+            whileHover={{ x: -2 }}
           >
-            {/* Number */}
-            <span
-              className={`absolute -left-1 top-0 mono text-[10px] transition-colors duration-200 ${
-                selectedIndex === index
-                  ? "text-tiger-flame"
-                  : "text-taupe/40 group-hover:text-tiger-flame"
-              }`}
-            >
-              {String(index + 1).padStart(2, "0")}]
-            </span>
-
-            {/* Thumbnail */}
-            <div
-              className={`relative aspect-[4/3] overflow-hidden ml-5 transition-all duration-300 ${
-                selectedIndex === index
-                  ? "thumbnail-active"
-                  : "grayscale-[30%] group-hover:grayscale-0"
-              }`}
-            >
-              <Image
-                src={project.image}
-                alt={project.title}
-                fill
-                className="object-cover"
-                sizes="140px"
-              />
-              {/* Hover overlay */}
-              <div
-                className={`absolute inset-0 transition-opacity duration-300 ${
-                  selectedIndex === index
-                    ? "opacity-0"
-                    : "opacity-0 group-hover:opacity-100"
+            <div className="flex flex-col gap-1">
+              <span className="mono text-[10px] text-taupe/40">
+                {article.date}
+              </span>
+              <span 
+                className={`text-xs font-medium leading-snug transition-colors duration-200 ${
+                  selectedIndex === index 
+                    ? "text-tiger-flame" 
+                    : "text-taupe group-hover:text-tiger-flame"
                 }`}
-                style={{
-                  background: `linear-gradient(180deg, transparent 50%, ${project.color}30 100%)`,
-                }}
-              />
+              >
+                {article.title}
+              </span>
             </div>
-
-            {/* Title on hover (desktop only) */}
-            <motion.span className="hidden xl:block absolute -left-24 top-1/2 -translate-y-1/2 text-[8px] mono text-taupe/70 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
-              {project.title.toUpperCase()}
-            </motion.span>
+            
+            {/* Active indicator */}
+            {selectedIndex === index && (
+              <motion.div 
+                layoutId="activeArticle"
+                className="absolute -left-4 top-1 bottom-1 w-0.5 bg-tiger-flame"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.2 }}
+              />
+            )}
           </motion.button>
         ))}
       </div>

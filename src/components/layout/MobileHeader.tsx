@@ -22,12 +22,12 @@ export function MobileHeader({ isProjectSelected, onClose }: MobileHeaderProps) 
             <h1 className="text-base font-bold text-taupe tracking-[0.2em]">
               BEN KLOSKY
             </h1>
-            <p className="text-[10px] mono text-taupe/60">[ECONOMIST / DEVELOPER]</p>
+            <p className="text-xs mono text-taupe/60">[ECONOMIST / DEVELOPER]</p>
           </div>
           {onClose && (
             <button
               onClick={onClose}
-              className="mono text-xs text-taupe/50 hover:text-tiger-flame transition-colors p-2"
+              className="mono text-sm text-taupe/50 hover:text-tiger-flame transition-colors p-2"
             >
               [CLOSE]
             </button>

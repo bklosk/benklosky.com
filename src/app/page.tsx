@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { ViewType } from "@/types";
 
 // Data
-import { projects } from "@/data/projects";
+import { articles } from "@/data/articles";
 
 // Animation utilities
 import { smoothEase } from "@/lib/animations";
@@ -17,53 +17,39 @@ import {
   MobileHeader,
   LeftSidebar,
   RightSidebar,
-  MobileProjectBar,
   MobileFooter,
 } from "@/components/layout";
 
 // View components
 import {
   HomeView,
-  ProjectView,
+  ArticleView,
   AboutView,
-  ResumeView,
 } from "@/components/views";
 
 export default function Home() {
   const [currentView, setCurrentView] = useState<ViewType>("home");
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
-  const selectedProject = useMemo(
-    () => (selectedIndex !== null ? projects[selectedIndex] : null),
+  const selectedArticle = useMemo(
+    () => (selectedIndex !== null ? articles[selectedIndex] : null),
     [selectedIndex]
   );
 
-  const handleProjectSelect = useCallback(
+  const handleArticleSelect = useCallback(
     (index: number) => {
       setSelectedIndex(index);
-      setCurrentView("project");
+      setCurrentView("article");
     },
     []
   );
 
   const handleViewChange = useCallback((view: ViewType) => {
     setCurrentView(view);
-    if (view !== "project") {
+    if (view !== "article") {
       setSelectedIndex(null);
     }
   }, []);
-
-  const handlePrevious = useCallback(() => {
-    if (selectedIndex !== null && selectedIndex > 0) {
-      setSelectedIndex(selectedIndex - 1);
-    }
-  }, [selectedIndex]);
-
-  const handleNext = useCallback(() => {
-    if (selectedIndex !== null && selectedIndex < projects.length - 1) {
-      setSelectedIndex(selectedIndex + 1);
-    }
-  }, [selectedIndex]);
 
   const handleClose = useCallback(() => {
     setSelectedIndex(null);
@@ -84,9 +70,9 @@ export default function Home() {
 
   return (
     <div className="fixed inset-0 flex flex-col lg:flex-row bg-parchment overflow-hidden texture-overlay">
-      {/* Mobile Header - Only visible when project is selected */}
+      {/* Mobile Header - Only visible when article is selected */}
       <MobileHeader 
-        isProjectSelected={currentView === "project" && selectedProject !== null}
+        isProjectSelected={currentView === "article" && selectedArticle !== null}
         onClose={handleClose}
       />
 
@@ -94,60 +80,24 @@ export default function Home() {
       <LeftSidebar onViewChange={handleViewChange} />
 
       {/* Main Content Area */}
-      <main className="flex-1 lg:ml-14 xl:ml-16 lg:mr-28 xl:mr-36 flex flex-col overflow-hidden relative z-10 pb-20 lg:pb-0 h-full lg:h-screen">
+      <main className="flex-1 lg:ml-14 xl:ml-16 lg:mr-32 xl:mr-48 flex flex-col overflow-hidden relative z-10 pb-20 lg:pb-0 h-full lg:h-screen">
         <div className="flex-1 flex flex-col min-h-0 relative">
           <AnimatePresence mode="wait">
-            {currentView === "project" && selectedProject ? (
-              <ProjectView
-                project={selectedProject}
-                projectIndex={selectedIndex!}
+            {currentView === "article" && selectedArticle ? (
+              <ArticleView
+                article={selectedArticle}
+                onClose={handleClose}
               />
             ) : currentView === "about" ? (
               <AboutView onClose={handleClose} />
-            ) : currentView === "resume" ? (
-              <ResumeView onClose={handleClose} />
             ) : (
               <HomeView
                 onViewChange={handleViewChange}
-                onProjectSelect={handleProjectSelect}
+                onArticleSelect={handleArticleSelect}
               />
             )}
           </AnimatePresence>
         </div>
-
-        {/* Persistent Project Navigation */}
-        <AnimatePresence>
-          {currentView === "project" && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 10 }}
-              transition={{ duration: 0.25 }}
-              className="shrink-0 flex justify-between items-center pb-8 lg:pb-12 xl:pb-16 px-6 lg:px-16 xl:px-24 relative z-20"
-            >
-              <button
-                onClick={handlePrevious}
-                disabled={selectedIndex === 0}
-                className="mono text-xs lg:text-sm text-taupe hover:text-tiger-flame transition-colors duration-200 disabled:opacity-20 disabled:cursor-not-allowed tracking-wider"
-              >
-                PREVIOUS
-              </button>
-              <button
-                onClick={handleClose}
-                className="mono text-[10px] lg:text-xs text-taupe/40 hover:text-tiger-flame transition-colors duration-200 hidden lg:block"
-              >
-                [ESC TO CLOSE]
-              </button>
-              <button
-                onClick={handleNext}
-                disabled={selectedIndex === projects.length - 1}
-                className="mono text-xs lg:text-sm text-taupe hover:text-tiger-flame transition-colors duration-200 disabled:opacity-20 disabled:cursor-not-allowed tracking-wider"
-              >
-                NEXT
-              </button>
-            </motion.div>
-          )}
-        </AnimatePresence>
 
         {/* Horizontal divider line at bottom */}
         <motion.div
@@ -158,19 +108,11 @@ export default function Home() {
         />
       </main>
 
-      {/* Right Sidebar - Project Thumbnails (Desktop only) */}
+      {/* Right Sidebar - Recent Articles (Desktop only) */}
       <RightSidebar
-        projects={projects}
+        articles={articles}
         selectedIndex={selectedIndex}
-        onProjectSelect={handleProjectSelect}
-      />
-
-      {/* Mobile Project Thumbnails - Horizontal strip at bottom */}
-      <MobileProjectBar
-        projects={projects}
-        selectedIndex={selectedIndex}
-        onProjectSelect={handleProjectSelect}
-        isProjectSelected={currentView === "project"}
+        onArticleSelect={handleArticleSelect}
       />
 
       {/* Mobile Footer */}
