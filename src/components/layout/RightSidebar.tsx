@@ -3,6 +3,7 @@
 import { motion } from "motion/react";
 import { Article } from "@/types";
 import { smoothEase } from "@/lib/animations";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 interface RightSidebarProps {
   articles: Article[];
@@ -22,8 +23,11 @@ export function RightSidebar({
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.5, delay: 0.1, ease: smoothEase }}
     >
-      <div className="px-4 mb-6">
-        <h3 className="mono text-[10px] text-taupe/40 uppercase tracking-widest">Recent Articles</h3>
+      <div className="px-4 mb-6 flex flex-col gap-6">
+        <div className="flex justify-end">
+          <ThemeToggle />
+        </div>
+        <h3 className="mono text-[10px] text-taupe/40 uppercase tracking-widest">Recent Thoughts</h3>
       </div>
       
       <div className="flex flex-col gap-4 px-4">

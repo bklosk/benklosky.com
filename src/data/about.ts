@@ -3,7 +3,7 @@ import headshot from "../../public/headshot.jpeg";
 
 export const aboutContent: AboutContent = {
   image: headshot,
-  blurb: `I'm an economist and developer based in Chicago, looking for opportunities at San Francisco area startups.
+  blurb: `I'm an economist and developer looking for opportunities at San Francisco area startups.
   
   I work for Steve Levitt (of Freakonomics fame) at the Center for Radical Innovation for Social Change at the University of Chicago, where I design and pilot solutions to the world's hardest problems. 
   
@@ -11,7 +11,7 @@ export const aboutContent: AboutContent = {
 };
 
 export const bioLinks: BioLink[] = [
-  { label: "RESUME", href: "/Resume.pdf", isExternal: true },
+  { label: "RESUME", href: "/resume.pdf", isExternal: true },
   { label: "ABOUT ME", view: "about" },
   { label: "LINKEDIN", href: "https://www.linkedin.com/in/ben-klosky/", isExternal: true },
   { label: "X", href: "https://twitter.com/benklosky", isExternal: true },

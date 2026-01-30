@@ -19,6 +19,7 @@ import {
   RightSidebar,
   MobileFooter,
 } from "@/components/layout";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 // View components
 import {
@@ -70,6 +71,11 @@ export default function Home() {
 
   return (
     <div className="fixed inset-0 flex flex-col lg:flex-row bg-parchment overflow-hidden texture-overlay">
+      {/* Mobile Theme Toggle */}
+      <div className="lg:hidden absolute top-4 right-4 z-30">
+        <ThemeToggle />
+      </div>
+
       {/* Mobile Header - Only visible when article is selected */}
       <MobileHeader 
         isProjectSelected={currentView === "article" && selectedArticle !== null}
@@ -108,7 +114,7 @@ export default function Home() {
         />
       </main>
 
-      {/* Right Sidebar - Recent Articles (Desktop only) */}
+      {/* Right Sidebar - Recent Thoughts (Desktop only) */}
       <RightSidebar
         articles={articles}
         selectedIndex={selectedIndex}

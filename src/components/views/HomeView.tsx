@@ -29,7 +29,7 @@ export function HomeView({ onViewChange, onArticleSelect }: HomeViewProps) {
           BEN KLOSKY
         </h1>
         <p className="mono text-xs lg:text-xs text-taupe/60 tracking-wider">
-          [ECONOMIST / DEVELOPER]
+          [growth engineer]
         </p>
       </motion.div>
 
@@ -40,7 +40,7 @@ export function HomeView({ onViewChange, onArticleSelect }: HomeViewProps) {
         transition={{ duration: 0.35 }}
       >
         <p className="text-sm lg:text-sm text-taupe tracking-[0.2em] mb-1">
-          SAN FRANCISCO / CHICAGO
+          SAN FRANCISCO, CA
         </p>
       </motion.div>
 
@@ -52,7 +52,7 @@ export function HomeView({ onViewChange, onArticleSelect }: HomeViewProps) {
       >
         <div className="flex items-center justify-center gap-4 lg:gap-6">
           <motion.a
-            href="/Resume.pdf"
+            href="/resume.pdf"
             target="_blank"
             rel="noopener noreferrer"
             className="mono text-xs lg:text-xs text-taupe/60 hover:text-tiger-flame transition-colors duration-200 tracking-wider"

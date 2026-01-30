@@ -7,9 +7,21 @@
   --wisteria-blue: #8b95c9;
   --dusty-olive: #7f9172;
   
+  /* Light mode defaults */
   --background: var(--parchment);
   --foreground: var(--taupe);
   --accent: var(--tiger-flame);
+  --muted: rgba(70, 63, 58, 0.6);
+  --border: rgba(70, 63, 58, 0.1);
+}
+
+[data-theme='dark'] {
+  --background: #1c1917; /* Very dark warm gray */
+  --foreground: #e6e4dc; /* Parchment */
+  --taupe: #e6e4dc; /* Re-map taupe to light for dark mode where it's used as text */
+  --parchment: #292524; /* Re-map parchment to dark for dark mode backgrounds */
+  --muted: rgba(230, 228, 220, 0.6);
+  --border: rgba(230, 228, 220, 0.1);
 }
 
 @theme inline {
