@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
+import ReactMarkdown from "react-markdown";
 import { Article } from "@/types";
 import { slideVariants, springTransition } from "@/lib/animations";
 
@@ -64,13 +65,33 @@ export function ArticleView({ article, onClose }: ArticleViewProps) {
           transition={{ delay: 0.3, duration: 0.3 }}
           className="prose prose-taupe max-w-none"
         >
-          {article.content.split('\n').map((paragraph, index) => (
-            paragraph.trim() && (
-              <p key={index} className="text-base lg:text-lg text-taupe/80 leading-relaxed mb-6">
-                {paragraph.trim()}
-              </p>
-            )
-          ))}
+          <ReactMarkdown
+            components={{
+              p: ({ children }) => (
+                <p className="text-base lg:text-lg text-taupe/80 leading-relaxed mb-6">
+                  {children}
+                </p>
+              ),
+              // Add other markdown element styles as needed
+              h1: ({ children }) => (
+                <h1 className="text-xl lg:text-2xl font-bold text-taupe mt-8 mb-4">
+                  {children}
+                </h1>
+              ),
+              h2: ({ children }) => (
+                <h2 className="text-lg lg:text-xl font-bold text-taupe mt-8 mb-4">
+                  {children}
+                </h2>
+              ),
+              li: ({ children }) => (
+                <li className="text-base lg:text-lg text-taupe/80 leading-relaxed mb-2 ml-4 list-disc">
+                  {children}
+                </li>
+              ),
+            }}
+          >
+            {article.content}
+          </ReactMarkdown>
         </motion.div>
         
         {/* Footer Navigation */}
