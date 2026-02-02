@@ -33,17 +33,6 @@ export function HomeView({ onViewChange, onArticleSelect }: HomeViewProps) {
         </p>
       </motion.div>
 
-      {/* Location */}
-      <motion.div
-        className="text-center mb-6 lg:mb-6"
-        variants={fadeInUp}
-        transition={{ duration: 0.35 }}
-      >
-        <p className="text-sm lg:text-sm text-taupe tracking-[0.2em] mb-1">
-          SAN FRANCISCO, CA
-        </p>
-      </motion.div>
-
       {/* Resume & About Links */}
       <motion.div
         className="text-center mb-6 lg:mb-8"
