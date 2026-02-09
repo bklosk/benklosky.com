@@ -23,6 +23,12 @@ export const metadata: Metadata = {
   description: "Economist and developer based in Chicago, looking for opportunities at San Francisco area startups.",
 };
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover" as const,
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
