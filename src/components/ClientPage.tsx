@@ -72,8 +72,8 @@ export default function ClientPage({ articles }: ClientPageProps) {
 
   return (
     <div className="fixed inset-0 flex flex-col lg:flex-row bg-parchment overflow-hidden texture-overlay">
-      {/* Mobile Theme Toggle */}
-      <div className="lg:hidden absolute top-4 right-4 z-30">
+      {/* Theme Toggle - Fixed bottom right */}
+      <div className="fixed bottom-6 right-6 z-30">
         <ThemeToggle />
       </div>
 
@@ -87,7 +87,7 @@ export default function ClientPage({ articles }: ClientPageProps) {
       <LeftSidebar onViewChange={handleViewChange} />
 
       {/* Main Content Area */}
-      <main className="flex-1 lg:ml-14 xl:ml-16 lg:mr-32 xl:mr-48 flex flex-col overflow-hidden relative z-10 pb-20 lg:pb-0 h-full lg:h-screen">
+      <main className="flex-1 lg:mx-32 xl:mx-48 flex flex-col overflow-hidden relative z-10 pb-20 lg:pb-0 h-full lg:h-screen">
         <div className="flex-1 flex flex-col min-h-0 relative">
           <AnimatePresence mode="wait">
             {currentView === "article" && selectedArticle ? (

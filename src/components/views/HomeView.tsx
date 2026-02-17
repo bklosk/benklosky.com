@@ -28,7 +28,7 @@ export function HomeView({ onViewChange, onArticleSelect }: HomeViewProps) {
         <h1 className="text-2xl lg:text-2xl xl:text-3xl font-bold text-taupe tracking-[0.25em] mb-2">
           BEN KLOSKY
         </h1>
-        <p className="mono text-xs lg:text-xs text-taupe/60 tracking-wider">
+        <p className="mono text-sm lg:text-sm text-taupe/60 tracking-wider">
           [growth engineer]
         </p>
       </motion.div>
@@ -44,7 +44,7 @@ export function HomeView({ onViewChange, onArticleSelect }: HomeViewProps) {
             href="/resume.pdf"
             target="_blank"
             rel="noopener noreferrer"
-            className="mono text-xs lg:text-xs text-taupe/60 hover:text-tiger-flame transition-colors duration-200 tracking-wider"
+            className="mono text-sm lg:text-sm text-taupe/60 hover:text-tiger-flame transition-colors duration-200 tracking-wider"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
@@ -53,7 +53,7 @@ export function HomeView({ onViewChange, onArticleSelect }: HomeViewProps) {
           <span className="text-taupe/30">•</span>
           <motion.button
             onClick={() => onViewChange("about")}
-            className="mono text-xs lg:text-xs text-taupe/60 hover:text-tiger-flame transition-colors duration-200 tracking-wider"
+            className="mono text-sm lg:text-sm text-taupe/60 hover:text-tiger-flame transition-colors duration-200 tracking-wider"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
@@ -68,13 +68,13 @@ export function HomeView({ onViewChange, onArticleSelect }: HomeViewProps) {
         variants={fadeInUp}
         transition={{ duration: 0.35 }}
       >
-        <p className="text-xs lg:text-xs text-taupe tracking-[0.2em] mb-4">
+        <p className="text-sm lg:text-sm text-taupe tracking-[0.2em] mb-4">
           CONTACT:
         </p>
         <div className="space-y-1.5">
           <motion.a
             href="mailto:benklosky@uchicago.edu"
-            className="block mono text-xs lg:text-xs text-taupe/60 hover:text-tiger-flame transition-colors duration-200 link-hover"
+            className="block mono text-sm lg:text-sm text-taupe/60 hover:text-tiger-flame transition-colors duration-200 link-hover"
             whileHover={{ x: 3 }}
             transition={{ type: "spring", stiffness: 400 }}
           >
@@ -84,7 +84,7 @@ export function HomeView({ onViewChange, onArticleSelect }: HomeViewProps) {
             href="https://github.com/bklosk"
             target="_blank"
             rel="noopener noreferrer"
-            className="block mono text-xs lg:text-xs text-taupe/60 hover:text-tiger-flame transition-colors duration-200"
+            className="block mono text-sm lg:text-sm text-taupe/60 hover:text-tiger-flame transition-colors duration-200"
             whileHover={{ x: 3 }}
             transition={{ type: "spring", stiffness: 400 }}
           >
@@ -94,7 +94,7 @@ export function HomeView({ onViewChange, onArticleSelect }: HomeViewProps) {
             href="https://www.linkedin.com/in/ben-klosky/"
             target="_blank"
             rel="noopener noreferrer"
-            className="block mono text-xs lg:text-xs text-taupe/60 hover:text-tiger-flame transition-colors duration-200"
+            className="block mono text-sm lg:text-sm text-taupe/60 hover:text-tiger-flame transition-colors duration-200"
             whileHover={{ x: 3 }}
             transition={{ type: "spring", stiffness: 400 }}
           >
@@ -104,7 +104,7 @@ export function HomeView({ onViewChange, onArticleSelect }: HomeViewProps) {
             href="https://twitter.com/benklosky"
             target="_blank"
             rel="noopener noreferrer"
-            className="block mono text-xs lg:text-xs text-taupe/60 hover:text-tiger-flame transition-colors duration-200"
+            className="block mono text-sm lg:text-sm text-taupe/60 hover:text-tiger-flame transition-colors duration-200"
             whileHover={{ x: 3 }}
             transition={{ type: "spring", stiffness: 400 }}
           >
@@ -121,7 +121,7 @@ export function HomeView({ onViewChange, onArticleSelect }: HomeViewProps) {
       >
         <motion.button
           onClick={() => onArticleSelect(0)}
-          className="mono text-xs lg:text-xs text-taupe/50 hover:text-tiger-flame transition-colors duration-200 tracking-wider"
+          className="mono text-sm lg:text-sm text-taupe/50 hover:text-tiger-flame transition-colors duration-200 tracking-wider"
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
         >

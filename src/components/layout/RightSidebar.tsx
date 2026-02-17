@@ -3,7 +3,6 @@
 import { motion } from "motion/react";
 import { Article } from "@/types";
 import { smoothEase } from "@/lib/animations";
-import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 interface RightSidebarProps {
   articles: Article[];
@@ -19,14 +18,12 @@ export function RightSidebar({
   return (
     <motion.aside
       className="hidden lg:flex fixed right-0 top-0 bottom-0 w-32 xl:w-48 flex-col py-8 z-20 overflow-y-auto border-l border-taupe/5 bg-parchment/50 backdrop-blur-sm"
+      style={{ opacity: 0 }}
       initial={{ opacity: 0, x: 30 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.5, delay: 0.1, ease: smoothEase }}
     >
-      <div className="px-4 mb-6 flex flex-col gap-6">
-        <div className="flex justify-end">
-          <ThemeToggle />
-        </div>
+      <div className="px-4 mb-6">
         <h3 className="mono text-[10px] text-taupe/40 uppercase tracking-widest">Recent Thoughts</h3>
       </div>
       
@@ -57,7 +54,7 @@ export function RightSidebar({
                 {article.date}
               </span>
               <span 
-                className={`text-xs font-medium leading-snug transition-colors duration-200 ${
+                className={`text-sm font-medium leading-snug transition-colors duration-200 ${
                   selectedIndex === index 
                     ? "text-tiger-flame" 
                     : "text-taupe group-hover:text-tiger-flame"

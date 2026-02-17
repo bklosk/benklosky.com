@@ -19,7 +19,7 @@ export function LeftSidebar({ onViewChange }: LeftSidebarProps) {
       transition={{ duration: 0.5, delay: 0.1, ease: smoothEase }}
     >
       <div className="flex items-end">
-        <div className="vertical-text text-[9px] xl:text-[10px] text-taupe/60 tracking-[0.2em] uppercase leading-relaxed max-h-[65vh] overflow-hidden whitespace-nowrap">
+        <div className="vertical-text text-[10px] xl:text-[11px] text-taupe/60 tracking-[0.2em] uppercase leading-relaxed max-h-[65vh] overflow-hidden whitespace-nowrap">
           {bioLinks.map((link, index) => (
             <React.Fragment key={link.label}>
               {link.href ? (

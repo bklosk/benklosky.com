@@ -29,7 +29,7 @@ export function ArticleView({ article, onClose }: ArticleViewProps) {
           transition={{ delay: 0.1, duration: 0.3 }}
           className="mb-8"
         >
-          <div className="flex items-center gap-3 mono text-xs text-taupe/50 mb-4">
+          <div className="flex items-center gap-3 mono text-sm text-taupe/50 mb-4">
             <span>{article.date}</span>
             <span>•</span>
             <span>{article.readTime}</span>
@@ -68,7 +68,7 @@ export function ArticleView({ article, onClose }: ArticleViewProps) {
           <ReactMarkdown
             components={{
               p: ({ children }) => (
-                <p className="text-base lg:text-lg text-taupe/80 leading-relaxed mb-6">
+                <p className="text-lg lg:text-xl text-taupe/80 leading-relaxed mb-6">
                   {children}
                 </p>
               ),
@@ -84,7 +84,7 @@ export function ArticleView({ article, onClose }: ArticleViewProps) {
                 </h2>
               ),
               li: ({ children }) => (
-                <li className="text-base lg:text-lg text-taupe/80 leading-relaxed mb-2 ml-4 list-disc">
+                <li className="text-lg lg:text-xl text-taupe/80 leading-relaxed mb-2 ml-4 list-disc">
                   {children}
                 </li>
               ),
@@ -103,7 +103,7 @@ export function ArticleView({ article, onClose }: ArticleViewProps) {
         >
           <button 
             onClick={onClose}
-            className="mono text-xs text-taupe/50 hover:text-tiger-flame transition-colors"
+            className="mono text-sm text-taupe/50 hover:text-tiger-flame transition-colors"
           >
             ← BACK TO HOME
           </button>
