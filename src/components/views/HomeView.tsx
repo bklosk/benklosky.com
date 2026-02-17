@@ -13,7 +13,7 @@ export function HomeView({ onViewChange, onArticleSelect }: HomeViewProps) {
   return (
     <motion.div
       key="home"
-      className="flex-1 w-full h-full flex flex-col items-center justify-start lg:justify-center pt-32 lg:pt-0 p-6 lg:p-8 xl:p-12"
+      className="flex-1 w-full h-full flex flex-col items-center justify-start lg:justify-center pt-28 sm:pt-32 lg:pt-0 px-5 py-6 sm:p-6 lg:p-8 xl:p-12 min-h-0"
       variants={staggerContainer}
       initial="initial"
       animate="animate"
@@ -39,21 +39,21 @@ export function HomeView({ onViewChange, onArticleSelect }: HomeViewProps) {
         variants={fadeInUp}
         transition={{ duration: 0.35 }}
       >
-        <div className="flex items-center justify-center gap-4 lg:gap-6">
+        <div className="flex items-center justify-center gap-4 lg:gap-6 flex-wrap">
           <motion.a
             href="/resume.pdf"
             target="_blank"
             rel="noopener noreferrer"
-            className="mono text-sm lg:text-sm text-taupe/60 hover:text-tiger-flame transition-colors duration-200 tracking-wider"
+            className="mono text-sm lg:text-sm text-taupe/60 hover:text-tiger-flame transition-colors duration-200 tracking-wider min-h-[44px] min-w-[44px] inline-flex items-center justify-center py-2"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
             [RESUME]
           </motion.a>
-          <span className="text-taupe/30">•</span>
+          <span className="text-taupe/30 py-2">•</span>
           <motion.button
             onClick={() => onViewChange("about")}
-            className="mono text-sm lg:text-sm text-taupe/60 hover:text-tiger-flame transition-colors duration-200 tracking-wider"
+            className="mono text-sm lg:text-sm text-taupe/60 hover:text-tiger-flame transition-colors duration-200 tracking-wider min-h-[44px] min-w-[44px] inline-flex items-center justify-center py-2"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
@@ -121,7 +121,7 @@ export function HomeView({ onViewChange, onArticleSelect }: HomeViewProps) {
       >
         <motion.button
           onClick={() => onArticleSelect(0)}
-          className="mono text-sm lg:text-sm text-taupe/50 hover:text-tiger-flame transition-colors duration-200 tracking-wider"
+          className="mono text-sm lg:text-sm text-taupe/50 hover:text-tiger-flame transition-colors duration-200 tracking-wider min-h-[44px] px-3 inline-flex items-center justify-center"
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
         >

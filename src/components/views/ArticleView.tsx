@@ -14,14 +14,14 @@ export function ArticleView({ article, onClose }: ArticleViewProps) {
   return (
     <motion.div
       key={`article-${article.id}`}
-      className="flex-1 flex flex-col p-4 lg:p-8 xl:p-12 overflow-hidden"
+      className="flex-1 flex flex-col px-4 py-4 sm:px-6 lg:p-8 xl:p-12 overflow-hidden"
       variants={slideVariants}
       initial="enter"
       animate="center"
       exit="exit"
       transition={springTransition}
     >
-      <div className="flex-1 max-w-3xl mx-auto w-full min-h-0 overflow-y-auto py-4 lg:py-0 pr-4">
+      <div className="flex-1 max-w-3xl mx-auto w-full min-h-0 overflow-y-auto py-4 lg:py-0 pr-2 sm:pr-4 pl-0">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
@@ -35,7 +35,7 @@ export function ArticleView({ article, onClose }: ArticleViewProps) {
             <span>{article.readTime}</span>
           </div>
           
-          <h1 className="text-2xl lg:text-3xl xl:text-4xl font-bold text-taupe tracking-wide leading-tight mb-6">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold text-taupe tracking-wide leading-tight mb-6">
             {article.title}
           </h1>
 
@@ -68,7 +68,7 @@ export function ArticleView({ article, onClose }: ArticleViewProps) {
           <ReactMarkdown
             components={{
               p: ({ children }) => (
-                <p className="text-lg lg:text-xl text-taupe/80 leading-relaxed mb-6">
+                <p className="text-lg lg:text-xl text-taupe/80 leading-relaxed mb-6 max-w-[65ch]">
                   {children}
                 </p>
               ),
@@ -96,14 +96,14 @@ export function ArticleView({ article, onClose }: ArticleViewProps) {
         
         {/* Footer Navigation */}
         <motion.div 
-          className="mt-12 pt-8 border-t border-taupe/10 flex justify-between"
+          className="mt-12 pt-8 pb-[env(safe-area-inset-bottom)] border-t border-taupe/10 flex justify-between"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4 }}
         >
           <button 
             onClick={onClose}
-            className="mono text-sm text-taupe/50 hover:text-tiger-flame transition-colors"
+            className="mono text-sm text-taupe/50 hover:text-tiger-flame transition-colors min-h-[44px] min-w-[44px] -ml-2 -mb-2 py-2 pr-2"
           >
             ← BACK TO HOME
           </button>

@@ -87,7 +87,7 @@ export default function ClientPage({ articles }: ClientPageProps) {
       <LeftSidebar onViewChange={handleViewChange} />
 
       {/* Main Content Area */}
-      <main className="flex-1 lg:mx-32 xl:mx-48 flex flex-col overflow-hidden relative z-10 pb-20 lg:pb-0 h-full lg:h-screen">
+      <main className="flex-1 lg:mx-32 xl:mx-48 flex flex-col overflow-hidden relative z-10 pb-[max(1.5rem,env(safe-area-inset-bottom))] lg:pb-0 h-full lg:h-screen min-h-0">
         <div className="flex-1 flex flex-col min-h-0 relative">
           <AnimatePresence mode="wait">
             {currentView === "article" && selectedArticle ? (
