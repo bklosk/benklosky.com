@@ -16,6 +16,8 @@
 # next.js
 /.next/
 /out/
+/.velite/
+/public/static/
 
 # production
 /build
@@ -32,6 +34,10 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
+
+.cursor
+.cursor/
 
 # vercel
 .vercel

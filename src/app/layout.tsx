@@ -1,51 +1,48 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import type { ReactNode } from "react";
 import "./globals.css";
-import { ThemeProvider } from "@/components/providers/ThemeProvider";
 
 const satoshi = localFont({
   src: [
     {
       path: "../../public/Satoshi/WEB/fonts/Satoshi-Variable.woff2",
+      weight: "300 900",
       style: "normal",
     },
     {
       path: "../../public/Satoshi/WEB/fonts/Satoshi-VariableItalic.woff2",
+      weight: "300 900",
       style: "italic",
     },
   ],
   variable: "--font-satoshi",
   display: "swap",
+  fallback: ["Helvetica Neue", "Helvetica", "Arial", "sans-serif"],
 });
 
 export const metadata: Metadata = {
   title: "Ben Klosky",
-  description: "Economist and developer based in Chicago, looking for opportunities at San Francisco area startups.",
+  description:
+    "Software, economics, projects, and writing from Ben Klosky.",
 };
 
 export const viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover" as const,
+  colorScheme: "light" as const,
+  themeColor: "#f7f1e7",
 };
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${satoshi.variable} antialiased`}>
-        <ThemeProvider
-          attribute="data-theme"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          {children}
-        </ThemeProvider>
-      </body>
+    <html lang="en">
+      <body className={satoshi.variable}>{children}</body>
     </html>
   );
 }
