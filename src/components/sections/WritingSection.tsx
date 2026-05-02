@@ -7,7 +7,7 @@ const articleRowClass =
 
 export function WritingSection({ articles }: { articles: Article[] }) {
   return (
-    <Section id="writing" title="Writing" kicker="Selected essays and notes">
+    <Section id="writing" title="Writing">
       <div className="grid gap-[clamp(1rem,3vw,1.65rem)]">
         {articles.length > 0 ? (
           articles.map((article) => (

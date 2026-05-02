@@ -30,7 +30,7 @@ const projects = [
 
 export function WorkSection() {
   return (
-    <Section id="work" title="Work" kicker="Projects and collaborations">
+    <Section id="work" title="Work">
       <div className="grid gap-[clamp(1rem,3vw,1.65rem)]">
         {projects.map((project) => (
           <article

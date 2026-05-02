@@ -6,8 +6,6 @@ const sectionKickerClass =
   "z-[1] h-fit self-start max-[900px]:-mx-1 max-[900px]:px-1 max-[900px]:pb-3 max-[900px]:pt-2 min-[901px]:sticky min-[901px]:top-[clamp(1.25rem,4vw,3rem)] min-[901px]:min-h-48";
 const sectionTitleClass =
   "m-0 max-w-32 font-serif text-[clamp(1.35rem,2.8vw,2rem)] font-normal leading-[0.95] tracking-[-0.045em] max-[900px]:max-w-none";
-const sectionKickerTextClass =
-  "mt-0.5 block max-w-36 font-serif text-[clamp(1.05rem,2vw,1.55rem)] leading-[1.05] tracking-[-0.04em] text-muted max-[900px]:max-w-none";
 
 export const panelClass =
   "border border-line bg-panel shadow-[0_1.5rem_4rem_var(--shadow)]";
@@ -27,12 +25,10 @@ export function Eyebrow({ children }: { children: ReactNode }) {
 export function Section({
   children,
   id,
-  kicker,
   title,
 }: {
   children: ReactNode;
   id: string;
-  kicker: string;
   title: string;
 }) {
   return (
@@ -41,7 +37,6 @@ export function Section({
         <p className={sectionTitleClass} id={`${id}-title`}>
           {title}
         </p>
-        <span className={sectionKickerTextClass}>{kicker}</span>
       </div>
 
       <div className="min-w-0">{children}</div>
