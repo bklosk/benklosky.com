@@ -20,8 +20,23 @@
               "icon": "lucide-file",
               "title": "No, strangers are not dangerous"
             }
+          },
+          {
+            "id": "81b3263089a3ed37",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "How can large organizations make great products?.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "How can large organizations make great products?"
+            }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -95,7 +110,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "No, strangers are not dangerous.md",
+                "file": "How can large organizations make great products?.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -105,7 +120,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for No, strangers are not dangerous"
+              "title": "Backlinks for How can large organizations make great products?"
             }
           },
           {
@@ -114,12 +129,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "No, strangers are not dangerous.md",
+                "file": "How can large organizations make great products?.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from No, strangers are not dangerous"
+              "title": "Outgoing links from How can large organizations make great products?"
             }
           },
           {
@@ -157,13 +172,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "No, strangers are not dangerous.md",
+                "file": "How can large organizations make great products?.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of No, strangers are not dangerous"
+              "title": "Outline of How can large organizations make great products?"
             }
           }
         ]
@@ -184,9 +199,10 @@
       "bases:Create new base": false
     }
   },
-  "active": "26af650000c37f41",
+  "active": "81b3263089a3ed37",
   "lastOpenFiles": [
-    "www.fosterinsights.org.md",
-    "No, strangers are not dangerous.md"
+    "No, strangers are not dangerous.md",
+    "How can large organizations make great products?.md",
+    "www.fosterinsights.org.md"
   ]
 }

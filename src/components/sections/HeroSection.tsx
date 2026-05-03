@@ -38,10 +38,9 @@ export function HeroSection() {
           <p
             className={`${bodyTextClass} max-w-132 text-[clamp(0.95rem,1.3vw,1.1rem)]`}
           >
-            I design and pilot nonprofits for Steve Levitt{" "}
+            I design and pilot interventions for Steve Levitt{" "}
             <span className="italic">{"(Freakonomics)"}</span>. I used to be in
-            training to be a cop. My writing has appeared in the WSJ, Newsweek,
-            and at the Urban Institute.
+            training to be a cop.
           </p>
           <nav
             className="mt-6 flex flex-wrap gap-x-4 gap-y-3"

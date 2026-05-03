@@ -9,28 +9,15 @@ import {
 
 const projects = [
   {
-    title: "Personal tooling",
-    description:
-      "Small experiments for writing, memory, and making software feel less like paperwork.",
+    title: "placeholder",
+    description: "placeholder.",
     year: "2026",
-  },
-  {
-    title: "Economic notes",
-    description:
-      "Short research threads on incentives, institutions, and second-order effects.",
-    year: "Ongoing",
-  },
-  {
-    title: "Machine collaboration",
-    description:
-      "Prototypes around creative agency, AI interfaces, and human taste as infrastructure.",
-    year: "Now",
   },
 ];
 
-export function WorkSection() {
+export function Bio() {
   return (
-    <Section id="work" title="Work">
+    <Section id="work" title="Bio">
       <div className="grid gap-[clamp(1rem,3vw,1.65rem)]">
         {projects.map((project) => (
           <article

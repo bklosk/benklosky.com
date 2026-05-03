@@ -1,7 +1,7 @@
 import { articles } from "#site/content";
 import { HeroSection } from "../components/sections/HeroSection";
-import { NotesSection } from "../components/sections/NotesSection";
-import { WorkSection } from "../components/sections/WorkSection";
+import { ReadingListeningSection } from "../components/sections/ReadingListeningSection";
+import { Bio } from "../components/sections/Bio";
 import { WritingSection } from "../components/sections/WritingSection";
 
 export const revalidate = 60;
@@ -18,8 +18,8 @@ export default async function Home() {
     <main className="mx-auto max-w-6xl px-[clamp(1.25rem,5vw,4rem)] pb-32 max-[560px]:px-4">
       <HeroSection />
       <WritingSection articles={visibleArticles} />
-      <WorkSection />
-      <NotesSection />
+      <Bio />
+      <ReadingListeningSection />
     </main>
   );
 }

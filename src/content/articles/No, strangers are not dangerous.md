@@ -2,7 +2,7 @@
 title: No, strangers are not dangerous
 date: 2026-05-01
 slug: strangers
-visible: false
+visible: true
 ---
 When I apprenticed at a police department, I watched the same scene play many times. A well-meaning neighbor would call 911, alerting us to a dangerous man who "doesn't look like he belongs here," or to "unattended children in the park." On one occasion, it was a man fishing in a retaining pond; another, two children playing tetherball. Each time, the officers would roll up to the scene of the imagined crime, find no evidence of wrongdoing, and assuage the caller's fears. Often, the officers had to reassure the caller that yes, they did the "right thing" by calling.
 
