@@ -135,6 +135,12 @@ input:focus-visible {
   margin-block-start: 1.25em;
 }
 
+.article-content hr {
+  border: 0;
+  border-block-start: 1px solid var(--line);
+  margin-block: 3em;
+}
+
 /* Restore list markers — Tailwind preflight removes them site-wide. */
 .article-content ul,
 .article-content ol {
