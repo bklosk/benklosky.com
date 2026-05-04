@@ -10,10 +10,10 @@ export function Footer() {
 
   return (
     <footer
-      className="mx-auto max-w-6xl px-[clamp(1.25rem,5vw,4rem)] pb-[clamp(2rem,5vw,3rem)] pt-[clamp(1.05rem,3vw,1.75rem)] max-[560px]:px-4"
+      className="pb-[clamp(2rem,5vw,3rem)] pt-[clamp(1.05rem,3vw,1.75rem)]"
       aria-label="Site footer"
     >
-      <div className="flex flex-col gap-[clamp(0.75rem,2vw,1rem)] min-[620px]:flex-row min-[620px]:items-center min-[620px]:justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
         <p className="m-0 text-[0.86rem] text-muted">
           © {year} Ben Klosky
         </p>

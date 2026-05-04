@@ -8,10 +8,10 @@ In 1968, with more than 105,000 employees, Boeing produced the 747, the greatest
 
 Sutter had enough political capital to defend the double-wide fuselage, and other radical design choices, against skeptical Boeing and Pan Am executives. Leaders at Boeing placed an absurd amount of trust in Sutter and his engineers, and bet on him. Hard. Boeing borrowed an eye-watering sum of money to finance the development. The 747 made it to market, late and over budget, [cut the consumer cost of flying in half](https://ig.space/commslink/boeings-747-how-the-queen-of-the-skies-changed-the), and became the most iconic airliner ever created.
 
-
+ 
 ---
 
-
+ 
 It's conventional wisdom that big organizations make subpar products. My boss literally [wrote the book](https://www.amazon.com/Deadly-Memos-Conventional-Companies-Pamphlet-ebook/dp/B09G5XX8MW) on this problem! Christensen declared this decades ago! But size is only correlated with shitty products-- size tempts failure, but doesn't demand it. There are *really damn good* products that are designed and made by big bureaucracies. None are explained by a founder-dictator or a skunkworks group or the other usual explanations.
 
 - Nintendo, a Japanese company founded in 1889, with 7,000 employees, produced *Breath of the Wild*, widely known as one of the greatest video games of all time. They sold more than 35 million copies, making more than $1.5B. From one game.
@@ -36,13 +36,13 @@ In the failure mode of Atlassian, Workday, or Salesforce, you don't have a prote
 You're measuring WAU and pirate metrics! You have project managers! You're tracking velocity and counting features shipped! But it is causing you more harm than good. You've proved goodhart's law, and shipped features that never should have existed. You create an infinitely flexible product that does everything and nothing and is mildly frustrating for everyone and loved by no one.
 
 Even if you do have a tastemaker, it won't work without contact with the real world and real feedback. You will fail if the engineers don't get real feedback. Development is a contact sport, and this is a real affront to some managers convinced they had a great idea-- and worse, their employees forced to build it. There's a real failure mode: a Business Analyst™️ drafts a spec for an imaginary customer, and the devs spend months working on the spec in isolation. This is what "agile" is meant to solve, but most "agile" teams never actually get user feedback. Instead, you work on a pre-specced project, with tickets written two weeks at a time, you call the waterfall design an "epic," the SVP is happy with the burndown rate, and you release a product ahead of time and under budget, to raucous applause from leadership, that no one uses.
-
-
+   
+    
 --- 
-
+   
 
 When McDonnell-Douglas merged with Boeing in 1997, engineers got eaten by finance. McDonnell-Douglas leadership took over from the previous generation of leaders, and demanded decisions increasingly had to be defended by the "bottom line," and not on design merits or engineering prowess. The finance minded leaders at McDonnell-Douglas were proud of their new, "[more cut-throat culture, devoted to keeping costs down and favoring upgrading older models at the expense of wholesale innovation](https://qz.com/1776080/how-the-mcdonnell-douglas-boeing-merger-led-to-the-737-max-crisis)."
 
 The time came for a new generation of the 737, a beloved plane, and McDonnell-Douglas made a decision on cost grounds to retrofit the 737 rather than develop a new plane outright.  They called it the 737 MAX. Boeing developed [strange hacks and workarounds](https://spectrum.ieee.org/how-the-boeing-737-max-disaster-looks-to-a-software-developer) to force the retrofit to work with new engines. They used software to solve hardware problems, and built a program called MCAS designed to work around the retrofit's limitations and force the new engines to work with the old fuselage.
 
-On two 737 MAX flights, with passengers onboard, faults in MCAS caused catastrophic failures. Both flights crashed, and more than 346 people died. The FAA later found in a private report that MCAS could cause as many as 15 crashes in the next 30 years. The 737 MAX was grounded for two years. Boeing lost their authority to certify aircraft, lost more than $20 billion in direct costs, and lost an estimated $60 billion in canceled orders. Boeing happily traded away long term product leadership for short term optimization, and never recovered.
+On two 737 MAX flights, with passengers onboard, faults in MCAS caused catastrophic failures. Both flights crashed, and more than 346 people died. The FAA later found in a private report that MCAS could cause as many as 15 crashes in the next 30 years. The 737 MAX was grounded for two years. Boeing lost their authority to certify aircraft, lost more than $20 billion in direct costs, and lost an estimated $60 billion in canceled orders. Boeing happily traded away  product leadership for short term optimization, and never recovered.
