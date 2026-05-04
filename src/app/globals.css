@@ -69,7 +69,7 @@ input:focus-visible {
 
 .article-content {
   color: var(--foreground);
-  font-size: clamp(1.05rem, 2.1vw, 1.22rem);
+  font-size: clamp(0.98rem, 1.9vw, 1.1rem);
   line-height: 1.72;
 }
 
@@ -79,6 +79,31 @@ input:focus-visible {
 
 .article-content > * + * {
   margin-block-start: 1.25em;
+}
+
+/* Restore list markers — Tailwind preflight removes them site-wide. */
+.article-content ul,
+.article-content ol {
+  list-style-position: outside;
+  margin-block: 0;
+  padding-inline-start: 1.35em;
+}
+
+.article-content ul {
+  list-style-type: disc;
+}
+
+.article-content ol {
+  list-style-type: decimal;
+}
+
+.article-content li {
+  margin-block: 0.4em;
+  padding-inline-start: 0.25em;
+}
+
+.article-content li > :is(ul, ol) {
+  margin-block-start: 0.5em;
 }
 
 .article-content h2,

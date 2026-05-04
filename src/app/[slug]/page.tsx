@@ -1,4 +1,5 @@
 import { articles } from "#site/content";
+import { formatArticleDate } from "@/lib/formatArticleDate";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -36,7 +37,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
   }
 
   return (
-    <main className="mx-auto max-w-3xl px-[clamp(1.25rem,5vw,4rem)] py-[clamp(2rem,7vw,5rem)] max-[560px]:px-4">
+    <main className="mx-auto max-w-4xl px-[clamp(1.25rem,5vw,4rem)] py-[clamp(2rem,7vw,5rem)] max-[560px]:px-4">
       <Link
         className="text-sm text-muted hover:text-accent"
         href="/#writing"
@@ -46,7 +47,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
       <article className="mt-12">
         <p className="m-0 text-[0.72rem] leading-[1.2] tracking-[0.03em] text-muted">
-          {article.date}
+          {formatArticleDate(article.date)}
         </p>
         <h1 className="mb-8 mt-3 font-serif text-[clamp(2.4rem,8vw,5rem)] font-normal leading-[0.92] tracking-[-0.055em]">
           {article.title}

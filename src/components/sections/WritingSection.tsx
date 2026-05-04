@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Article } from "#site/content";
+import { formatArticleDate } from "@/lib/formatArticleDate";
 import { articleTitleClass, Eyebrow, Section } from "./Section";
 
 const articleRowClass =
@@ -13,7 +14,7 @@ export function WritingSection({ articles }: { articles: Article[] }) {
           articles.map((article) => (
             <article className={articleRowClass} key={article.slug}>
               <div>
-                <Eyebrow>{article.date}</Eyebrow>
+                <Eyebrow>{formatArticleDate(article.date)}</Eyebrow>
                 <h2 className={articleTitleClass}>
                   <Link className="hover:text-accent" href={`/${article.slug}`}>
                     {article.title}
