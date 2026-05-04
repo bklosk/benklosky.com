@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { HoverCircleText } from "../HoverCircleText";
 import { bodyTextClass, panelClass } from "./Section";
 
 const socials = [
@@ -23,7 +24,7 @@ const socials = [
 export function HeroSection() {
   return (
     <section
-      className="flex min-h-[min(34rem,68vh)] scroll-mt-28 items-center border-b border-line pb-[clamp(1.5rem,4vh,2.5rem)] pt-[clamp(3rem,7vh,5rem)]"
+      className="flex min-h-[min(26rem,56vh)] scroll-mt-28 items-center border-b border-line pb-[clamp(1.2rem,3.25vh,2rem)] pt-[clamp(2.25rem,5.25vh,3.85rem)]"
       id="about"
       aria-labelledby="intro-title"
     >
@@ -32,8 +33,9 @@ export function HeroSection() {
           <h1
             className="mb-4 mt-0 font-serif text-[clamp(2.1rem,3.8vw,3.35rem)] font-normal leading-[0.92] tracking-[-0.06em] max-[900px]:text-[clamp(2.7rem,13vw,5rem)]"
             id="intro-title"
+            aria-label="Ben Klosky"
           >
-            Ben Klosky
+            <HoverCircleText>Ben Klosky</HoverCircleText>
           </h1>
           <p
             className={`${bodyTextClass} max-w-132 text-[clamp(0.95rem,1.3vw,1.1rem)]`}
@@ -51,7 +53,7 @@ export function HeroSection() {
 
               return (
                 <a
-                  className="border-b border-line text-[0.86rem] text-foreground no-underline transition-colors duration-200 hover:border-accent hover:text-accent-strong"
+                  className="border-b border-line text-[0.86rem] text-foreground no-underline transition-colors duration-200 hover:border-foreground hover:text-accent-strong"
                   href={social.href}
                   key={social.href}
                   rel={isExternal ? "noreferrer" : undefined}

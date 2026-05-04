@@ -16,7 +16,7 @@ export function WritingSection({ articles }: { articles: Article[] }) {
               <div>
                 <Eyebrow>{formatArticleDate(article.date)}</Eyebrow>
                 <h2 className={articleTitleClass}>
-                  <Link className="hover:text-accent" href={`/${article.slug}`}>
+                  <Link className="hover:text-accent-strong" href={`/${article.slug}`}>
                     {article.title}
                   </Link>
                 </h2>

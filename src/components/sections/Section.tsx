@@ -1,9 +1,9 @@
 import type { ReactNode } from "react";
 
 const sectionClass =
-  "grid items-start scroll-mt-28 border-b border-line py-[clamp(1.25rem,4vw,2.75rem)] max-[900px]:gap-6 min-[901px]:grid-cols-[minmax(12rem,0.56fr)_minmax(0,1.44fr)] min-[901px]:gap-[clamp(2rem,7vw,7rem)] min-[901px]:min-h-[72vh] min-[901px]:grid-rows-[1fr]";
+  "grid items-start scroll-mt-28 border-b border-line py-[clamp(1rem,3vw,2.1rem)] max-[900px]:gap-5 min-[901px]:grid-cols-[minmax(12rem,0.56fr)_minmax(0,1.44fr)] min-[901px]:gap-[clamp(1.65rem,5.5vw,5.5rem)] min-[901px]:min-h-[clamp(14rem,34vh,22rem)] min-[901px]:grid-rows-[1fr]";
 const sectionKickerClass =
-  "z-[1] h-fit self-start max-[900px]:-mx-1 max-[900px]:px-1 max-[900px]:pb-3 max-[900px]:pt-2 min-[901px]:sticky min-[901px]:top-[clamp(1.25rem,4vw,3rem)] min-[901px]:min-h-48";
+  "z-[1] h-fit self-start max-[900px]:-mx-1 max-[900px]:px-1 max-[900px]:pb-2 max-[900px]:pt-1 min-[901px]:sticky min-[901px]:top-[clamp(1.25rem,4vw,3rem)] min-[901px]:min-h-[9rem]";
 const sectionTitleClass =
   "m-0 max-w-32 font-serif text-[clamp(1.35rem,2.8vw,2rem)] font-normal leading-[0.95] tracking-[-0.045em] max-[900px]:max-w-none";
 

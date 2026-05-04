@@ -4,21 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "9d6f48e84f84c852",
+        "id": "46071dca965f2639",
         "type": "tabs",
         "children": [
           {
-            "id": "926d807dcde05060",
+            "id": "2fd6e070a6e17121",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "How to make great products in a massive bureaucracy.md",
+                "file": "Big orgs can make great products.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "How to make great products in a massive bureaucracy"
+              "title": "Big orgs can make great products"
             }
           }
         ]
@@ -78,8 +78,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300,
-    "collapsed": true
+    "width": 300
   },
   "right": {
     "id": "f2a90422f83844b2",
@@ -181,10 +180,10 @@
       "bases:Create new base": false
     }
   },
-  "active": "926d807dcde05060",
+  "active": "2fd6e070a6e17121",
   "lastOpenFiles": [
+    "Big orgs can make great products.md",
     "No, strangers are not dangerous.md",
-    "How to make great products in a massive bureaucracy.md",
     "www.fosterinsights.org.md"
   ]
 }
