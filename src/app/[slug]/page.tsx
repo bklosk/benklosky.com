@@ -43,7 +43,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
         className="text-sm text-muted hover:text-accent-strong"
         href="/#writing"
       >
-        Back to writing
+        Back to homepage
       </Link>
 
       <article className="mt-12">
