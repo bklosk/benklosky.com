@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import type { ReactNode } from "react";
 import "./globals.css";
@@ -23,23 +23,20 @@ const satoshi = localFont({
 
 export const metadata: Metadata = {
   title: "Ben Klosky",
-  description:
-    "Software, economics, projects, and writing from Ben Klosky.",
+  description: "Software, economics, projects, and writing from Ben Klosky.",
 };
 
-export const viewport = {
+export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  viewportFit: "cover" as const,
-  colorScheme: "light" as const,
-  themeColor: "#f7f1e7",
+  viewportFit: "cover",
+  colorScheme: "light",
+  themeColor: "#f4f3ee",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: ReactNode;
-}>) {
+}: Readonly<{ children: ReactNode }>) {
   return (
     <html lang="en">
       <body className={satoshi.variable}>{children}</body>

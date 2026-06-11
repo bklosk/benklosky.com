@@ -1,12 +1,12 @@
 import { articles } from "#site/content";
-import { Footer } from "../components/Footer";
-import { HeroSection } from "../components/sections/HeroSection";
-import { Bio } from "../components/sections/Bio";
-import { WritingSection } from "../components/sections/WritingSection";
+import { Footer } from "@/components/Footer";
+import { Bio } from "@/components/sections/Bio";
+import { HeroSection } from "@/components/sections/HeroSection";
+import { WritingSection } from "@/components/sections/WritingSection";
 
 export const revalidate = 60;
 
-export default async function Home() {
+export default function Home() {
   const visibleArticles = articles
     .filter((article) => article.visible)
     .toSorted(
@@ -15,9 +15,11 @@ export default async function Home() {
     );
 
   return (
-    <main className="mx-auto max-w-6xl px-[clamp(1.25rem,5vw,4rem)] max-[560px]:px-4">
+    <main className="mx-auto max-w-5xl px-5 sm:px-8 lg:px-12">
       <HeroSection />
-      <WritingSection articles={visibleArticles} />
+      {visibleArticles.length > 0 && (
+        <WritingSection articles={visibleArticles} />
+      )}
       <Bio />
       <Footer />
     </main>

@@ -1,14 +1,17 @@
-import { articles } from "#site/content";
-import { HoverCircleText } from "@/components/HoverCircleText";
-import { formatArticleDate } from "@/lib/formatArticleDate";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { articles } from "#site/content";
+import { HoverCircleText } from "@/components/HoverCircleText";
+import { Eyebrow } from "@/components/sections/Section";
+import { formatArticleDate } from "@/lib/formatArticleDate";
 
 type ArticlePageProps = {
-  params: Promise<{
-    slug: string;
-  }>;
+  params: Promise<{ slug: string }>;
 };
+
+function findArticle(slug: string) {
+  return articles.find((article) => article.visible && article.slug === slug);
+}
 
 export function generateStaticParams() {
   return articles
@@ -18,7 +21,7 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: ArticlePageProps) {
   const { slug } = await params;
-  const article = articles.find((item) => item.visible && item.slug === slug);
+  const article = findArticle(slug);
 
   if (!article) {
     return {};
@@ -31,27 +34,25 @@ export async function generateMetadata({ params }: ArticlePageProps) {
 
 export default async function ArticlePage({ params }: ArticlePageProps) {
   const { slug } = await params;
-  const article = articles.find((item) => item.visible && item.slug === slug);
+  const article = findArticle(slug);
 
   if (!article) {
     notFound();
   }
 
   return (
-    <main className="mx-auto max-w-4xl px-[clamp(1.25rem,5vw,4rem)] py-[clamp(2rem,7vw,5rem)] max-[560px]:px-4">
+    <main className="mx-auto max-w-3xl px-5 py-12 sm:px-8 md:py-20">
       <Link
-        className="text-sm text-muted hover:text-accent-strong"
+        className="text-sm text-muted transition-colors hover:text-accent-strong"
         href="/#writing"
       >
-        Back to homepage
+        ← Back to homepage
       </Link>
 
-      <article className="mt-12">
-        <p className="m-0 text-[0.72rem] leading-[1.2] tracking-[0.03em] text-muted">
-          {formatArticleDate(article.date)}
-        </p>
+      <article className="mt-10 md:mt-14">
+        <Eyebrow>{formatArticleDate(article.date)}</Eyebrow>
         <h1
-          className="mb-8 mt-3 font-serif text-[clamp(2.4rem,8vw,5rem)] font-normal leading-[0.92] tracking-[-0.055em]"
+          className="mb-8 mt-3 font-serif text-4xl font-normal leading-[1.02] tracking-[-0.04em] md:text-6xl"
           aria-label={article.title}
         >
           <HoverCircleText>{article.title}</HoverCircleText>
