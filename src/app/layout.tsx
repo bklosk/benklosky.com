@@ -1,45 +1,19 @@
-import type { Metadata, Viewport } from "next";
-import localFont from "next/font/local";
-import type { ReactNode } from "react";
+import type { Metadata } from "next";
 import "./globals.css";
 
-const satoshi = localFont({
-  src: [
-    {
-      path: "../../public/Satoshi/WEB/fonts/Satoshi-Variable.woff2",
-      weight: "300 900",
-      style: "normal",
-    },
-    {
-      path: "../../public/Satoshi/WEB/fonts/Satoshi-VariableItalic.woff2",
-      weight: "300 900",
-      style: "italic",
-    },
-  ],
-  variable: "--font-satoshi",
-  display: "swap",
-  fallback: ["Helvetica Neue", "Helvetica", "Arial", "sans-serif"],
-});
-
 export const metadata: Metadata = {
-  title: "Ben Klosky",
-  description: "Software, economics, projects, and writing from Ben Klosky.",
-};
-
-export const viewport: Viewport = {
-  width: "device-width",
-  initialScale: 1,
-  viewportFit: "cover",
-  colorScheme: "light",
-  themeColor: "#f4f3ee",
+  title: "benklosky.com",
+  description: "benklosky.com",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{ children: ReactNode }>) {
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
     <html lang="en">
-      <body className={satoshi.variable}>{children}</body>
+      <body>{children}</body>
     </html>
   );
 }
