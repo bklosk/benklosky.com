@@ -20,19 +20,9 @@ type Bubble = {
 
 const QUICK_RADIUS = 38;
 const MAX_BUBBLES = 40;
-const BUBBLE_COLORS = [
-  "#172554",
-  "#3b122c",
-  "#12372d",
-  "#451a18",
-  "#31205f",
-  "#17334d",
-];
+const BUBBLE_COLORS = ["#172554", "#12372d", "#451a18", "#E1BC29", "#17334d"];
 
-function paintBubbles(
-  canvas: HTMLCanvasElement | null,
-  bubbles: Bubble[],
-) {
+function paintBubbles(canvas: HTMLCanvasElement | null, bubbles: Bubble[]) {
   const context = canvas?.getContext("2d");
   if (!canvas || !context) return;
 
@@ -64,8 +54,7 @@ export function BubbleCanvas({ children }: { children: ReactNode }) {
     for (const bubble of bubblesRef.current) {
       if (bubble.pressed) {
         const holdTime = now - bubble.pressedAt;
-        bubble.targetRadius =
-          QUICK_RADIUS + 76 * Math.log1p(holdTime / 150);
+        bubble.targetRadius = QUICK_RADIUS + 76 * Math.log1p(holdTime / 150);
       }
 
       const acceleration = (bubble.targetRadius - bubble.radius) * 120;
@@ -109,10 +98,7 @@ export function BubbleCanvas({ children }: { children: ReactNode }) {
     const bubble: Bubble = {
       x: event.clientX - bounds.left,
       y: event.clientY - bounds.top,
-      color:
-        BUBBLE_COLORS[
-          Math.floor(Math.random() * BUBBLE_COLORS.length)
-        ],
+      color: BUBBLE_COLORS[Math.floor(Math.random() * BUBBLE_COLORS.length)],
       radius: 8,
       targetRadius: QUICK_RADIUS,
       velocity: 220,
