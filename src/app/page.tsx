@@ -7,6 +7,7 @@ import {
   Twitter,
   type LucideIcon,
 } from "lucide-react";
+import Image from "next/image";
 import { BubbleCanvas } from "./bubble-canvas";
 
 const linkIconProps = {
@@ -62,35 +63,44 @@ export default function Home() {
   return (
     <BubbleCanvas>
       <div className="composition">
-        <nav className="link-wall" aria-label="Links">
-          {links.map((link) => {
-            const Icon = link.icon;
-            return (
-              <a
-                key={link.label}
-                href={link.href}
-                target={link.external ? "_blank" : undefined}
-                rel={link.external ? "noreferrer" : undefined}
-              >
-                <Icon {...linkIconProps} />
-                <span>{link.label}</span>
-              </a>
-            );
-          })}
-        </nav>
+        <div className="link-column">
+          <Image
+            className="portrait"
+            src="/ben.jpg"
+            alt="Ben Klosky"
+            width={80}
+            height={80}
+            priority
+          />
+          <nav className="link-wall" aria-label="Links">
+            {links.map((link) => {
+              const Icon = link.icon;
+              return (
+                <a
+                  key={link.label}
+                  href={link.href}
+                  target={link.external ? "_blank" : undefined}
+                  rel={link.external ? "noreferrer" : undefined}
+                >
+                  <Icon {...linkIconProps} />
+                  <span>{link.label}</span>
+                </a>
+              );
+            })}
+          </nav>
+        </div>
 
         <aside id="about" className="intro">
           <p>
-            I’m Ben Klosky, a{" "}
-            <a href="https://en.wikipedia.org/wiki/Maker_culture">maker</a>. I
-            design products for a <a href="https://risc.uchicago.edu">lab</a>{" "}
-            founded by Steve Levitt (of{" "}
+            I'm Ben Klosky, a{" "}
+            <a href="https://en.wikipedia.org/wiki/Maker_culture">maker</a> and technologist. I
+            design products for Steve Levitt's <a href="https://risc.uchicago.edu">lab</a> (of{" "}
             <span className="italic">Freakonomics</span> fame).
           </p>
           <p>
             Right now, I work on the{" "}
-            <a href="fosterinsights.org">foster care system</a> and a{" "}
-            <a href="thelevittlab.org">radical new school</a>.
+            <a href="https://fosterinsights.org">foster care system</a> and a{" "}
+            <a href="https://thelevittlab.org">radical new school</a>.
           </p>
           <p>
             I&apos;ve worked as a machine learning engineer, a math teacher, in

@@ -45,24 +45,37 @@ body {
 }
 
 .composition {
-  position: relative;
-  z-index: 1;
   display: flex;
   width: min(40rem, 100%);
   gap: 4.5rem;
   /* Centered as a unit, then nudged left */
   margin-right: 10vw;
-  color: #fff;
-  mix-blend-mode: difference;
   pointer-events: none;
+}
+
+.link-column {
+  display: flex;
+  flex-shrink: 0;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.portrait {
+  position: relative;
+  z-index: 1;
+  width: 5rem;
+  height: 5rem;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 .link-wall {
   display: flex;
-  flex-shrink: 0;
   flex-direction: column;
   gap: 0.85rem;
   padding-top: 0.15rem;
+  color: #fff;
+  mix-blend-mode: difference;
 }
 
 .link-wall a {
@@ -98,9 +111,11 @@ body {
 
 .intro {
   max-width: 22rem;
+  padding-top: 2rem;
   font-size: 0.875rem;
   line-height: 1.6;
-  color: inherit;
+  color: #fff;
+  mix-blend-mode: difference;
 }
 
 .intro p {
