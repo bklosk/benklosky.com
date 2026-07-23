@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { BubbleCanvas } from "./bubble-canvas";
 
 type LinkItem = {
   label: string;
@@ -111,7 +112,7 @@ const links: LinkItem[] = [
 
 export default function Home() {
   return (
-    <main className="site-shell">
+    <BubbleCanvas>
       <div className="composition">
         <nav className="link-wall" aria-label="Links">
           {links.map((link) => (
@@ -144,6 +145,6 @@ export default function Home() {
           </p>
         </aside>
       </div>
-    </main>
+    </BubbleCanvas>
   );
 }

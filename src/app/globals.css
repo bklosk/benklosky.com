@@ -28,12 +28,32 @@ body {
   padding: 5.5rem 2rem 4rem;
 }
 
+.bubble-surface {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  touch-action: none;
+  cursor: crosshair;
+}
+
+.bubble-canvas {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  pointer-events: none;
+}
+
 .composition {
+  position: relative;
+  z-index: 1;
   display: flex;
   width: min(40rem, 100%);
   gap: 4.5rem;
   /* Centered as a unit, then nudged left */
   margin-right: 10vw;
+  color: #fff;
+  mix-blend-mode: difference;
+  pointer-events: none;
 }
 
 .link-wall {
@@ -48,17 +68,20 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 0.55rem;
-  color: var(--muted);
+  color: inherit;
   font-size: 0.8125rem;
   line-height: 1;
   text-decoration: none;
   white-space: nowrap;
-  transition: color 140ms ease;
+  pointer-events: auto;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: opacity 140ms ease;
 }
 
 .link-wall a:hover,
 .link-wall a:focus-visible {
-  color: var(--foreground);
+  opacity: 0.58;
 }
 
 .link-wall a:focus-visible {
@@ -76,7 +99,7 @@ body {
   max-width: 22rem;
   font-size: 0.875rem;
   line-height: 1.6;
-  color: var(--foreground);
+  color: inherit;
 }
 
 .intro p {
@@ -88,10 +111,13 @@ body {
 }
 
 .intro a {
-  color: var(--link);
+  color: inherit;
   text-decoration: underline;
-  text-decoration-color: #000;
+  text-decoration-color: currentColor;
   text-underline-offset: 0.15em;
+  pointer-events: auto;
+  cursor: pointer;
+  touch-action: manipulation;
 }
 
 @media (max-width: 640px) {
