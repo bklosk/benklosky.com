@@ -32,6 +32,7 @@ body {
   position: relative;
   isolation: isolate;
   overflow: hidden;
+  background: var(--background);
   touch-action: none;
   cursor: crosshair;
 }
