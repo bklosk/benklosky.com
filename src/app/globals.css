@@ -51,6 +51,8 @@ body {
   /* Centered as a unit, then nudged left */
   margin-right: 10vw;
   pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .link-column {
@@ -143,18 +145,12 @@ body {
 
   .composition {
     width: 100%;
-    flex-direction: column;
-    gap: 2rem;
-    margin-right: 0;
-  }
-
-  .link-wall {
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 0.75rem 1.25rem;
+    gap: 1.25rem;
+    margin-right: 0.75rem;
   }
 
   .intro {
+    min-width: 0;
     max-width: none;
   }
 }
