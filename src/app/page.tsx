@@ -1,5 +1,4 @@
 import {
-  FileText,
   Github,
   Linkedin,
   Mail,
@@ -52,11 +51,6 @@ const links: LinkItem[] = [
     href: "#blog",
     icon: NotebookPen,
   },
-  {
-    label: "Resume",
-    href: "/resume.pdf",
-    icon: FileText,
-  },
 ];
 
 export default function Home() {
@@ -93,18 +87,18 @@ export default function Home() {
         <aside id="about" className="intro">
           <p>
             I'm Ben Klosky, a{" "}
-            <a href="https://en.wikipedia.org/wiki/Maker_culture">maker</a> and technologist. I
+            <a href="https://en.wikipedia.org/wiki/Maker_culture">maker</a> and data scientist. I
             design products for Steve Levitt's <a href="https://risc.uchicago.edu">lab</a> (of{" "}
             <span className="italic">Freakonomics</span> fame).
           </p>
           <p>
             Right now, I work on the{" "}
-            <a href="https://fosterinsights.org">foster care system</a> and a{" "}
+            <a href="https://www.fosterinsights.org">foster care system</a> and a{" "}
             <a href="https://thelevittlab.org">radical new school</a>.
           </p>
           <p>
-            I&apos;ve worked as a machine learning engineer, a math teacher, in
-            econ research, and as an apprentice at a police department.
+            I&apos;ve worked as a machine learning engineer, a math teacher, an
+            econ researcher, and as an apprentice at a police department.
           </p>
         </aside>
       </div>
