@@ -19,7 +19,7 @@ type Bubble = {
 };
 
 const QUICK_RADIUS = 38;
-const MAX_BUBBLES = 40;
+const MAX_BUBBLES = 90;
 const BUBBLE_COLORS = ["#172554", "#12372d", "#451a18", "#E1BC29", "#17334d"];
 
 function paintBubbles(canvas: HTMLCanvasElement | null, bubbles: Bubble[]) {

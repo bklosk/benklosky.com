@@ -87,7 +87,7 @@ export default function Home() {
         <aside id="about" className="intro">
           <p>
             I am Ben Klosky, a{" "}
-            <a href="https://en.wikipedia.org/wiki/Maker_culture">maker</a> and data scientist. I
+            <a href="https://en.wikipedia.org/wiki/Maker_culture">maker </a> and data scientist. I
             design products for Steve Levitt&apos;s <a href="https://risc.uchicago.edu">lab</a> (of{" "}
             <span className="italic">Freakonomics</span> fame).
           </p>
