@@ -17,7 +17,8 @@ export function ShelfExplorer({ games }: { games: Game[] }) {
   function select(next: Selection) {
     triggerRef.current = document.activeElement as HTMLElement;
     setSelection(next);
-    if (window.matchMedia("(max-width: 900px)").matches) {
+    const docked = window.matchMedia("(max-width: 640px)").matches;
+    if (!docked && window.matchMedia("(max-width: 900px)").matches) {
       requestAnimationFrame(() => detailsRef.current?.scrollIntoView({
         behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth",
         block: "nearest",
@@ -29,7 +30,7 @@ export function ShelfExplorer({ games }: { games: Game[] }) {
 
   return (
     <div className="shelf-page">
-      <section className="shelf-exhibit" aria-label="The game shelf">
+      <section className={`shelf-exhibit${selection ? " has-selection" : ""}`} aria-label="The game shelf">
         <ShelfModel games={games} selectedId={game?.id} matchedIds={noMatches} searching={false} onSelect={select} />
         {selection && (
           <aside className="shelf-selection" ref={detailsRef} aria-label="Selected board game" aria-live="polite">
@@ -42,7 +43,7 @@ export function ShelfExplorer({ games }: { games: Game[] }) {
                 {game.image && <img className="shelf-selection-cover" src={game.image} alt={`${game.name} box cover`} />}
                 <h2>{game.name}</h2>
                 {game.designers.length > 0 && <p className="shelf-selection-designer">by {game.designers.join(" & ")}</p>}
-                <p>{game.summary || game.description.split("\n\n")[0]}</p>
+                <p className="shelf-selection-summary">{game.summary || game.description.split("\n\n")[0]}</p>
                 <div className="shelf-selection-facts">
                   <span><Users size={15} /> {range(game.minPlayers, game.maxPlayers)} players</span>
                   <span><Clock3 size={15} /> {range(game.minMinutes, game.maxMinutes)} min</span>

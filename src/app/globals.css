@@ -203,6 +203,26 @@ body {
     margin-right: 0;
   }
 
+  .site-shell:has(.shelf-page) {
+    height: 100svh;
+    padding-bottom: 0;
+    align-items: stretch;
+  }
+
+  .site-shell:has(.shelf-page) .composition--shelf {
+    height: 100%;
+    min-height: 0;
+    align-items: stretch;
+  }
+
+  .site-shell:has(.shelf-page) .page-content,
+  .site-shell:has(.shelf-page) .page-content > div {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+  }
+
   .intro {
     min-width: 0;
     max-width: none;

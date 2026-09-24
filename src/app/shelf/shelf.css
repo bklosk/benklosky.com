@@ -41,9 +41,51 @@
   .shelf-stage { height: 830px; }
   .shelf-selection { position: relative; width: 100%; max-width: 460px; max-height: none; margin: -20px auto 26px; }
 }
-@media (max-width: 560px) {
-  .shelf-page { padding: 0 20px; }
-  .shelf-stage { height: 620px; min-height: 0; margin: 0 -12px; width: calc(100% + 24px); }
-  .shelf-floor-shadow { top: 78%; }
+@media (max-width: 640px) {
+  .shelf-page {
+    --shelf-sheet: min(40svh, 320px);
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+  }
+  .shelf-exhibit, .shelf-stage-wrapper { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+  .shelf-exhibit { transition: padding-bottom 200ms ease; }
+  .shelf-exhibit.has-selection { padding-bottom: var(--shelf-sheet); }
+  .shelf-stage { flex: 1; height: auto; min-height: 0; margin: 0 -12px; width: calc(100% + 24px); }
+  .shelf-selection {
+    position: fixed;
+    z-index: 4;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: auto;
+    width: auto;
+    max-width: none;
+    height: var(--shelf-sheet);
+    max-height: var(--shelf-sheet);
+    margin: 0;
+    padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
+    border-radius: 18px 18px 0 0;
+    border-top: 1px solid var(--shelf-line);
+    display: grid;
+    grid-template-columns: 96px minmax(0, 1fr);
+    column-gap: 14px;
+    align-content: start;
+    overscroll-behavior: contain;
+  }
+  .shelf-selection-close { top: 10px; right: 10px; padding: 8px; }
+  .shelf-selection-cover { grid-column: 1; grid-row: 1 / span 5; width: 96px; max-height: 128px; margin: 6px 0 0; object-position: top center; }
+  .shelf-selection h2 { grid-column: 2; margin: 2px 28px 4px 0; font-size: 22px; }
+  .shelf-selection .shelf-selection-designer,
+  .shelf-selection .shelf-selection-summary,
+  .shelf-selection-facts,
+  .shelf-selection .shelf-selection-plays { grid-column: 2; }
+  .shelf-selection .shelf-selection-designer { margin-bottom: 8px; }
+  .shelf-selection .shelf-selection-summary { margin: 4px 0 8px; }
+  .shelf-selection-facts { padding: 8px 0; }
+  .shelf-selection .shelf-selection-plays { margin-top: 8px; }
+  .shelf-selection details, .shelf-selection-link { grid-column: 1 / -1; }
+  .shelf-selection:not(:has(.shelf-selection-cover)) :is(h2, p, .shelf-selection-facts) { grid-column: 1 / -1; }
 }
 @media (prefers-reduced-motion: reduce) { .shelf-page *, .shelf-page *::before, .shelf-page *::after { transition: none !important; scroll-behavior: auto !important; } }

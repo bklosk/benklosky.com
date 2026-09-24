@@ -14,6 +14,8 @@ const scale = 0.5;
 // The stage fills the column beside the sidebar, so a centered model sits
 // right of the window. Slide it toward the viewport center, stopping before
 // it clips the stage (local shelf half-width is 300 units; 1 unit ≈ 1px).
+const MOBILE_SHELF = "(max-width: 640px)";
+
 function horizontalShift(stage: HTMLElement, fit: number, zoom: number) {
   const rect = stage.getBoundingClientRect();
   const stageCenter = rect.left + rect.width / 2;
@@ -23,6 +25,17 @@ function horizontalShift(stage: HTMLElement, fit: number, zoom: number) {
   const desired = window.innerWidth / 2;
   const center = minCenter <= maxCenter ? Math.min(maxCenter, Math.max(minCenter, desired)) : stageCenter;
   return Math.round(center - stageCenter);
+}
+
+// Phone stages are short once the bottom sheet is open, so keep the model
+// centered in whatever height the stage currently has.
+function placeShelf(world: THREE.Group, stageHeight: number, fit: number, zoom: number) {
+  if (!window.matchMedia(MOBILE_SHELF).matches) {
+    world.position.y = -74;
+    return null;
+  }
+  world.position.y = 0;
+  return Math.round(stageHeight / 2 + 280 * fit * zoom);
 }
 
 type ShelfScene = {
@@ -116,6 +129,7 @@ export function ShelfModel({ games, selectedId, matchedIds, searching, onSelect 
   const [zoom, setZoom] = useState(1);
   const [fit, setFit] = useState(0.8);
   const [shift, setShift] = useState(0);
+  const [shadowTop, setShadowTop] = useState<number | null>(null);
   const zoomRef = useRef(zoom);
   zoomRef.current = zoom;
   const [dragging, setDragging] = useState(false);
@@ -186,12 +200,16 @@ export function ShelfModel({ games, selectedId, matchedIds, searching, onSelect 
       camera.aspect = width / height;
       camera.fov = 2 * Math.atan(height / (2 * 1700)) * 180 / Math.PI;
       camera.updateProjectionMatrix();
-      world.position.y = window.matchMedia("(max-width: 560px)").matches ? -60 : -74;
-      const nextFit = Math.min((width - 65) / 740, (height - 235) / 810, 1.15);
+      const mobile = window.matchMedia(MOBILE_SHELF).matches;
+      const nextFit = mobile
+        ? clamp(Math.min((width + 176) / 740, (Math.max(height, 160) - 8) / 620), 0.4, 1.65)
+        : Math.min((width - 65) / 740, (height - 235) / 810, 1.15);
       const nextShift = horizontalShift(stage, nextFit, zoomRef.current);
       world.position.x = nextShift;
+      const nextShadow = placeShelf(world, height, nextFit, zoomRef.current);
       setFit(nextFit);
       setShift((current) => (current === nextShift ? current : nextShift));
+      setShadowTop((current) => (current === nextShadow ? current : nextShadow));
       render();
     });
     observer.observe(stage);
@@ -220,7 +238,9 @@ export function ShelfModel({ games, selectedId, matchedIds, searching, onSelect 
     if (!shelf || !stage) return;
     const nextShift = horizontalShift(stage, fit, zoom);
     shelf.world.position.x = nextShift;
+    const nextShadow = placeShelf(shelf.world, stage.getBoundingClientRect().height, fit, zoom);
     setShift((current) => (current === nextShift ? current : nextShift));
+    setShadowTop((current) => (current === nextShadow ? current : nextShadow));
     shelf.world.scale.setScalar(fit * zoom);
     shelf.world.rotation.set(THREE.MathUtils.degToRad(rotation.x), THREE.MathUtils.degToRad(rotation.y), 0, "XYZ");
     allBoxes.forEach((box, index) => {
@@ -321,7 +341,7 @@ export function ShelfModel({ games, selectedId, matchedIds, searching, onSelect 
               if (oldDistance > 0) setZoom((z) => clamp(z * newDistance / oldDistance, 0.65, 1.7));
             }
           } else {
-            setRotation((r) => ({ x: clamp(r.x - (next.y - previous.y) * 0.18, -25, 15), y: clamp(r.y + (next.x - previous.x) * 0.22, -45, 45) }));
+            setRotation((r) => ({ x: clamp(r.x + (next.y - previous.y) * 0.18, -25, 15), y: clamp(r.y + (next.x - previous.x) * 0.22, -45, 45) }));
           }
           pointers.current.set(event.pointerId, next);
         }}
@@ -329,7 +349,7 @@ export function ShelfModel({ games, selectedId, matchedIds, searching, onSelect 
         onPointerCancel={endPointer}
         onPointerLeave={(event) => { if (!event.currentTarget.hasPointerCapture(event.pointerId)) endPointer(event); }}
       >
-        <div className="shelf-floor-shadow" style={{ transform: `translateX(calc(-50% + ${shift}px)) scale(${fit * zoom})` }} />
+        <div className="shelf-floor-shadow" style={{ transform: `translateX(calc(-50% + ${shift}px)) scale(${fit * zoom})`, ...(shadowTop != null ? { top: shadowTop } : {}) }} />
         <div className="shelf-game-controls">
           {allBoxes.map((box, index) => (
             <button key={box.key} type="button"
