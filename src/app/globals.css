@@ -55,11 +55,43 @@ body {
   -webkit-user-select: none;
 }
 
+.composition--shelf {
+  /* Keep the sidebar at the same horizontal position as on the home page. */
+  margin-left: max(0px, calc((100% - 40rem - 10vw) / 2));
+  width: calc(100% - max(0px, (100% - 40rem - 10vw) / 2));
+  gap: clamp(1rem, 3vw, 4rem);
+  margin-right: 0;
+}
+
+.page-content {
+  flex: 1;
+  min-width: 0;
+  pointer-events: auto;
+}
+
+.page-loading {
+  min-height: 2rem;
+}
+
 .link-column {
   display: flex;
   flex-shrink: 0;
   flex-direction: column;
   gap: 1.5rem;
+  position: sticky;
+  top: 5.5rem;
+}
+
+.portrait-link {
+  align-self: flex-start;
+  pointer-events: auto;
+  touch-action: manipulation;
+}
+
+.portrait-link:focus-visible {
+  outline: 2px solid #c96f45;
+  outline-offset: 3px;
+  border-radius: 50%;
 }
 
 .portrait {
@@ -76,8 +108,7 @@ body {
   flex-direction: column;
   gap: 0.85rem;
   padding-top: 0.15rem;
-  color: #fff;
-  mix-blend-mode: difference;
+  color: var(--foreground);
 }
 
 .link-wall a {
@@ -138,6 +169,20 @@ body {
   touch-action: manipulation;
 }
 
+.projects-content {
+  user-select: none;
+}
+
+.bubble-surface:has(.shelf-page) {
+  touch-action: auto;
+}
+
+.composition--shelf .shelf-page {
+  min-height: 0;
+  padding: 0;
+  background: transparent;
+}
+
 @media (max-width: 640px) {
   .site-shell {
     padding: 2.5rem 1.5rem 3rem;
@@ -147,6 +192,15 @@ body {
     width: 100%;
     gap: 1.25rem;
     margin-right: 0.75rem;
+  }
+
+  .link-column {
+    top: 2.5rem;
+  }
+
+  .composition--shelf {
+    margin-left: 0;
+    margin-right: 0;
   }
 
   .intro {

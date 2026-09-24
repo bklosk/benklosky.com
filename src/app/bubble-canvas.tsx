@@ -35,7 +35,7 @@ function paintBubbles(canvas: HTMLCanvasElement | null, bubbles: Bubble[]) {
   }
 }
 
-export function BubbleCanvas({ children }: { children: ReactNode }) {
+export function BubbleCanvas({ children, enabled = true }: { children: ReactNode; enabled?: boolean }) {
   const shellRef = useRef<HTMLElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const bubblesRef = useRef<Bubble[]>([]);
@@ -89,7 +89,7 @@ export function BubbleCanvas({ children }: { children: ReactNode }) {
   }
 
   const handlePointerDown = (event: ReactPointerEvent<HTMLElement>) => {
-    if (event.button !== 0 || (event.target as Element).closest("a")) return;
+    if (!enabled || event.button !== 0 || (event.target as Element).closest("a")) return;
 
     event.preventDefault();
     event.currentTarget.setPointerCapture(event.pointerId);
@@ -130,6 +130,15 @@ export function BubbleCanvas({ children }: { children: ReactNode }) {
     const canvas = canvasRef.current;
     if (!shell || !canvas) return;
 
+    if (!enabled) {
+      bubblesRef.current = [];
+      pointersRef.current.clear();
+      if (frameRef.current !== null) cancelAnimationFrame(frameRef.current);
+      frameRef.current = null;
+      lastFrameRef.current = 0;
+      return;
+    }
+
     const resize = () => {
       const ratio = Math.min(window.devicePixelRatio || 1, 2);
       const width = shell.clientWidth;
@@ -151,7 +160,7 @@ export function BubbleCanvas({ children }: { children: ReactNode }) {
       observer.disconnect();
       if (frameRef.current !== null) cancelAnimationFrame(frameRef.current);
     };
-  }, []);
+  }, [enabled]);
 
   return (
     <main
@@ -161,7 +170,7 @@ export function BubbleCanvas({ children }: { children: ReactNode }) {
       onPointerUp={releasePointer}
       onPointerCancel={releasePointer}
     >
-      <canvas ref={canvasRef} className="bubble-canvas" aria-hidden="true" />
+      <canvas ref={canvasRef} className="bubble-canvas" aria-hidden="true" hidden={!enabled} />
       {children}
     </main>
   );
