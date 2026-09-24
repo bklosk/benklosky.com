@@ -11,6 +11,20 @@ const INITIAL_ROTATION = { x: -5, y: -11 };
 const clamp = (n: number, min: number, max: number) => Math.min(max, Math.max(min, n));
 const scale = 0.5;
 
+// The stage fills the column beside the sidebar, so a centered model sits
+// right of the window. Slide it toward the viewport center, stopping before
+// it clips the stage (local shelf half-width is 300 units; 1 unit ≈ 1px).
+function horizontalShift(stage: HTMLElement, fit: number, zoom: number) {
+  const rect = stage.getBoundingClientRect();
+  const stageCenter = rect.left + rect.width / 2;
+  const half = 300 * fit * zoom;
+  const minCenter = rect.left + 28 + half;
+  const maxCenter = rect.right - 28 - half;
+  const desired = window.innerWidth / 2;
+  const center = minCenter <= maxCenter ? Math.min(maxCenter, Math.max(minCenter, desired)) : stageCenter;
+  return Math.round(center - stageCenter);
+}
+
 type ShelfScene = {
   camera: THREE.PerspectiveCamera;
   world: THREE.Group;
@@ -101,6 +115,9 @@ export function ShelfModel({ games, selectedId, matchedIds, searching, onSelect 
   const [rotation, setRotation] = useState(INITIAL_ROTATION);
   const [zoom, setZoom] = useState(1);
   const [fit, setFit] = useState(0.8);
+  const [shift, setShift] = useState(0);
+  const zoomRef = useRef(zoom);
+  zoomRef.current = zoom;
   const [dragging, setDragging] = useState(false);
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
   const byId = new Map(games.map((game) => [game.id, game]));
@@ -170,7 +187,11 @@ export function ShelfModel({ games, selectedId, matchedIds, searching, onSelect 
       camera.fov = 2 * Math.atan(height / (2 * 1700)) * 180 / Math.PI;
       camera.updateProjectionMatrix();
       world.position.y = window.matchMedia("(max-width: 560px)").matches ? -60 : -74;
-      setFit(Math.min((width - 65) / 740, (height - 235) / 810, 1.15));
+      const nextFit = Math.min((width - 65) / 740, (height - 235) / 810, 1.15);
+      const nextShift = horizontalShift(stage, nextFit, zoomRef.current);
+      world.position.x = nextShift;
+      setFit(nextFit);
+      setShift((current) => (current === nextShift ? current : nextShift));
       render();
     });
     observer.observe(stage);
@@ -195,7 +216,11 @@ export function ShelfModel({ games, selectedId, matchedIds, searching, onSelect 
 
   useEffect(() => {
     const shelf = sceneRef.current;
-    if (!shelf) return;
+    const stage = stageRef.current;
+    if (!shelf || !stage) return;
+    const nextShift = horizontalShift(stage, fit, zoom);
+    shelf.world.position.x = nextShift;
+    setShift((current) => (current === nextShift ? current : nextShift));
     shelf.world.scale.setScalar(fit * zoom);
     shelf.world.rotation.set(THREE.MathUtils.degToRad(rotation.x), THREE.MathUtils.degToRad(rotation.y), 0, "XYZ");
     allBoxes.forEach((box, index) => {
@@ -304,7 +329,7 @@ export function ShelfModel({ games, selectedId, matchedIds, searching, onSelect 
         onPointerCancel={endPointer}
         onPointerLeave={(event) => { if (!event.currentTarget.hasPointerCapture(event.pointerId)) endPointer(event); }}
       >
-        <div className="shelf-floor-shadow" style={{ transform: `translateX(-50%) scale(${fit * zoom})` }} />
+        <div className="shelf-floor-shadow" style={{ transform: `translateX(calc(-50% + ${shift}px)) scale(${fit * zoom})` }} />
         <div className="shelf-game-controls">
           {allBoxes.map((box, index) => (
             <button key={box.key} type="button"

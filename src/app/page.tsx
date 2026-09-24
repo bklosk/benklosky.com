@@ -8,14 +8,18 @@ export default function Home() {
       </p>
       <p>
         Right now, I work on the{" "}
-        <a href="https://www.fosterinsights.org">foster care system</a> and
-        a <a href="https://thelevittlab.org">radical new school</a>.
+        <a href="https://www.fosterinsights.org">foster care system</a> and a{" "}
+        <a href="https://thelevittlab.org">radical new school</a>.
       </p>
       <p>
-        I&apos;ve worked as a machine learning engineer, an econ researcher,
-        and as an apprentice at a police department. I&apos;m also a{" "}
-        <a href="https://en.wikipedia.org/wiki/Maker_culture">maker </a>, I
-        love product design and fabricating things.
+        I&apos;ve worked as a machine learning engineer, an econ researcher, and
+        as an apprentice at a police department. I&apos;m also a{" "}
+        <a href="https://en.wikipedia.org/wiki/Maker_culture">maker</a>. I love
+        design, fabricating things, and{" "}
+        <a href="https://en.wikipedia.org/wiki/Just-in-time_learning">
+          just-in-time learning
+        </a>
+        .
       </p>
     </div>
   );

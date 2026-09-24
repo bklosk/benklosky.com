@@ -37,11 +37,9 @@ export function ShelfExplorer({ games }: { games: Game[] }) {
               setSelection(null);
               if (triggerRef.current?.isConnected) triggerRef.current.focus();
             }}><X size={18} /></button>
-            <span className="shelf-selection-location">{selection.location}</span>
             {game ? (
               <>
                 {game.image && <img className="shelf-selection-cover" src={game.image} alt={`${game.name} box cover`} />}
-                <span className="shelf-selection-kind">{game.expansion ? "EXPANSION" : "BOARD GAME"} · {game.year}</span>
                 <h2>{game.name}</h2>
                 {game.designers.length > 0 && <p className="shelf-selection-designer">by {game.designers.join(" & ")}</p>}
                 <p>{game.summary || game.description.split("\n\n")[0]}</p>
