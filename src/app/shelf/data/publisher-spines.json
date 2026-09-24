@@ -1,0 +1,62 @@
+[
+  {
+    "key": "r0-19",
+    "output": "/shelf/publisher/r0-19.webp",
+    "page": "https://store.stonemaiergames.com/products/stamp-swap",
+    "imageUrl": "https://cdn.shopify.com/s/files/1/0900/3540/files/3Dbox_b143dc5f-8b12-4cf6-b9c4-db630e895c1b.png?v=1722371398"
+  },
+  {
+    "key": "r0-20",
+    "output": "/shelf/publisher/r0-20.webp",
+    "page": "https://store.stonemaiergames.com/products/rolling-realms",
+    "imageUrl": "https://cdn.shopify.com/s/files/1/0900/3540/products/3d-rollingrealms.png?v=1625683734"
+  },
+  {
+    "key": "r0-21",
+    "output": "/shelf/publisher/r0-21.webp",
+    "page": "https://store.stonemaiergames.com/products/tapestry",
+    "imageUrl": "https://cdn.shopify.com/s/files/1/0900/3540/files/3d-tapestry2024.png?v=1722592393"
+  },
+  {
+    "key": "r1-19",
+    "output": "/shelf/publisher/r1-19.webp",
+    "page": "https://store.stonemaiergames.com/products/wyrmspan",
+    "imageUrl": "https://cdn.shopify.com/s/files/1/0900/3540/files/3d-wyrmspan.png?v=1702571927"
+  },
+  {
+    "key": "r2-28",
+    "output": "/shelf/publisher/r2-28.webp",
+    "page": "https://store.stonemaiergames.com/products/finspan",
+    "imageUrl": "https://cdn.shopify.com/s/files/1/0900/3540/files/3d-finspan.png?v=1736514536"
+  },
+  {
+    "key": "r2-29",
+    "output": "/shelf/publisher/r2-29.webp",
+    "page": "https://store.stonemaiergames.com/products/wingspan-european-expansion",
+    "imageUrl": "https://cdn.shopify.com/s/files/1/0900/3540/files/WingspanEuropeanExpansionBoardGame.png?v=1706204572"
+  },
+  {
+    "key": "r3-0",
+    "output": "/shelf/publisher/r3-0.webp",
+    "page": "https://store.stonemaiergames.com/products/expeditions",
+    "imageUrl": "https://cdn.shopify.com/s/files/1/0900/3540/products/Standard-with-Label.png?v=1675330253"
+  },
+  {
+    "key": "top-wingspan",
+    "output": "/shelf/publisher/top-wingspan.webp",
+    "page": "https://store.stonemaiergames.com/products/wingspan-nesting-box",
+    "imageUrl": "https://cdn.shopify.com/s/files/1/0900/3540/files/StonemaierWingspanNesting3DBox_de0d9f5b-ae61-4e6f-a89b-5672538e325f.png?v=1690841933"
+  },
+  {
+    "key": "top-scythe",
+    "output": "/shelf/publisher/top-scythe.webp",
+    "page": "https://store.stonemaiergames.com/products/scythe",
+    "imageUrl": "https://cdn.shopify.com/s/files/1/0900/3540/products/3d-scythe.png?v=1551977466"
+  },
+  {
+    "key": "top-vantage",
+    "output": "/shelf/publisher/top-vantage.webp",
+    "page": "https://store.stonemaiergames.com/products/vantage",
+    "imageUrl": "https://cdn.shopify.com/s/files/1/0900/3540/files/3d-vantage.png?v=1749060389"
+  }
+]
