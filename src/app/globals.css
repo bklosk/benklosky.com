@@ -77,15 +77,42 @@ body {
   display: flex;
   flex-shrink: 0;
   flex-direction: column;
+  align-self: flex-start;
   gap: 1.5rem;
   position: sticky;
   top: 5.5rem;
+}
+
+.portrait-slot {
+  position: relative;
+  width: 5rem;
+  height: 5rem;
+  flex-shrink: 0;
 }
 
 .portrait-link {
   align-self: flex-start;
   pointer-events: auto;
   touch-action: manipulation;
+}
+
+.portrait-home,
+.portrait-toggle {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  left: 0;
+  width: 5rem;
+  height: 5rem;
+  border-radius: 50%;
+}
+
+.portrait-toggle {
+  display: none;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
 }
 
 .portrait-link:focus-visible {
@@ -103,12 +130,27 @@ body {
   object-fit: cover;
 }
 
+.link-wall-clip {
+  min-height: 0;
+}
+
 .link-wall {
   display: flex;
   flex-direction: column;
   gap: 0.85rem;
   padding-top: 0.15rem;
   color: var(--foreground);
+}
+
+@media (min-width: 641px) {
+  .link-wall-clip,
+  .link-wall {
+    height: auto !important;
+    opacity: 1 !important;
+    transform: none !important;
+    overflow: visible !important;
+    pointer-events: auto;
+  }
 }
 
 .link-wall a {
@@ -196,11 +238,56 @@ body {
 
   .link-column {
     top: 2.5rem;
+    width: 5rem;
+    z-index: 5;
+  }
+
+  .portrait-home {
+    display: none;
+  }
+
+  .portrait-toggle {
+    display: block;
+  }
+
+  .link-wall-clip {
+    position: absolute;
+    top: calc(100% + 1.5rem);
+    left: 0;
+    width: max-content;
+    height: 0;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .link-column.is-open .link-wall-clip {
+    pointer-events: auto;
   }
 
   .composition--shelf {
+    position: relative;
     margin-left: 0;
     margin-right: 0;
+    width: 100%;
+    gap: 0;
+  }
+
+  .composition--shelf .link-column {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 6;
+  }
+
+  .composition--shelf .page-content {
+    width: 100%;
+  }
+
+  .composition--shelf .shelf-stage {
+    width: calc(100% + 3rem);
+    margin-left: -1.5rem;
+    margin-right: -1.5rem;
   }
 
   .site-shell:has(.shelf-page) {
