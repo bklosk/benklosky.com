@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "data": "bun scripts/fetch-datasets.ts",
+    "data:check": "bun scripts/fetch-datasets.ts --check"
   },
   "dependencies": {
     "lucide-react": "^0.577.0",
