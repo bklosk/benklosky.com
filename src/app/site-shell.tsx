@@ -67,6 +67,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
             animate={{ height: expanded ? "auto" : 0, opacity: expanded ? 1 : 0 }}
             transition={menuTransition}
           >
+            <div className="link-wall-backdrop" aria-hidden="true" />
             <motion.nav
               className="link-wall"
               aria-label="Links"

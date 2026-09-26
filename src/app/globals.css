@@ -134,6 +134,10 @@ body {
   min-height: 0;
 }
 
+.link-wall-backdrop {
+  display: none;
+}
+
 .link-wall {
   display: flex;
   flex-direction: column;
@@ -263,6 +267,22 @@ body {
 
   .link-column.is-open .link-wall-clip {
     pointer-events: auto;
+  }
+
+  .link-wall-backdrop {
+    display: block;
+    position: absolute;
+    z-index: 0;
+    inset: 0;
+    background: var(--background);
+    border-radius: 0.85rem;
+    pointer-events: none;
+  }
+
+  .link-wall {
+    position: relative;
+    z-index: 1;
+    padding: 0.7rem 0.95rem 0.75rem 0.7rem;
   }
 
   .composition--shelf {
