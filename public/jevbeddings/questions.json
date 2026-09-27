@@ -1,0 +1,1002 @@
+{
+    "reported_fever": {
+      "type": "noul",
+      "instructions": "Does the patient report having a fever during the current illness?",
+      "criteria": {
+        "true": "The patient reports a fever, feeling feverish, or a high temperature at home during the current illness.",
+        "false": "Fever is not mentioned in the history, or is denied. Ignore temperatures measured in the vital signs."
+      }
+    },
+    "reported_chills": {
+      "type": "noul",
+      "instructions": "Does the patient report having chills during the current illness?",
+      "criteria": {
+        "true": "The patient reports chills during the current illness.",
+        "false": "Chills are not mentioned, or are denied."
+      }
+    },
+    "reported_rigors": {
+      "type": "noul",
+      "instructions": "Does the patient report having rigors (shaking chills) during the current illness?",
+      "criteria": {
+        "true": "The patient reports rigors, shaking chills, or uncontrollable shivering.",
+        "false": "Rigors are not mentioned, or are denied. Chills without shaking count as false."
+      }
+    },
+    "new_confusion": {
+      "type": "noul",
+      "instructions": "Does the note describe confusion that is worse than the patient's usual state?",
+      "criteria": {
+        "true": "The history or exam describes confusion or disorientation that is new or worse than the patient's usual state.",
+        "false": "Confusion is not mentioned, is denied, or is long-standing with no recent change."
+      }
+    },
+    "new_lethargy": {
+      "type": "noul",
+      "instructions": "Does the note describe the patient as newly lethargic?",
+      "criteria": {
+        "true": "The history or exam describes new lethargy, somnolence, or excessive sleepiness.",
+        "false": "Lethargy is not mentioned, or is denied. Fatigue or tiredness on its own counts as false."
+      }
+    },
+    "decreased_responsiveness": {
+      "type": "noul",
+      "instructions": "Does the note describe the patient as less responsive than normal?",
+      "criteria": {
+        "true": "The note describes decreased responsiveness, obtundation, stupor, unresponsiveness, or a lowered Glasgow Coma Scale score.",
+        "false": "Responsiveness is described as normal, or is not mentioned."
+      }
+    },
+    "acute_onset": {
+      "type": "noul",
+      "instructions": "Did the patient's current symptoms begin within the past three days?",
+      "criteria": {
+        "true": "The note gives an onset of three days or less, such as 'since yesterday', '2-day history', or 'began this morning'.",
+        "false": "The onset is longer than three days, such as a 1-week or 3-month history, or the onset is not stated."
+      }
+    },
+    "vomiting": {
+      "type": "noul",
+      "instructions": "Does the note report that the patient has been vomiting during the current illness?",
+      "criteria": {
+        "true": "The patient has vomited during the current illness, including being unable to keep fluids down.",
+        "false": "Vomiting is not mentioned, or is denied. Nausea without vomiting counts as false."
+      }
+    },
+    "decreased_oral_intake": {
+      "type": "noul",
+      "instructions": "Does the note report poor oral intake during the current illness?",
+      "criteria": {
+        "true": "The note describes poor oral intake, decreased appetite, or the patient eating or drinking less than usual.",
+        "false": "Intake is described as normal, or is not mentioned."
+      }
+    },
+    "decreased_urine_output": {
+      "type": "noul",
+      "instructions": "Does the note report that the patient is producing less urine than usual?",
+      "criteria": {
+        "true": "The note describes decreased urine output, oliguria, anuria, or the patient not urinating.",
+        "false": "Urine output is not mentioned, is described as normal, or is increased."
+      }
+    },
+    "suspected_urinary_infection": {
+      "type": "noul",
+      "instructions": "Does the note suggest the patient has a urinary tract infection?",
+      "criteria": {
+        "true": "The note describes painful urination, urinary urgency or frequency, suprapubic pain, or a suspected bladder or kidney infection.",
+        "false": "No urinary tract infection is suggested."
+      }
+    },
+    "suspected_respiratory_infection": {
+      "type": "noul",
+      "instructions": "Does the note suggest the patient has a lower respiratory tract infection?",
+      "criteria": {
+        "true": "The note describes a productive cough, or a suspected pneumonia, bronchitis, or other lower respiratory infection.",
+        "false": "No lung or airway infection is suggested. A dry cough from asthma or allergies counts as false."
+      }
+    },
+    "suspected_skin_infection": {
+      "type": "noul",
+      "instructions": "Does the note suggest the patient has a skin infection?",
+      "criteria": {
+        "true": "The note describes suspected cellulitis, a skin abscess, an infected ulcer, or another skin or soft tissue infection.",
+        "false": "No skin or soft tissue infection is suggested. Non-infectious rashes count as false."
+      }
+    },
+    "suspected_wound_infection": {
+      "type": "noul",
+      "instructions": "Does the note describe an infected wound?",
+      "criteria": {
+        "true": "A surgical incision, injury wound, or burn is described as infected or showing signs of infection.",
+        "false": "No wound is described as infected, or there is no wound."
+      }
+    },
+    "suspected_abdominal_infection": {
+      "type": "noul",
+      "instructions": "Does the note describe a suspected infection inside the abdomen?",
+      "criteria": {
+        "true": "The note describes suspected appendicitis, cholangitis, diverticulitis, peritonitis, an intra-abdominal abscess, or infected pancreatic necrosis.",
+        "false": "No infection inside the abdomen is suggested."
+      }
+    },
+    "recent_antibiotics": {
+      "type": "noul",
+      "instructions": "Has the patient recently taken antibiotics?",
+      "criteria": {
+        "true": "The patient took or was prescribed antibiotics for a current or recent illness, including a course that was recently finished.",
+        "false": "No recent antibiotic use is mentioned. An antibiotic allergy on its own counts as false."
+      }
+    },
+    "recurrent_infections": {
+      "type": "noul",
+      "instructions": "Does the note describe the patient as having repeated infections?",
+      "criteria": {
+        "true": "The note mentions multiple past episodes of infection, such as recurrent urinary tract infections, pneumonias, or sinus infections.",
+        "false": "Only one infection or no infections are mentioned."
+      }
+    },
+    "recent_surgery": {
+      "type": "noul",
+      "instructions": "Did the patient have surgery within the past few weeks?",
+      "criteria": {
+        "true": "The note describes an operation performed within roughly the past few weeks.",
+        "false": "No recent surgery is mentioned. Operations from months or years ago count as false."
+      }
+    },
+    "recent_invasive_procedure": {
+      "type": "noul",
+      "instructions": "Did the patient have an invasive procedure, other than surgery, within the past few weeks?",
+      "criteria": {
+        "true": "The note describes a recent endoscopy, catheterization, biopsy, line placement, or similar invasive procedure.",
+        "false": "No recent invasive procedure is mentioned. Surgery is asked about separately and counts as false here."
+      }
+    },
+    "recent_hospitalization": {
+      "type": "noul",
+      "instructions": "Was the patient hospitalized within the past few weeks?",
+      "criteria": {
+        "true": "The note says the patient was recently admitted to, or discharged from, a hospital.",
+        "false": "No recent hospital stay is mentioned. Hospital stays from months or years ago count as false."
+      }
+    },
+    "diabetes": {
+      "type": "noul",
+      "instructions": "Does the note state that the patient has diabetes mellitus?",
+      "criteria": {
+        "true": "Type 1, type 2, or another form of diabetes mellitus appears in the problem list or history, or the patient takes insulin.",
+        "false": "Diabetes mellitus is not mentioned. Prediabetes, diabetes insipidus, and resolved gestational diabetes count as false."
+      }
+    },
+    "chronic_kidney_disease": {
+      "type": "noul",
+      "instructions": "Does the patient have chronic kidney disease?",
+      "criteria": {
+        "true": "The note lists chronic kidney disease at any stage, or end-stage renal disease.",
+        "false": "Chronic kidney disease is not mentioned. Acute kidney injury on its own counts as false."
+      }
+    },
+    "dialysis": {
+      "type": "noul",
+      "instructions": "Does the patient currently receive dialysis?",
+      "criteria": {
+        "true": "The patient currently receives hemodialysis or peritoneal dialysis.",
+        "false": "Dialysis is not mentioned, or was stopped in the past."
+      }
+    },
+    "chronic_liver_disease": {
+      "type": "noul",
+      "instructions": "Does the patient have chronic liver disease?",
+      "criteria": {
+        "true": "The note lists cirrhosis, chronic hepatitis, alcohol-related liver disease, fatty liver disease, or another long-term liver disease.",
+        "false": "Chronic liver disease is not mentioned. Acute hepatitis on its own counts as false."
+      }
+    },
+    "active_cancer": {
+      "type": "noul",
+      "instructions": "Does the patient currently have cancer?",
+      "criteria": {
+        "true": "The note describes a cancer that is active, recently diagnosed, or under treatment, including leukemia, lymphoma, and multiple myeloma.",
+        "false": "No cancer is mentioned, or a cancer is described only as cured or in long-term remission."
+      }
+    },
+    "systemic_steroids": {
+      "type": "noul",
+      "instructions": "Is the patient taking a systemic steroid medication?",
+      "criteria": {
+        "true": "The medications include an oral or intravenous corticosteroid, such as prednisone, methylprednisolone, dexamethasone, or hydrocortisone.",
+        "false": "No systemic steroid is listed. Inhaled, nasal, and topical steroids count as false."
+      }
+    },
+    "chemotherapy": {
+      "type": "noul",
+      "instructions": "Is the patient currently receiving chemotherapy for cancer?",
+      "criteria": {
+        "true": "The note describes current or recent chemotherapy for cancer.",
+        "false": "No current chemotherapy is mentioned. Methotrexate for arthritis or psoriasis counts as false."
+      }
+    },
+    "organ_transplant": {
+      "type": "noul",
+      "instructions": "Has the patient received a solid organ transplant?",
+      "criteria": {
+        "true": "The note says the patient has had a kidney, liver, heart, lung, pancreas, or other organ transplant.",
+        "false": "No organ transplant is mentioned. Bone marrow or stem cell transplants count as false because they are asked about separately."
+      }
+    },
+    "stem_cell_transplant": {
+      "type": "noul",
+      "instructions": "Has the patient received a stem cell transplant?",
+      "criteria": {
+        "true": "The note says the patient has had a bone marrow, stem cell, or hematopoietic cell transplant.",
+        "false": "No bone marrow or stem cell transplant is mentioned. Blood transfusions count as false."
+      }
+    },
+    "oral_immunosuppressant": {
+      "type": "noul",
+      "instructions": "Is the patient taking a non-steroid immunosuppressant pill?",
+      "criteria": {
+        "true": "The medications include methotrexate, azathioprine, mycophenolate, tacrolimus, cyclosporine, sirolimus, or a similar oral immunosuppressant.",
+        "false": "None of these medications are listed. Steroids are asked about separately and count as false here."
+      }
+    },
+    "biologic_immunosuppressant": {
+      "type": "noul",
+      "instructions": "Is the patient taking a biologic drug that suppresses the immune system?",
+      "criteria": {
+        "true": "The medications include a TNF inhibitor such as infliximab, adalimumab, or etanercept, or another immune-suppressing biologic such as rituximab.",
+        "false": "No immune-suppressing biologic is listed."
+      }
+    },
+    "hiv": {
+      "type": "noul",
+      "instructions": "Does the patient have HIV infection?",
+      "criteria": {
+        "true": "The note says the patient has HIV infection or AIDS.",
+        "false": "HIV is not mentioned, or an HIV test is reported as negative with no HIV diagnosis."
+      }
+    },
+    "asplenia": {
+      "type": "noul",
+      "instructions": "Does the patient lack a working spleen?",
+      "criteria": {
+        "true": "The note mentions a splenectomy, asplenia, or explicitly says the spleen is nonfunctional.",
+        "false": "None of these are mentioned. Sickle cell disease on its own counts as false because it is asked about separately."
+      }
+    },
+    "sickle_cell_disease": {
+      "type": "noul",
+      "instructions": "Does the patient have sickle cell disease?",
+      "criteria": {
+        "true": "The note says the patient has sickle cell disease, including sickle cell anemia.",
+        "false": "Sickle cell disease is not mentioned. Sickle cell trait on its own counts as false."
+      }
+    },
+    "urinary_catheter": {
+      "type": "noul",
+      "instructions": "Does the patient use a urinary catheter?",
+      "criteria": {
+        "true": "The note mentions an indwelling Foley catheter, a suprapubic catheter, or regular self-catheterization.",
+        "false": "No urinary catheter is mentioned."
+      }
+    },
+    "central_venous_catheter": {
+      "type": "noul",
+      "instructions": "Does the patient have a central venous catheter?",
+      "criteria": {
+        "true": "The note mentions a central line, PICC line, implanted port, or tunneled dialysis catheter.",
+        "false": "No central venous catheter is mentioned. Peripheral IV lines count as false."
+      }
+    },
+    "prosthetic_heart_valve": {
+      "type": "noul",
+      "instructions": "Does the patient have a prosthetic heart valve?",
+      "criteria": {
+        "true": "The note mentions a mechanical or bioprosthetic heart valve, or a valve replacement.",
+        "false": "No prosthetic heart valve is mentioned. A valve repair without replacement counts as false."
+      }
+    },
+    "implanted_cardiac_device": {
+      "type": "noul",
+      "instructions": "Does the patient have an implanted cardiac rhythm device?",
+      "criteria": {
+        "true": "The note mentions a pacemaker or an implantable cardioverter-defibrillator (ICD).",
+        "false": "No implanted cardiac rhythm device is mentioned. Coronary stents count as false."
+      }
+    },
+    "prosthetic_joint": {
+      "type": "noul",
+      "instructions": "Does the patient have a prosthetic joint?",
+      "criteria": {
+        "true": "The note mentions a hip, knee, shoulder, or other joint replacement.",
+        "false": "No joint replacement is mentioned."
+      }
+    },
+    "feeding_tube": {
+      "type": "noul",
+      "instructions": "Does the patient have a feeding tube?",
+      "criteria": {
+        "true": "The note mentions a gastrostomy tube (G-tube or PEG), jejunostomy tube, or nasogastric feeding tube.",
+        "false": "No feeding tube is mentioned."
+      }
+    },
+    "injection_drug_use": {
+      "type": "noul",
+      "instructions": "Does the patient inject drugs?",
+      "criteria": {
+        "true": "The note describes current or recent injection drug use, such as injecting heroin.",
+        "false": "Injection drug use is not mentioned, or is denied. Drug use that is not injected counts as false."
+      }
+    },
+    "heavy_alcohol_use": {
+      "type": "noul",
+      "instructions": "Does the note describe the patient as drinking alcohol heavily?",
+      "criteria": {
+        "true": "The note describes alcohol use disorder, daily heavy drinking, binge drinking, or alcohol withdrawal.",
+        "false": "Alcohol use is not mentioned, is denied, or is social or light, such as a few drinks per week."
+      }
+    },
+    "lives_in_care_facility": {
+      "type": "noul",
+      "instructions": "Does the patient live in a residential care facility?",
+      "criteria": {
+        "true": "The patient lives in a nursing home, assisted living facility, long-term care facility, skilled nursing facility, or group home.",
+        "false": "The patient lives at home, or the living situation is not mentioned."
+      }
+    },
+    "functionally_dependent": {
+      "type": "noul",
+      "instructions": "Does the patient need help from others with basic daily activities because of their health?",
+      "criteria": {
+        "true": "The patient is bedbound, depends on a wheelchair, or needs help with bathing, dressing, eating, or toileting.",
+        "false": "The patient is independent, or this is not mentioned. Young children who depend on parents only because of their age count as false."
+      }
+    },
+    "pregnant_currently": {
+      "type": "noul",
+      "instructions": "Is the patient currently pregnant?",
+      "criteria": {
+        "true": "The note states the patient is pregnant, including a patient in labor.",
+        "false": "The patient is not pregnant, or pregnancy is not mentioned."
+      }
+    },
+    "recently_postpartum": {
+      "type": "noul",
+      "instructions": "Did the patient give birth within about the past six weeks?",
+      "criteria": {
+        "true": "The note says the patient delivered a baby within about the past six weeks.",
+        "false": "No recent delivery is mentioned. Births from months or years ago count as false."
+      }
+    },
+    "recent_pregnancy_loss": {
+      "type": "noul",
+      "instructions": "Did the patient recently have a pregnancy loss?",
+      "criteria": {
+        "true": "The note describes a recent miscarriage, abortion, stillbirth, or ectopic pregnancy.",
+        "false": "No recent pregnancy loss is mentioned. Losses from months or years ago count as false."
+      }
+    },
+    "multimorbidity": {
+      "type": "noul",
+      "instructions": "Does the patient have several serious chronic conditions affecting different organ systems?",
+      "criteria": {
+        "true": "The problem list or history describes multiple serious long-term conditions across different organ systems, such as heart failure together with diabetes and kidney disease.",
+        "false": "The patient has no chronic conditions, or only one or two minor ones such as mild hypertension or seasonal allergies."
+      }
+    },
+    "penicillin_allergy": {
+      "type": "noul",
+      "instructions": "Is the patient allergic to a penicillin-class antibiotic?",
+      "criteria": {
+        "true": "The allergy list includes penicillin, amoxicillin, ampicillin, or another penicillin.",
+        "false": "No penicillin-class allergy is listed."
+      }
+    },
+    "other_antibiotic_allergy": {
+      "type": "noul",
+      "instructions": "Is the patient allergic to an antibiotic that is not a penicillin?",
+      "criteria": {
+        "true": "The allergy list includes a cephalosporin, a sulfa antibiotic such as trimethoprim-sulfamethoxazole, a fluoroquinolone, a macrolide, vancomycin, or another non-penicillin antibiotic.",
+        "false": "No non-penicillin antibiotic allergy is listed. Penicillin allergies and allergies to substances that are not antibiotics count as false."
+      }
+    },
+    "measured_fever": {
+      "type": "noul",
+      "instructions": "Is a recorded body temperature above 38.0 °C (100.4 °F)?",
+      "criteria": {
+        "true": "A measured temperature in the note is above 38.0 °C (100.4 °F).",
+        "false": "Every recorded temperature is 38.0 °C (100.4 °F) or lower, or no numeric value is recorded. Statements such as 'vital signs are stable' or 'within normal limits' count as false."
+      }
+    },
+    "hypothermia": {
+      "type": "noul",
+      "instructions": "Is a recorded body temperature below 36.0 °C (96.8 °F)?",
+      "criteria": {
+        "true": "A measured temperature in the note is below 36.0 °C (96.8 °F).",
+        "false": "Every recorded temperature is 36.0 °C (96.8 °F) or higher, or no numeric value is recorded. Statements such as 'vital signs are stable' or 'within normal limits' count as false."
+      }
+    },
+    "tachycardia": {
+      "type": "noul",
+      "instructions": "Is a recorded heart rate above 90 beats per minute?",
+      "criteria": {
+        "true": "A measured heart rate or pulse in the note is above 90/min.",
+        "false": "Every recorded heart rate is 90/min or lower, or no numeric value is recorded. Statements such as 'vital signs are stable' or 'within normal limits' count as false."
+      }
+    },
+    "tachypnea": {
+      "type": "noul",
+      "instructions": "Is a recorded respiratory rate at least 22 breaths per minute?",
+      "criteria": {
+        "true": "A measured respiratory rate in the note is 22/min or higher.",
+        "false": "Every recorded respiratory rate is below 22/min, or no numeric value is recorded. Statements such as 'vital signs are stable' or 'within normal limits' count as false."
+      }
+    },
+    "low_systolic_bp": {
+      "type": "noul",
+      "instructions": "Is a recorded systolic blood pressure no higher than 100 mm Hg?",
+      "criteria": {
+        "true": "A recorded blood pressure has a first (systolic) number of 100 or less, such as 90/60 mm Hg.",
+        "false": "Every recorded systolic pressure is above 100 mm Hg, or no numeric value is recorded. Statements such as 'vital signs are stable' or 'within normal limits' count as false."
+      }
+    },
+    "low_oxygen_saturation": {
+      "type": "noul",
+      "instructions": "Is a recorded oxygen saturation below 92%?",
+      "criteria": {
+        "true": "A recorded oxygen saturation is below 92%.",
+        "false": "Every recorded oxygen saturation is 92% or higher, or no numeric value is recorded. Statements such as 'vital signs are stable' or 'within normal limits' count as false."
+      }
+    },
+    "supplemental_oxygen": {
+      "type": "noul",
+      "instructions": "Is the patient receiving supplemental oxygen?",
+      "criteria": {
+        "true": "The patient is receiving oxygen by nasal cannula, face mask, or high-flow device, or uses home oxygen.",
+        "false": "The patient is on room air, or oxygen use is not mentioned. Mechanical ventilation is asked about separately and counts as false here."
+      }
+    },
+    "mechanical_ventilation": {
+      "type": "noul",
+      "instructions": "Is the patient on a mechanical ventilator?",
+      "criteria": {
+        "true": "The patient is intubated, on mechanical ventilation, or on noninvasive ventilation such as BiPAP.",
+        "false": "The patient is breathing without ventilator support, or ventilation is not mentioned."
+      }
+    },
+    "ill_appearing": {
+      "type": "noul",
+      "instructions": "Does the exam describe the patient as ill-appearing?",
+      "criteria": {
+        "true": "The exam describes the patient as ill-appearing, toxic-appearing, or appearing unwell.",
+        "false": "The patient is described as well-appearing, or general appearance is not described."
+      }
+    },
+    "acute_distress": {
+      "type": "noul",
+      "instructions": "Does the exam describe the patient as being in acute distress?",
+      "criteria": {
+        "true": "The exam says the patient is in acute distress or visible distress.",
+        "false": "The exam says 'no acute distress' (NAD), or distress is not described."
+      }
+    },
+    "diaphoresis": {
+      "type": "noul",
+      "instructions": "Does the exam describe the patient as sweating heavily (diaphoretic)?",
+      "criteria": {
+        "true": "The exam describes the patient as diaphoretic or sweating heavily.",
+        "false": "Sweating is not described."
+      }
+    },
+    "mottled_skin": {
+      "type": "noul",
+      "instructions": "Does the exam describe mottled skin?",
+      "criteria": {
+        "true": "The exam describes mottled or mottling skin.",
+        "false": "Mottling is not described."
+      }
+    },
+    "cool_extremities": {
+      "type": "noul",
+      "instructions": "Does the exam describe the extremities as cool?",
+      "criteria": {
+        "true": "The exam describes the hands, feet, arms, or legs as cool or cold to the touch.",
+        "false": "The extremities are described as warm, or their temperature is not described."
+      }
+    },
+    "delayed_capillary_refill": {
+      "type": "noul",
+      "instructions": "Does the exam describe delayed capillary refill?",
+      "criteria": {
+        "true": "The exam describes capillary refill as delayed or prolonged.",
+        "false": "Capillary refill is normal, or is not described."
+      }
+    },
+    "skin_erythema": {
+      "type": "noul",
+      "instructions": "Does the exam find localized skin redness?",
+      "criteria": {
+        "true": "The exam finds localized erythema or redness of a skin area, including around a wound.",
+        "false": "No localized redness is found. Widespread rashes, such as a viral or drug rash, count as false."
+      }
+    },
+    "purulent_drainage": {
+      "type": "noul",
+      "instructions": "Does the exam find purulent drainage?",
+      "criteria": {
+        "true": "The exam finds pus, purulent drainage, or a draining abscess.",
+        "false": "No pus or purulent drainage is found."
+      }
+    },
+    "cva_tenderness": {
+      "type": "noul",
+      "instructions": "Does the exam find costovertebral angle (flank) tenderness?",
+      "criteria": {
+        "true": "The exam finds costovertebral angle tenderness or flank tenderness.",
+        "false": "No costovertebral angle tenderness is found, or it is not described."
+      }
+    },
+    "lung_crackles": {
+      "type": "noul",
+      "instructions": "Does the lung exam find crackles (rales)?",
+      "criteria": {
+        "true": "The lung exam finds crackles or rales in one or both lungs.",
+        "false": "The lungs are clear, or crackles are not described."
+      }
+    },
+    "abdominal_guarding": {
+      "type": "noul",
+      "instructions": "Does the abdominal exam find guarding?",
+      "criteria": {
+        "true": "The abdominal exam finds voluntary or involuntary guarding.",
+        "false": "No guarding is found, or it is not described."
+      }
+    },
+    "rebound_tenderness": {
+      "type": "noul",
+      "instructions": "Does the abdominal exam find rebound tenderness?",
+      "criteria": {
+        "true": "The abdominal exam finds rebound tenderness.",
+        "false": "No rebound tenderness is found, or it is not described."
+      }
+    },
+    "joint_swelling": {
+      "type": "noul",
+      "instructions": "Does the exam find a swollen joint?",
+      "criteria": {
+        "true": "The exam finds swelling or an effusion in a joint.",
+        "false": "No joint swelling is found, or the joints are not described."
+      }
+    },
+    "leukocytosis": {
+      "type": "noul",
+      "instructions": "Is a reported white blood cell count above 12,000/µL?",
+      "criteria": {
+        "true": "A reported white blood cell count is above 12,000/µL (12 x 10^9/L). The units /µL, /uL, and /mm³ are equivalent.",
+        "false": "Every reported white blood cell count is 12,000/µL or lower, or no white blood cell count is reported."
+      }
+    },
+    "leukopenia": {
+      "type": "noul",
+      "instructions": "Is a reported white blood cell count below 4,000/µL?",
+      "criteria": {
+        "true": "A reported white blood cell count is below 4,000/µL (4 x 10^9/L). The units /µL, /uL, and /mm³ are equivalent.",
+        "false": "Every reported white blood cell count is 4,000/µL or higher, or no white blood cell count is reported."
+      }
+    },
+    "bandemia": {
+      "type": "noul",
+      "instructions": "Are band neutrophils reported above 10%?",
+      "criteria": {
+        "true": "Band forms are reported above 10% of white blood cells, or the note describes bandemia or a left shift.",
+        "false": "Bands are 10% or lower, or are not reported."
+      }
+    },
+    "neutropenia": {
+      "type": "noul",
+      "instructions": "Is the absolute neutrophil count below 1,500/µL?",
+      "criteria": {
+        "true": "A reported absolute neutrophil count is below 1,500/µL (1.5 x 10^9/L), or the note describes neutropenia.",
+        "false": "The neutrophil count is 1,500/µL or higher, or is not reported."
+      }
+    },
+    "elevated_creatinine": {
+      "type": "noul",
+      "instructions": "Is a reported serum creatinine above its normal range?",
+      "criteria": {
+        "true": "A reported creatinine is above the normal range stated in the note, or above 1.3 mg/dL if no range is given.",
+        "false": "Creatinine is within or below the normal range, or no creatinine is reported."
+      }
+    },
+    "low_platelets": {
+      "type": "noul",
+      "instructions": "Is a reported platelet count below its normal range?",
+      "criteria": {
+        "true": "A reported platelet count is below the normal range stated in the note, or below 150,000/µL if no range is given.",
+        "false": "The platelet count is normal or high, or no platelet count is reported."
+      }
+    },
+    "elevated_bilirubin": {
+      "type": "noul",
+      "instructions": "Is a reported bilirubin above its normal range?",
+      "criteria": {
+        "true": "A reported total or direct bilirubin is above the normal range stated in the note, or the note describes it as elevated.",
+        "false": "Bilirubin is normal, or is not reported."
+      }
+    },
+    "elevated_ast": {
+      "type": "noul",
+      "instructions": "Is a reported AST above its normal range?",
+      "criteria": {
+        "true": "A reported AST (aspartate aminotransferase) is above the normal range stated in the note, or the note describes it as elevated.",
+        "false": "AST is normal, or is not reported."
+      }
+    },
+    "elevated_alt": {
+      "type": "noul",
+      "instructions": "Is a reported ALT above its normal range?",
+      "criteria": {
+        "true": "A reported ALT (alanine aminotransferase) is above the normal range stated in the note, or the note describes it as elevated.",
+        "false": "ALT is normal, or is not reported."
+      }
+    },
+    "elevated_alkaline_phosphatase": {
+      "type": "noul",
+      "instructions": "Is a reported alkaline phosphatase above its normal range?",
+      "criteria": {
+        "true": "A reported alkaline phosphatase is above the normal range stated in the note, or the note describes it as elevated.",
+        "false": "Alkaline phosphatase is normal, or is not reported."
+      }
+    },
+    "low_bicarbonate": {
+      "type": "noul",
+      "instructions": "Is a reported serum bicarbonate below its normal range?",
+      "criteria": {
+        "true": "A reported bicarbonate (HCO3 or total CO2) is below the normal range stated in the note, or below 22 mEq/L if no range is given.",
+        "false": "Bicarbonate is normal or high, or is not reported."
+      }
+    },
+    "elevated_anion_gap": {
+      "type": "noul",
+      "instructions": "Does the note report an elevated anion gap?",
+      "criteria": {
+        "true": "The note reports an anion gap above its normal range, or describes a high anion gap.",
+        "false": "No elevated anion gap is reported. Do not calculate an anion gap from other values; only count one the note states."
+      }
+    },
+    "high_glucose": {
+      "type": "noul",
+      "instructions": "Is a reported blood glucose above 250 mg/dL?",
+      "criteria": {
+        "true": "A reported blood or serum glucose is above 250 mg/dL (13.9 mmol/L).",
+        "false": "Every reported glucose is 250 mg/dL or lower, or no glucose is reported. Hemoglobin A1c values count as false."
+      }
+    },
+    "positive_nitrites": {
+      "type": "noul",
+      "instructions": "Does a urinalysis show positive nitrites?",
+      "criteria": {
+        "true": "A urinalysis reports nitrites as positive.",
+        "false": "Nitrites are negative, or no urinalysis is reported."
+      }
+    },
+    "positive_leukocyte_esterase": {
+      "type": "noul",
+      "instructions": "Does a urinalysis show positive leukocyte esterase?",
+      "criteria": {
+        "true": "A urinalysis reports leukocyte esterase as positive.",
+        "false": "Leukocyte esterase is negative, or no urinalysis is reported."
+      }
+    },
+    "pyuria": {
+      "type": "noul",
+      "instructions": "Does a urinalysis show increased white blood cells in the urine?",
+      "criteria": {
+        "true": "A urinalysis reports white blood cells above normal, or pyuria.",
+        "false": "Urine white blood cells are normal, or no urinalysis is reported."
+      }
+    },
+    "bacteriuria": {
+      "type": "noul",
+      "instructions": "Does a urinalysis show bacteria in the urine?",
+      "criteria": {
+        "true": "A urinalysis reports bacteria present in the urine.",
+        "false": "No bacteria are reported, or no urinalysis is reported. Urine culture results count as false."
+      }
+    },
+    "pulmonary_infiltrate": {
+      "type": "noul",
+      "instructions": "Does chest imaging show consolidation?",
+      "criteria": {
+        "true": "A chest X-ray or CT shows consolidation, an infiltrate, or an airspace opacity.",
+        "false": "Chest imaging shows none of these findings, or no chest imaging is reported."
+      }
+    },
+    "abscess_on_imaging": {
+      "type": "noul",
+      "instructions": "Does imaging show an abscess?",
+      "criteria": {
+        "true": "An imaging result describes an abscess anywhere in the body.",
+        "false": "Imaging shows no abscess, or no imaging is reported."
+      }
+    },
+    "empyema": {
+      "type": "noul",
+      "instructions": "Does imaging show an empyema?",
+      "criteria": {
+        "true": "An imaging result describes an empyema, or an infected or loculated pleural effusion.",
+        "false": "Imaging shows no empyema, or no imaging is reported. A simple pleural effusion counts as false."
+      }
+    },
+    "free_air": {
+      "type": "noul",
+      "instructions": "Does imaging show free air in the abdomen?",
+      "criteria": {
+        "true": "An imaging result describes free intraperitoneal air, pneumoperitoneum, or air under the diaphragm.",
+        "false": "Imaging shows no free air, or no imaging is reported."
+      }
+    },
+    "second_person_phrasing": {
+      "type": "noul",
+      "instructions": "Does the note address the reader as 'you', for example 'On examination, you note...'?",
+      "criteria": {
+        "true": "The note describes findings by addressing the reader as 'you', as an exam question would.",
+        "false": "The note never addresses the reader as 'you'. The word 'you' inside a direct quote from the patient counts as false."
+      }
+    },
+    "duplicate_problem_list": {
+      "type": "noul",
+      "instructions": "Does the problem list name the same condition more than once in different wording?",
+      "criteria": {
+        "true": "The problem list names one condition twice, for example 'Essential hypertension' and 'Hypertension', or 'Type 2 diabetes mellitus' and 'Diabetes mellitus type 2'.",
+        "false": "Each condition in the problem list appears only once, or the note has no problem list."
+      }
+    },
+    "internal_contradiction": {
+      "type": "noul",
+      "instructions": "Does the note contain two statements that contradict each other?",
+      "criteria": {
+        "true": "One part of the note conflicts with another, such as a symptom that is both reported and denied, a medication for a condition the note says the patient does not have, or a test result that conflicts with the stated diagnosis.",
+        "false": "The statements in the note are consistent with each other."
+      }
+    },
+    "note_describes_female": {
+      "type": "noul",
+      "instructions": "Does the note describe the patient as female?",
+      "criteria": {
+        "true": "The note calls the patient a woman, girl, or female, or refers to the patient as 'she' or 'her'.",
+        "false": "The note describes the patient as male, or never indicates the patient's sex."
+      }
+    },
+    "note_age_65_or_older": {
+      "type": "noul",
+      "instructions": "Does the note state that the patient is at least 65 years old?",
+      "criteria": {
+        "true": "The note gives an age of 65 or older, such as '72-year-old man'.",
+        "false": "The stated age is under 65, or no age is stated. Words like 'elderly' without a number count as false."
+      }
+    },
+    "note_age_under_18": {
+      "type": "noul",
+      "instructions": "Does the note state that the patient is younger than 18 years old?",
+      "criteria": {
+        "true": "The note gives an age under 18, such as '6-year-old girl' or '4-month-old infant'.",
+        "false": "The stated age is 18 or older, or no age is stated."
+      }
+    },
+    "insurance_medicaid": {
+      "type": "noul",
+      "instructions": "Does `insurance` include Medicaid?",
+      "criteria": {
+        "true": "The insurance includes Medicaid, including Medicaid managed care and dual Medicare-Medicaid coverage.",
+        "false": "The insurance does not include Medicaid. 'Pending Medicaid enrollment' counts as false."
+      }
+    },
+    "insurance_medicare": {
+      "type": "noul",
+      "instructions": "Does `insurance` include Medicare?",
+      "criteria": {
+        "true": "The insurance includes Medicare, including Medicare Advantage and Medicare with a supplemental plan.",
+        "false": "The insurance does not include Medicare. Future eligibility, such as 'Medicare eligible at 65' or 'transitioning to Medicare', counts as false."
+      }
+    },
+    "insurance_private": {
+      "type": "noul",
+      "instructions": "Is the patient's main insurance a private plan?",
+      "criteria": {
+        "true": "The main coverage is a private or commercial plan: employer-sponsored, PPO, HMO, marketplace, student, or through a parent or spouse.",
+        "false": "The main coverage is Medicare, Medicaid, TRICARE, or none. A private supplemental plan alongside Medicare counts as false."
+      }
+    },
+    "insurance_uninsured": {
+      "type": "noul",
+      "instructions": "Is the patient uninsured?",
+      "criteria": {
+        "true": "The insurance is listed as uninsured, self-pay, or none, including coverage that has lapsed or is pending.",
+        "false": "The patient has any active coverage."
+      }
+    },
+    "insurance_through_parent": {
+      "type": "noul",
+      "instructions": "Is the patient covered through a parent's insurance plan?",
+      "criteria": {
+        "true": "The insurance is a parent's or adoptive parent's plan, or the patient is described as a dependent on a parental plan.",
+        "false": "The coverage is not through a parent."
+      }
+    },
+    "insurance_student_plan": {
+      "type": "noul",
+      "instructions": "Is `insurance` a student health plan?",
+      "criteria": {
+        "true": "The insurance is a university, college, or student health insurance plan.",
+        "false": "The insurance is not a student plan."
+      }
+    },
+    "medicare_due_to_disability": {
+      "type": "noul",
+      "instructions": "Does `insurance` say the patient has Medicare because of a disability?",
+      "criteria": {
+        "true": "The insurance names Medicare due to disability, SSDI, or disability status.",
+        "false": "Disability is not given as the reason for Medicare, or the patient has no Medicare. Kidney failure (ESRD) is asked about separately and counts as false here."
+      }
+    },
+    "medicare_due_to_esrd": {
+      "type": "noul",
+      "instructions": "Does `insurance` say the patient has Medicare because of end-stage kidney disease?",
+      "criteria": {
+        "true": "The insurance names Medicare with ESRD eligibility, entitlement, or qualification.",
+        "false": "ESRD is not given as the reason for Medicare, or the patient has no Medicare."
+      }
+    },
+    "race_black": {
+      "type": "noul",
+      "instructions": "Does `race_ethnicity` describe the patient as Black?",
+      "criteria": {
+        "true": "The field names Black, African American, or Black African ancestry in any wording, including mixed ancestry.",
+        "false": "The field does not name Black or African American ancestry."
+      }
+    },
+    "race_white": {
+      "type": "noul",
+      "instructions": "Does `race_ethnicity` describe the patient as White?",
+      "criteria": {
+        "true": "The field names White or Caucasian in any wording, or names only a European ancestry such as Irish, Polish, or Italian-American.",
+        "false": "The field does not name White, Caucasian, or a European ancestry. Middle Eastern alone counts as false."
+      }
+    },
+    "race_asian": {
+      "type": "noul",
+      "instructions": "Does `race_ethnicity` include Asian ancestry?",
+      "criteria": {
+        "true": "The field names East, South, or Southeast Asian ancestry in any wording, such as Chinese, Japanese, Korean, Vietnamese, Filipino, Thai, Hmong, Indian, or Bangladeshi.",
+        "false": "The field does not name Asian ancestry."
+      }
+    },
+    "ethnicity_hispanic": {
+      "type": "noul",
+      "instructions": "Does `race_ethnicity` describe the patient as Hispanic?",
+      "criteria": {
+        "true": "The field says Hispanic, Latino, or Latina in any wording, including a specific origin such as Mexican-American or Guatemalan.",
+        "false": "The field does not describe the patient as Hispanic or Latino. 'Non-Hispanic' counts as false."
+      }
+    },
+    "current_smoker": {
+      "type": "noul",
+      "instructions": "Does `smoking_status` say the patient currently smokes tobacco?",
+      "criteria": {
+        "true": "The patient currently smokes cigarettes, cigars, or other tobacco.",
+        "false": "The patient has never smoked, or has quit."
+      }
+    },
+    "former_smoker": {
+      "type": "noul",
+      "instructions": "Does `smoking_status` say the patient used to smoke tobacco but has quit?",
+      "criteria": {
+        "true": "The patient is a former smoker who has quit.",
+        "false": "The patient has never smoked, or still smokes."
+      }
+    },
+    "drinks_alcohol": {
+      "type": "noul",
+      "instructions": "Does `alcohol_use` say the patient currently drinks any alcohol?",
+      "criteria": {
+        "true": "The patient currently drinks alcohol in any amount, including social or occasional drinking.",
+        "false": "The field says none, never, or that the patient has quit drinking."
+      }
+    },
+    "heavy_drinking": {
+      "type": "noul",
+      "instructions": "Does `alcohol_use` describe heavy drinking?",
+      "criteria": {
+        "true": "The field describes daily drinking, binge drinking, more than 14 drinks per week, or alcohol use disorder.",
+        "false": "The patient does not drink, or drinks socially or occasionally, such as a few drinks per week or month."
+      }
+    },
+    "is_student": {
+      "type": "noul",
+      "instructions": "Does `occupation` describe the patient as a student?",
+      "criteria": {
+        "true": "The patient is a student at any level, from preschool to graduate school.",
+        "false": "The patient is not described as a student."
+      }
+    },
+    "is_retired": {
+      "type": "noul",
+      "instructions": "Does `occupation` describe the patient as retired?",
+      "criteria": {
+        "true": "The occupation says the patient is retired.",
+        "false": "The patient is not described as retired."
+      }
+    },
+    "not_working_due_to_health": {
+      "type": "noul",
+      "instructions": "Does `occupation` say the patient is not working because of their health?",
+      "criteria": {
+        "true": "The patient is on disability, on medical leave, or unable to work because of their health.",
+        "false": "The patient is working, studying, or retired, and no health-related work absence is mentioned."
+      }
+    },
+    "manual_labor_job": {
+      "type": "noul",
+      "instructions": "Has the patient worked in a manual labor job?",
+      "criteria": {
+        "true": "The current or former job involves physical labor, such as construction, carpentry, mechanics, factory work, farming, or landscaping. Retired workers count as true if their former job was manual labor.",
+        "false": "The job is not manual labor, or the patient is a student."
+      }
+    },
+    "healthcare_worker": {
+      "type": "noul",
+      "instructions": "Does `occupation` describe a job in health care?",
+      "criteria": {
+        "true": "The patient works as a nurse, physician, medical assistant, nursing aide, or in another health care role.",
+        "false": "The job is not in health care."
+      }
+    },
+    "works_with_children": {
+      "type": "noul",
+      "instructions": "Does `occupation` involve working closely with children?",
+      "criteria": {
+        "true": "The patient is a teacher, daycare worker, coach, pediatric nurse, or has another job spent mainly with children.",
+        "false": "The job does not involve working mainly with children. Students themselves count as false."
+      }
+    },
+    "family_history_cancer": {
+      "type": "noul",
+      "instructions": "Does `family_history` report a blood relative with cancer?",
+      "criteria": {
+        "true": "At least one blood relative is listed with any type of cancer.",
+        "false": "No relative with cancer is listed. Statements that deny a family history, such as 'No family history of cancer', count as false."
+      }
+    },
+    "family_history_heart_disease": {
+      "type": "noul",
+      "instructions": "Does `family_history` report a blood relative with heart disease?",
+      "criteria": {
+        "true": "At least one blood relative is listed with coronary artery disease, a heart attack, heart failure, or cardiomyopathy.",
+        "false": "No relative with heart disease is listed. High blood pressure on its own counts as false, as do statements that deny a family history."
+      }
+    },
+    "family_history_diabetes": {
+      "type": "noul",
+      "instructions": "Does `family_history` report a blood relative with diabetes?",
+      "criteria": {
+        "true": "At least one blood relative is listed with type 1, type 2, or another form of diabetes mellitus.",
+        "false": "No relative with diabetes is listed. Statements that deny a family history count as false."
+      }
+    },
+    "family_history_autoimmune": {
+      "type": "noul",
+      "instructions": "Does `family_history` report a blood relative with an autoimmune disease?",
+      "criteria": {
+        "true": "At least one blood relative is listed with an autoimmune disease, such as rheumatoid arthritis, lupus, autoimmune thyroid disease, type 1 diabetes, inflammatory bowel disease, or celiac disease.",
+        "false": "No relative with an autoimmune disease is listed. Statements that deny a family history count as false."
+      }
+    },
+    "any_prior_surgery": {
+      "type": "noul",
+      "instructions": "Does `surgical_history` list any past surgery?",
+      "criteria": {
+        "true": "The surgical history lists at least one operation.",
+        "false": "The surgical history is empty, or says the patient has had no surgery."
+      }
+    }
+  }
