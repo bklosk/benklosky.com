@@ -44,12 +44,12 @@ export function ShelfExplorer({ games }: { games: Game[] }) {
                 <h2>{game.name}</h2>
                 {game.designers.length > 0 && <p className="shelf-selection-designer">by {game.designers.join(" & ")}</p>}
                 <p className="shelf-selection-summary">{game.summary || game.description.split("\n\n")[0]}</p>
+                <details className="shelf-selection-more"><summary>More about this game</summary>{game.description.split("\n\n").map((paragraph, index) => <p key={index}>{paragraph}</p>)}</details>
                 <div className="shelf-selection-facts">
                   <span><Users size={15} /> {range(game.minPlayers, game.maxPlayers)} players</span>
                   <span><Clock3 size={15} /> {range(game.minMinutes, game.maxMinutes)} min</span>
                 </div>
                 <p className="shelf-selection-plays">{game.plays} logged {game.plays === 1 ? "play" : "plays"}{game.rating ? ` · ${game.rating.toFixed(1)} BGG rating` : ""}</p>
-                <details><summary>More about this game</summary>{game.description.split("\n\n").map((paragraph, index) => <p key={index}>{paragraph}</p>)}</details>
                 <a className="shelf-selection-link" href={game.url} target="_blank" rel="noreferrer">View on BoardGameGeek <ExternalLink size={15} /></a>
               </>
             ) : (
