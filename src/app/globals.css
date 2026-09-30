@@ -55,7 +55,8 @@ body {
   -webkit-user-select: none;
 }
 
-.composition--shelf {
+.composition--shelf,
+.composition--embeddings {
   /* Keep the sidebar at the same horizontal position as on the home page. */
   margin-left: max(0px, calc((100% - 40rem - 10vw) / 2));
   width: calc(100% - max(0px, (100% - 40rem - 10vw) / 2));
@@ -223,6 +224,11 @@ body {
   touch-action: auto;
 }
 
+.bubble-surface:has(.embeddings-page) {
+  cursor: auto;
+  touch-action: auto;
+}
+
 .composition--shelf .shelf-page {
   min-height: 0;
   padding: 0;
@@ -285,12 +291,27 @@ body {
     padding: 0.7rem 0.95rem 0.75rem 0.7rem;
   }
 
-  .composition--shelf {
+  .composition--shelf,
+  .composition--embeddings {
     position: relative;
     margin-left: 0;
     margin-right: 0;
     width: 100%;
     gap: 0;
+  }
+
+  .composition--embeddings {
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .composition--embeddings .link-column {
+    position: relative;
+    top: auto;
+  }
+
+  .composition--embeddings .page-content {
+    width: 100%;
   }
 
   .composition--shelf .link-column {

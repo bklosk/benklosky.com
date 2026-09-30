@@ -44,9 +44,14 @@ export function SiteShell({ children }: { children: ReactNode }) {
 
   const menuTransition = reduceMotion ? { duration: 0 } : { duration: 0.34, ease: menuEase };
 
+  const shelf = pathname === "/shelf";
+  const embeddings = pathname === "/embeddings";
+
   return (
-    <BubbleCanvas enabled={pathname !== "/shelf"}>
-      <div className={`composition${pathname === "/shelf" ? " composition--shelf" : ""}`}>
+    <BubbleCanvas enabled={!shelf && !embeddings}>
+      <div
+        className={`composition${shelf ? " composition--shelf" : ""}${embeddings ? " composition--embeddings" : ""}`}
+      >
         <div className={`link-column${expanded ? " is-open" : ""}`}>
           <div className="portrait-slot">
             <Image className="portrait" src="/ben.jpg" alt="" width={80} height={80} priority />

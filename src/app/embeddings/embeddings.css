@@ -1,0 +1,171 @@
+.embeddings-page {
+  color: var(--foreground);
+  padding-top: 1.75rem;
+}
+
+.embeddings-lead {
+  max-width: 34rem;
+  margin: 0 0 1.4rem;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: #3a3834;
+}
+
+.embeddings-layout {
+  display: grid;
+  gap: 1.4rem 2.25rem;
+  align-items: start;
+}
+
+.embeddings-plot {
+  width: min(100%, 36rem);
+  touch-action: manipulation;
+}
+
+.embeddings-plot svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.embeddings-plot circle {
+  cursor: pointer;
+  opacity: 0.9;
+}
+
+.embeddings-plot.is-active circle {
+  opacity: 0.16;
+}
+
+.embeddings-plot.is-active circle.is-on {
+  opacity: 1;
+}
+
+.embeddings-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.embeddings-group button {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.55rem;
+  width: 100%;
+  margin: 0;
+  padding: 0.38rem 0.45rem;
+  border: 0;
+  border-radius: 0.4rem;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 0.8125rem;
+  line-height: 1.3;
+  text-align: left;
+  cursor: pointer;
+}
+
+.embeddings-group.is-active button,
+.embeddings-group button:hover {
+  background: #efece6;
+}
+
+.embeddings-group button:focus-visible {
+  outline: 2px solid #c96f45;
+  outline-offset: 2px;
+}
+
+.embeddings-swatch {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+}
+
+.embeddings-group-count {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.embeddings-marks {
+  padding: 0.35rem 0.45rem 0.7rem 1.55rem;
+}
+
+.embeddings-mark {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.15rem 0.75rem;
+  margin-top: 0.65rem;
+}
+
+.embeddings-mark-label,
+.embeddings-mark-value,
+.embeddings-mark-note {
+  font-size: 0.75rem;
+  line-height: 1.35;
+}
+
+.embeddings-mark-label,
+.embeddings-mark-note {
+  color: #4e4b46;
+}
+
+.embeddings-mark-value {
+  font-variant-numeric: tabular-nums;
+}
+
+.embeddings-mark-track {
+  position: relative;
+  grid-column: 1 / -1;
+  height: 2px;
+  margin-top: 0.15rem;
+  border-radius: 99px;
+  background: #e3e0d8;
+}
+
+.embeddings-mark-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: inherit;
+}
+
+.embeddings-mark-tick {
+  position: absolute;
+  top: -3px;
+  width: 1px;
+  height: 8px;
+  background: #1b1a18;
+  transform: translateX(-50%);
+}
+
+.embeddings-mark-note {
+  margin: 0.8rem 0 0;
+}
+
+@media (min-width: 1100px) {
+  .embeddings-layout {
+    grid-template-columns: minmax(0, 40rem) 16.5rem;
+  }
+
+  .embeddings-plot {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .embeddings-plot circle {
+    transition: opacity 140ms ease;
+  }
+}
+
+@media (max-width: 640px) {
+  .embeddings-page {
+    padding-top: 0.25rem;
+  }
+
+  .embeddings-plot {
+    width: 100%;
+  }
+}

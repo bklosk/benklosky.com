@@ -2,8 +2,11 @@
 """Answer every question in public/jevbeddings/questions.json for every encounter note.
 
 One TypeSafe request per encounter. State is the note plus the profile fields
-the questions name. Results land in data/jev_answers.db, which is gitignored.
-Re-running skips encounters that already have a complete answer set.
+the questions name. Notes come from patient_profiles.db and results go to
+jev_answers.db, both in the benklosky-data Space. Re-running skips encounters
+that already have a complete answer set.
+
+    uv run --with boto3 python scripts/run_jev_answers.py
 """
 
 from __future__ import annotations
@@ -19,10 +22,12 @@ import urllib.request
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
+from space import download, upload, workdir
+
 ROOT = Path(__file__).resolve().parents[1]
 QUESTIONS_PATH = ROOT / "public" / "jevbeddings" / "questions.json"
-PATIENTS_DB = ROOT / "data" / "patient_profiles.db"
-ANSWERS_DB = ROOT / "data" / "jev_answers.db"
+PATIENTS_KEY = "patient_profiles.db"
+ANSWERS_KEY = "jev_answers.db"
 ENDPOINT = "https://api.typesafe.ai/v1/systemone"
 MODEL = "jev-1.13.0"
 PROFILE_FIELDS = (
@@ -59,9 +64,8 @@ def load_questions() -> dict:
     return questions
 
 
-def open_answers(question_ids: list[str]) -> sqlite3.Connection:
-    ANSWERS_DB.parent.mkdir(parents=True, exist_ok=True)
-    con = sqlite3.connect(ANSWERS_DB, timeout=60)
+def open_answers(answers_db: Path, question_ids: list[str]) -> sqlite3.Connection:
+    con = sqlite3.connect(answers_db, timeout=60)
     con.execute("PRAGMA journal_mode=WAL")
     con.execute(
         """
@@ -92,12 +96,12 @@ def open_answers(question_ids: list[str]) -> sqlite3.Connection:
     return con
 
 
-def pending(limit: int | None) -> list[tuple]:
-    patients = sqlite3.connect(f"file:{PATIENTS_DB}?mode=ro", uri=True)
+def pending(patients_db: Path, answers_db: Path, limit: int | None) -> list[tuple]:
+    patients = sqlite3.connect(f"file:{patients_db}?mode=ro", uri=True)
     patients.row_factory = sqlite3.Row
     done = {
         row[0]
-        for row in sqlite3.connect(ANSWERS_DB).execute("SELECT encounter_id FROM answers")
+        for row in sqlite3.connect(answers_db).execute("SELECT encounter_id FROM answers")
     }
     rows = []
     query = """
@@ -192,12 +196,35 @@ def main() -> None:
     key = load_key()
     questions = load_questions()
     question_ids = list(questions)
-    answers = open_answers(question_ids)
-    rows = pending(args.limit)
+    with workdir() as work:
+        patients_db = work / PATIENTS_KEY
+        answers_db = work / ANSWERS_KEY
+        download(PATIENTS_KEY, patients_db)
+        download(ANSWERS_KEY, answers_db, required=False)
+        answers = open_answers(answers_db, question_ids)
+        try:
+            rows = pending(patients_db, answers_db, args.limit)
+            failed = answer_all(key, questions, answers, rows, args.workers)
+        finally:
+            answers.execute("PRAGMA wal_checkpoint(TRUNCATE)")
+            answers.close()
+            upload(answers_db, ANSWERS_KEY)
+    if failed:
+        raise SystemExit(1)
+
+
+def answer_all(
+    key: str,
+    questions: dict,
+    answers: sqlite3.Connection,
+    rows: list[tuple],
+    workers: int,
+) -> int:
+    question_ids = list(questions)
     total = len(rows)
-    print(f"pending {total} encounters, {len(question_ids)} questions, workers {args.workers}", flush=True)
+    print(f"pending {total} encounters, {len(question_ids)} questions, workers {workers}", flush=True)
     if total == 0:
-        return
+        return 0
 
     lock = threading.Lock()
     done = 0
@@ -219,7 +246,7 @@ def main() -> None:
             json.dumps(probs, separators=(",", ":")),
         )
 
-    with ThreadPoolExecutor(max_workers=args.workers) as pool:
+    with ThreadPoolExecutor(max_workers=workers) as pool:
         futures = [pool.submit(work, row) for row in rows]
         for future in as_completed(futures):
             try:
@@ -251,8 +278,7 @@ def main() -> None:
         f"finished saved {done} failed {failed} in {elapsed:.0f}s tokens_in {tokens_in}",
         flush=True,
     )
-    if failed:
-        raise SystemExit(1)
+    return failed
 
 
 if __name__ == "__main__":
