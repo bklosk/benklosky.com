@@ -2,7 +2,7 @@ export default function Home() {
   return (
     <div id="about" className="intro">
       <p>
-        I design products for Steve Levitt&apos;s{" "}
+        I design and create products for Steve Levitt&apos;s{" "}
         <a href="https://risc.uchicago.edu">lab</a> (of{" "}
         <span className="italic">Freakonomics</span> fame).
       </p>
@@ -15,7 +15,7 @@ export default function Home() {
         I&apos;ve worked as a machine learning engineer, an econ researcher, and
         as an apprentice at a police department. I&apos;m also a{" "}
         <a href="https://en.wikipedia.org/wiki/Maker_culture">maker</a>. I love
-        design, fabricating things, and{" "}
+        economics, fabricating things, and{" "}
         <a href="https://en.wikipedia.org/wiki/Just-in-time_learning">
           just-in-time learning
         </a>
