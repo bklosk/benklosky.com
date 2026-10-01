@@ -10,6 +10,7 @@ const publisherTexture = new Map(publisherSpines.map(({ key, output }) => [key, 
 const INITIAL_ROTATION = { x: -5, y: -11 };
 const clamp = (n: number, min: number, max: number) => Math.min(max, Math.max(min, n));
 const scale = 0.5;
+const hoverWash = 0.34;
 
 // The stage fills the column beside the sidebar, so a centered model sits
 // right of the window. Slide it toward the viewport center, stopping before
@@ -134,6 +135,7 @@ export function ShelfModel({ games, selectedId, matchedIds, searching, onSelect 
   zoomRef.current = zoom;
   const [dragging, setDragging] = useState(false);
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const byId = new Map(games.map((game) => [game.id, game]));
 
   useEffect(() => {
@@ -156,6 +158,15 @@ export function ShelfModel({ games, selectedId, matchedIds, searching, onSelect 
       const z = (128 - depth) / 2 - (box.top ? 0 : 3);
       const mesh = addCuboid(world, (box.displayX ?? x) * scale, y * scale, w * scale, h * scale, depth, z, box.color);
       mesh.userData.boxIndex = index;
+      const highlight = new THREE.Mesh(
+        new THREE.PlaneGeometry(w * scale, h * scale),
+        new THREE.MeshBasicMaterial({ color: "#fffaf2", transparent: true, opacity: hoverWash, depthWrite: false }),
+      );
+      highlight.position.z = depth / 2 + 0.6;
+      highlight.visible = false;
+      highlight.raycast = () => {};
+      mesh.add(highlight);
+      mesh.userData.highlight = highlight;
       materials.push(mesh.material as THREE.MeshBasicMaterial[]);
       return mesh;
     });
@@ -247,10 +258,16 @@ export function ShelfModel({ games, selectedId, matchedIds, searching, onSelect 
       const active = box.gameId != null && box.gameId === selectedId;
       const depth = box.top ? 100 : 95 + (box.rect[0] % 13);
       shelf.boxMeshes[index].position.z = (128 - depth) / 2 - (box.top ? 0 : 3) + (active ? 22 : 0);
-      shelf.materials[index][4].color.set(
-        focusedIndex === index ? "#ffe09b" : active ? "#fff0cb" : shelf.materials[index][4].map ? "#ffffff" : box.color,
-      );
+      const front = shelf.materials[index][4];
+      const focused = focusedIndex === index;
+      if (focused) front.color.set("#ffe09b");
+      else if (active) front.color.set("#fff0cb");
+      else front.color.set(front.map ? "#ffffff" : box.color);
       const opacity = searching && (box.gameId === null || !matchedIds.has(box.gameId)) ? 0.23 : 1;
+      const highlight = shelf.boxMeshes[index].userData.highlight as THREE.Mesh;
+      const highlightMaterial = highlight.material as THREE.MeshBasicMaterial;
+      highlight.visible = hoveredIndex === index && !focused;
+      highlightMaterial.opacity = hoverWash * opacity;
       shelf.materials[index].forEach((material) => {
         material.transparent = opacity < 1;
         material.opacity = opacity;
@@ -258,9 +275,9 @@ export function ShelfModel({ games, selectedId, matchedIds, searching, onSelect 
       });
     });
     shelf.render();
-  }, [fit, zoom, rotation, selectedId, searching, matchedIds, focusedIndex]);
+  }, [fit, zoom, rotation, selectedId, searching, matchedIds, focusedIndex, hoveredIndex]);
 
-  function hitBox(event: MouseEvent<HTMLDivElement>) {
+  function pointerIndex(event: { clientX: number; clientY: number }) {
     const shelf = sceneRef.current;
     const stage = stageRef.current;
     if (!shelf || !stage) return null;
@@ -269,9 +286,19 @@ export function ShelfModel({ games, selectedId, matchedIds, searching, onSelect 
       ((event.clientX - rect.left) / rect.width) * 2 - 1,
       -((event.clientY - rect.top) / rect.height) * 2 + 1,
     ), shelf.camera);
-    const hits = shelf.raycaster.intersectObjects(shelf.world.children, false);
-    const index = hits[0]?.object.userData.boxIndex;
-    return typeof index === "number" ? allBoxes[index] : null;
+    const index = shelf.raycaster.intersectObjects(shelf.world.children, false)[0]?.object.userData.boxIndex;
+    return typeof index === "number" ? index : null;
+  }
+
+  function showHover(event: { clientX: number; clientY: number }, target: HTMLDivElement) {
+    const index = pointerIndex(event);
+    target.style.cursor = index == null ? "" : "pointer";
+    setHoveredIndex((current) => (current === index ? current : index));
+  }
+
+  function hitBox(event: MouseEvent<HTMLDivElement>) {
+    const index = pointerIndex(event);
+    return index == null ? null : allBoxes[index];
   }
 
   function selectBox(box: ShelfBox) {
@@ -290,7 +317,10 @@ export function ShelfModel({ games, selectedId, matchedIds, searching, onSelect 
     if (drag.current.moved) suppressClickUntil.current = event.timeStamp + 150;
     if (pointers.current.size === 0) {
       setDragging(false);
-      event.currentTarget.style.cursor = "";
+      if (event.type === "pointerleave") {
+        event.currentTarget.style.cursor = "";
+        setHoveredIndex(null);
+      } else showHover(event, event.currentTarget);
     }
     if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
   }
@@ -324,13 +354,14 @@ export function ShelfModel({ games, selectedId, matchedIds, searching, onSelect 
         onPointerMove={(event) => {
           const previous = pointers.current.get(event.pointerId);
           if (!previous) {
-            event.currentTarget.style.cursor = hitBox(event) ? "pointer" : "";
+            showHover(event, event.currentTarget);
             return;
           }
           const next = { x: event.clientX, y: event.clientY };
           if (!drag.current.moved && Math.hypot(next.x - drag.current.x, next.y - drag.current.y) < 5) return;
           drag.current.moved = true;
           setDragging(true);
+          setHoveredIndex(null);
           event.currentTarget.style.cursor = "grabbing";
           event.currentTarget.setPointerCapture(event.pointerId);
           if (pointers.current.size === 2) {
