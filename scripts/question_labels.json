@@ -1,0 +1,627 @@
+[
+  {
+    "id": "reported_fever",
+    "label": "Reported fever",
+    "group": "Symptoms"
+  },
+  {
+    "id": "reported_chills",
+    "label": "Reported chills",
+    "group": "Symptoms"
+  },
+  {
+    "id": "reported_rigors",
+    "label": "Reported rigors",
+    "group": "Symptoms"
+  },
+  {
+    "id": "new_confusion",
+    "label": "New confusion",
+    "group": "Symptoms"
+  },
+  {
+    "id": "new_lethargy",
+    "label": "New lethargy",
+    "group": "Symptoms"
+  },
+  {
+    "id": "decreased_responsiveness",
+    "label": "Decreased responsiveness",
+    "group": "Symptoms"
+  },
+  {
+    "id": "acute_onset",
+    "label": "Acute onset",
+    "group": "Symptoms"
+  },
+  {
+    "id": "vomiting",
+    "label": "Vomiting",
+    "group": "Symptoms"
+  },
+  {
+    "id": "decreased_oral_intake",
+    "label": "Decreased oral intake",
+    "group": "Symptoms"
+  },
+  {
+    "id": "decreased_urine_output",
+    "label": "Decreased urine output",
+    "group": "Symptoms"
+  },
+  {
+    "id": "suspected_urinary_infection",
+    "label": "Suspected urinary infection",
+    "group": "Suspected infection and recent care"
+  },
+  {
+    "id": "suspected_respiratory_infection",
+    "label": "Suspected respiratory infection",
+    "group": "Suspected infection and recent care"
+  },
+  {
+    "id": "suspected_skin_infection",
+    "label": "Suspected skin infection",
+    "group": "Suspected infection and recent care"
+  },
+  {
+    "id": "suspected_wound_infection",
+    "label": "Suspected wound infection",
+    "group": "Suspected infection and recent care"
+  },
+  {
+    "id": "suspected_abdominal_infection",
+    "label": "Suspected abdominal infection",
+    "group": "Suspected infection and recent care"
+  },
+  {
+    "id": "recent_antibiotics",
+    "label": "Recent antibiotics",
+    "group": "Suspected infection and recent care"
+  },
+  {
+    "id": "recurrent_infections",
+    "label": "Recurrent infections",
+    "group": "Suspected infection and recent care"
+  },
+  {
+    "id": "recent_surgery",
+    "label": "Recent surgery",
+    "group": "Suspected infection and recent care"
+  },
+  {
+    "id": "recent_invasive_procedure",
+    "label": "Recent invasive procedure",
+    "group": "Suspected infection and recent care"
+  },
+  {
+    "id": "recent_hospitalization",
+    "label": "Recent hospitalization",
+    "group": "Suspected infection and recent care"
+  },
+  {
+    "id": "diabetes",
+    "label": "Diabetes",
+    "group": "Conditions, devices, allergies"
+  },
+  {
+    "id": "chronic_kidney_disease",
+    "label": "Chronic kidney disease",
+    "group": "Conditions, devices, allergies"
+  },
+  {
+    "id": "dialysis",
+    "label": "Dialysis",
+    "group": "Conditions, devices, allergies"
+  },
+  {
+    "id": "chronic_liver_disease",
+    "label": "Chronic liver disease",
+    "group": "Conditions, devices, allergies"
+  },
+  {
+    "id": "active_cancer",
+    "label": "Active cancer",
+    "group": "Conditions, devices, allergies"
+  },
+  {
+    "id": "systemic_steroids",
+    "label": "Systemic steroids",
+    "group": "Conditions, devices, allergies"
+  },
+  {
+    "id": "chemotherapy",
+    "label": "Chemotherapy",
+    "group": "Conditions, devices, allergies"
+  },
+  {
+    "id": "organ_transplant",
+    "label": "Organ transplant",
+    "group": "Conditions, devices, allergies"
+  },
+  {
+    "id": "stem_cell_transplant",
+    "label": "Stem cell transplant",
+    "group": "Conditions, devices, allergies"
+  },
+  {
+    "id": "oral_immunosuppressant",
+    "label": "Oral immunosuppressant",
+    "group": "Conditions, devices, allergies"
+  },
+  {
+    "id": "biologic_immunosuppressant",
+    "label": "Biologic immunosuppressant",
+    "group": "Conditions, devices, allergies"
+  },
+  {
+    "id": "hiv",
+    "label": "HIV",
+    "group": "Conditions, devices, allergies"
+  },
+  {
+    "id": "asplenia",
+    "label": "Asplenia",
+    "group": "Conditions, devices, allergies"
+  },
+  {
+    "id": "sickle_cell_disease",
+    "label": "Sickle cell disease",
+    "group": "Conditions, devices, allergies"
+  },
+  {
+    "id": "urinary_catheter",
+    "label": "Urinary catheter",
+    "group": "Conditions, devices, allergies"
+  },
+  {
+    "id": "central_venous_catheter",
+    "label": "Central venous catheter",
+    "group": "Conditions, devices, allergies"
+  },
+  {
+    "id": "prosthetic_heart_valve",
+    "label": "Prosthetic heart valve",
+    "group": "Conditions, devices, allergies"
+  },
+  {
+    "id": "implanted_cardiac_device",
+    "label": "Implanted cardiac device",
+    "group": "Conditions, devices, allergies"
+  },
+  {
+    "id": "prosthetic_joint",
+    "label": "Prosthetic joint",
+    "group": "Conditions, devices, allergies"
+  },
+  {
+    "id": "feeding_tube",
+    "label": "Feeding tube",
+    "group": "Conditions, devices, allergies"
+  },
+  {
+    "id": "injection_drug_use",
+    "label": "Injection drug use",
+    "group": "Conditions, devices, allergies"
+  },
+  {
+    "id": "heavy_alcohol_use",
+    "label": "Heavy alcohol use",
+    "group": "Conditions, devices, allergies"
+  },
+  {
+    "id": "lives_in_care_facility",
+    "label": "Lives in care facility",
+    "group": "Conditions, devices, allergies"
+  },
+  {
+    "id": "functionally_dependent",
+    "label": "Functionally dependent",
+    "group": "Conditions, devices, allergies"
+  },
+  {
+    "id": "pregnant_currently",
+    "label": "Pregnant currently",
+    "group": "Conditions, devices, allergies"
+  },
+  {
+    "id": "recently_postpartum",
+    "label": "Recently postpartum",
+    "group": "Conditions, devices, allergies"
+  },
+  {
+    "id": "recent_pregnancy_loss",
+    "label": "Recent pregnancy loss",
+    "group": "Conditions, devices, allergies"
+  },
+  {
+    "id": "multimorbidity",
+    "label": "Several chronic conditions",
+    "group": "Conditions, devices, allergies"
+  },
+  {
+    "id": "penicillin_allergy",
+    "label": "Penicillin allergy",
+    "group": "Conditions, devices, allergies"
+  },
+  {
+    "id": "other_antibiotic_allergy",
+    "label": "Other antibiotic allergy",
+    "group": "Conditions, devices, allergies"
+  },
+  {
+    "id": "measured_fever",
+    "label": "Measured fever",
+    "group": "Vitals and exam"
+  },
+  {
+    "id": "hypothermia",
+    "label": "Hypothermia",
+    "group": "Vitals and exam"
+  },
+  {
+    "id": "tachycardia",
+    "label": "Tachycardia",
+    "group": "Vitals and exam"
+  },
+  {
+    "id": "tachypnea",
+    "label": "Tachypnea",
+    "group": "Vitals and exam"
+  },
+  {
+    "id": "low_systolic_bp",
+    "label": "Low systolic BP",
+    "group": "Vitals and exam"
+  },
+  {
+    "id": "low_oxygen_saturation",
+    "label": "Low oxygen saturation",
+    "group": "Vitals and exam"
+  },
+  {
+    "id": "supplemental_oxygen",
+    "label": "Supplemental oxygen",
+    "group": "Vitals and exam"
+  },
+  {
+    "id": "mechanical_ventilation",
+    "label": "Mechanical ventilation",
+    "group": "Vitals and exam"
+  },
+  {
+    "id": "ill_appearing",
+    "label": "Ill appearing",
+    "group": "Vitals and exam"
+  },
+  {
+    "id": "acute_distress",
+    "label": "Acute distress",
+    "group": "Vitals and exam"
+  },
+  {
+    "id": "diaphoresis",
+    "label": "Diaphoresis",
+    "group": "Vitals and exam"
+  },
+  {
+    "id": "mottled_skin",
+    "label": "Mottled skin",
+    "group": "Vitals and exam"
+  },
+  {
+    "id": "cool_extremities",
+    "label": "Cool extremities",
+    "group": "Vitals and exam"
+  },
+  {
+    "id": "delayed_capillary_refill",
+    "label": "Delayed capillary refill",
+    "group": "Vitals and exam"
+  },
+  {
+    "id": "skin_erythema",
+    "label": "Skin erythema",
+    "group": "Vitals and exam"
+  },
+  {
+    "id": "purulent_drainage",
+    "label": "Purulent drainage",
+    "group": "Vitals and exam"
+  },
+  {
+    "id": "cva_tenderness",
+    "label": "CVA tenderness",
+    "group": "Vitals and exam"
+  },
+  {
+    "id": "lung_crackles",
+    "label": "Lung crackles",
+    "group": "Vitals and exam"
+  },
+  {
+    "id": "abdominal_guarding",
+    "label": "Abdominal guarding",
+    "group": "Vitals and exam"
+  },
+  {
+    "id": "rebound_tenderness",
+    "label": "Rebound tenderness",
+    "group": "Vitals and exam"
+  },
+  {
+    "id": "joint_swelling",
+    "label": "Joint swelling",
+    "group": "Vitals and exam"
+  },
+  {
+    "id": "leukocytosis",
+    "label": "Leukocytosis",
+    "group": "Labs and imaging"
+  },
+  {
+    "id": "leukopenia",
+    "label": "Leukopenia",
+    "group": "Labs and imaging"
+  },
+  {
+    "id": "bandemia",
+    "label": "Bandemia",
+    "group": "Labs and imaging"
+  },
+  {
+    "id": "neutropenia",
+    "label": "Neutropenia",
+    "group": "Labs and imaging"
+  },
+  {
+    "id": "elevated_creatinine",
+    "label": "Elevated creatinine",
+    "group": "Labs and imaging"
+  },
+  {
+    "id": "low_platelets",
+    "label": "Low platelets",
+    "group": "Labs and imaging"
+  },
+  {
+    "id": "elevated_bilirubin",
+    "label": "Elevated bilirubin",
+    "group": "Labs and imaging"
+  },
+  {
+    "id": "elevated_ast",
+    "label": "Elevated AST",
+    "group": "Labs and imaging"
+  },
+  {
+    "id": "elevated_alt",
+    "label": "Elevated ALT",
+    "group": "Labs and imaging"
+  },
+  {
+    "id": "elevated_alkaline_phosphatase",
+    "label": "Elevated alkaline phosphatase",
+    "group": "Labs and imaging"
+  },
+  {
+    "id": "low_bicarbonate",
+    "label": "Low bicarbonate",
+    "group": "Labs and imaging"
+  },
+  {
+    "id": "elevated_anion_gap",
+    "label": "Elevated anion gap",
+    "group": "Labs and imaging"
+  },
+  {
+    "id": "high_glucose",
+    "label": "High glucose",
+    "group": "Labs and imaging"
+  },
+  {
+    "id": "positive_nitrites",
+    "label": "Positive nitrites",
+    "group": "Labs and imaging"
+  },
+  {
+    "id": "positive_leukocyte_esterase",
+    "label": "Positive leukocyte esterase",
+    "group": "Labs and imaging"
+  },
+  {
+    "id": "pyuria",
+    "label": "Pyuria",
+    "group": "Labs and imaging"
+  },
+  {
+    "id": "bacteriuria",
+    "label": "Bacteriuria",
+    "group": "Labs and imaging"
+  },
+  {
+    "id": "pulmonary_infiltrate",
+    "label": "Pulmonary infiltrate",
+    "group": "Labs and imaging"
+  },
+  {
+    "id": "abscess_on_imaging",
+    "label": "Abscess on imaging",
+    "group": "Labs and imaging"
+  },
+  {
+    "id": "empyema",
+    "label": "Empyema",
+    "group": "Labs and imaging"
+  },
+  {
+    "id": "free_air",
+    "label": "Free air",
+    "group": "Labs and imaging"
+  },
+  {
+    "id": "second_person_phrasing",
+    "label": "Second person phrasing",
+    "group": "Note quality"
+  },
+  {
+    "id": "duplicate_problem_list",
+    "label": "Duplicate problem list",
+    "group": "Note quality"
+  },
+  {
+    "id": "internal_contradiction",
+    "label": "Internal contradiction",
+    "group": "Note quality"
+  },
+  {
+    "id": "note_describes_female",
+    "label": "Described as female",
+    "group": "Demographics and coverage"
+  },
+  {
+    "id": "note_age_65_or_older",
+    "label": "Age 65 or older",
+    "group": "Demographics and coverage"
+  },
+  {
+    "id": "note_age_under_18",
+    "label": "Under 18",
+    "group": "Demographics and coverage"
+  },
+  {
+    "id": "insurance_medicaid",
+    "label": "Medicaid",
+    "group": "Demographics and coverage"
+  },
+  {
+    "id": "insurance_medicare",
+    "label": "Medicare",
+    "group": "Demographics and coverage"
+  },
+  {
+    "id": "insurance_private",
+    "label": "Private insurance",
+    "group": "Demographics and coverage"
+  },
+  {
+    "id": "insurance_uninsured",
+    "label": "Uninsured",
+    "group": "Demographics and coverage"
+  },
+  {
+    "id": "insurance_through_parent",
+    "label": "Parent's insurance",
+    "group": "Demographics and coverage"
+  },
+  {
+    "id": "insurance_student_plan",
+    "label": "Student health plan",
+    "group": "Demographics and coverage"
+  },
+  {
+    "id": "medicare_due_to_disability",
+    "label": "Medicare for disability",
+    "group": "Demographics and coverage"
+  },
+  {
+    "id": "medicare_due_to_esrd",
+    "label": "Medicare for ESRD",
+    "group": "Demographics and coverage"
+  },
+  {
+    "id": "race_black",
+    "label": "Black",
+    "group": "Demographics and coverage"
+  },
+  {
+    "id": "race_white",
+    "label": "White",
+    "group": "Demographics and coverage"
+  },
+  {
+    "id": "race_asian",
+    "label": "Asian",
+    "group": "Demographics and coverage"
+  },
+  {
+    "id": "ethnicity_hispanic",
+    "label": "Hispanic",
+    "group": "Demographics and coverage"
+  },
+  {
+    "id": "current_smoker",
+    "label": "Current smoker",
+    "group": "Habits, work, family history"
+  },
+  {
+    "id": "former_smoker",
+    "label": "Former smoker",
+    "group": "Habits, work, family history"
+  },
+  {
+    "id": "drinks_alcohol",
+    "label": "Drinks alcohol",
+    "group": "Habits, work, family history"
+  },
+  {
+    "id": "heavy_drinking",
+    "label": "Heavy drinking",
+    "group": "Habits, work, family history"
+  },
+  {
+    "id": "is_student",
+    "label": "Student",
+    "group": "Habits, work, family history"
+  },
+  {
+    "id": "is_retired",
+    "label": "Retired",
+    "group": "Habits, work, family history"
+  },
+  {
+    "id": "not_working_due_to_health",
+    "label": "Not working due to health",
+    "group": "Habits, work, family history"
+  },
+  {
+    "id": "manual_labor_job",
+    "label": "Manual labor",
+    "group": "Habits, work, family history"
+  },
+  {
+    "id": "healthcare_worker",
+    "label": "Healthcare worker",
+    "group": "Habits, work, family history"
+  },
+  {
+    "id": "works_with_children",
+    "label": "Works with children",
+    "group": "Habits, work, family history"
+  },
+  {
+    "id": "family_history_cancer",
+    "label": "Family history cancer",
+    "group": "Habits, work, family history"
+  },
+  {
+    "id": "family_history_heart_disease",
+    "label": "Family history heart disease",
+    "group": "Habits, work, family history"
+  },
+  {
+    "id": "family_history_diabetes",
+    "label": "Family history diabetes",
+    "group": "Habits, work, family history"
+  },
+  {
+    "id": "family_history_autoimmune",
+    "label": "Family history autoimmune",
+    "group": "Habits, work, family history"
+  },
+  {
+    "id": "any_prior_surgery",
+    "label": "Any prior surgery",
+    "group": "Habits, work, family history"
+  }
+]

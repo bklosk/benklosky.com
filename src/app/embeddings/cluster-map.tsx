@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { createContext, memo, use, useEffect, useMemo, useState, type ReactNode } from "react";
 
 export type ClusterMark = {
   label: string;
@@ -8,140 +8,450 @@ export type ClusterMark = {
   overall: number;
 };
 
+export type ClusterSettings = {
+  outpatient: number;
+  ed: number;
+  inpatient: number;
+  icu: number;
+};
+
 export type Cluster = {
   id: string;
   label: string;
   count: number;
   color: string;
+  findings: number;
+  settings: ClusterSettings;
   marks: ClusterMark[];
+  examples: string[];
+};
+
+export type Question = {
+  id: string;
+  label: string;
+  group: string;
 };
 
 export type ClusterMapData = {
-  patients: number;
+  charts: number;
+  shown: number;
   scores: number;
+  presentation: string[];
+  questions: Question[];
   clusters: Cluster[];
-  points: number[][];
+  /** [x, y, cluster index, encounter id] */
+  points: [number, number, number, number][];
 };
 
-export function ClusterMap({ data }: { data: ClusterMapData }) {
+type Chart = {
+  id: number;
+  cluster: number;
+  setting: string;
+  department: string;
+  date: string;
+  complaint: string;
+  note: string;
+  answers: number[];
+};
+
+const SETTING_LABELS: [keyof ClusterSettings, string][] = [
+  ["outpatient", "Clinic"],
+  ["ed", "ED"],
+  ["inpatient", "Ward"],
+  ["icu", "ICU"],
+];
+
+const SETTING_NAMES: Record<string, string> = {
+  outpatient: "Clinic visit",
+  ed: "Emergency department",
+  inpatient: "Ward admission",
+  icu: "ICU",
+  follow_up: "Follow-up",
+  procedure: "Procedure",
+  telehealth: "Telehealth",
+};
+
+type ClusterState = {
+  data: ClusterMapData;
+  active: number | null;
+  locked: number | null;
+  chart: number | null;
+  show: (index: number | null) => void;
+  lock: (index: number | null) => void;
+  openChart: (id: number, cluster: number) => void;
+  closeChart: () => void;
+};
+
+const ClusterContext = createContext<ClusterState | null>(null);
+
+function useClusters() {
+  const state = use(ClusterContext);
+  if (!state) throw new Error("Cluster components must sit inside ClusterProvider");
+  return state;
+}
+
+export function ClusterProvider({ data, children }: { data: ClusterMapData; children: ReactNode }) {
   const [hover, setHover] = useState<number | null>(null);
   const [locked, setLocked] = useState<number | null>(null);
-  const active = locked ?? hover;
+  const [chart, setChart] = useState<number | null>(null);
 
-  const bounds = useMemo(() => {
-    let xMin = Infinity;
-    let xMax = -Infinity;
-    let yMin = Infinity;
-    let yMax = -Infinity;
-    for (const point of data.points) {
-      xMin = Math.min(xMin, point[0]);
-      xMax = Math.max(xMax, point[0]);
-      yMin = Math.min(yMin, point[1]);
-      yMax = Math.max(yMax, point[1]);
-    }
-    const padX = (xMax - xMin) * 0.07;
-    const padY = (yMax - yMin) * 0.07;
-    return {
-      xMin: xMin - padX,
-      yMin: yMin - padY,
-      width: xMax - xMin + padX * 2,
-      height: yMax - yMin + padY * 2,
-      yFlip: yMin + yMax,
-    };
-  }, [data.points]);
+  const state = useMemo<ClusterState>(
+    () => ({
+      data,
+      active: locked ?? hover,
+      locked,
+      chart,
+      show: (index) => {
+        if (locked === null) setHover(index);
+      },
+      lock: (index) => {
+        setHover(null);
+        setChart(null);
+        setLocked((current) => (index === null || current === index ? null : index));
+      },
+      openChart: (id, cluster) => {
+        setHover(null);
+        setLocked(cluster);
+        setChart(id);
+      },
+      closeChart: () => setChart(null),
+    }),
+    [data, hover, locked, chart],
+  );
 
-  const radius = Math.min(bounds.width, bounds.height) * 0.0085;
+  return <ClusterContext value={state}>{children}</ClusterContext>;
+}
 
-  function show(index: number) {
-    if (locked === null) setHover(index);
-  }
-
-  function lock(index: number) {
-    setHover(null);
-    setLocked((current) => (current === index ? null : index));
-  }
+/** Inline text that highlights one cluster on the map, e.g. <Cluster id="shock">septic shock</Cluster>. */
+export function Cluster({ id, children }: { id: string; children: ReactNode }) {
+  const { data, active, locked, show, lock } = useClusters();
+  const index = data.clusters.findIndex((cluster) => cluster.id === id);
+  if (index === -1) throw new Error(`No cluster with id "${id}"`);
+  const cluster = data.clusters[index];
 
   return (
-    <div className="embeddings-page">
-      <p className="embeddings-lead">
-        {data.patients.toLocaleString("en-US")} patients. Each dot averages that person&apos;s charts
-        into {data.scores} scores. Nearby dots had similar charts. The colors are{" "}
-        {data.clusters.length} k-means groups.
-      </p>
+    <button
+      type="button"
+      className={`embeddings-inline${active === index ? " is-active" : ""}`}
+      style={{ textDecorationColor: cluster.color }}
+      aria-pressed={locked === index}
+      onMouseEnter={() => show(index)}
+      onMouseLeave={() => show(null)}
+      onClick={() => lock(index)}
+    >
+      {children}
+    </button>
+  );
+}
+
+type Size = { width: number; height: number };
+
+const DOT_RADIUS = 2.6;
+const EDGE = 8;
+
+/** UMAP axes carry no meaning, so the layout is stretched to fill the plot box on both axes. */
+function projector(points: ClusterMapData["points"], size: Size) {
+  let xMin = Infinity;
+  let xMax = -Infinity;
+  let yMin = Infinity;
+  let yMax = -Infinity;
+  for (const point of points) {
+    xMin = Math.min(xMin, point[0]);
+    xMax = Math.max(xMax, point[0]);
+    yMin = Math.min(yMin, point[1]);
+    yMax = Math.max(yMax, point[1]);
+  }
+  const xScale = (size.width - EDGE * 2) / (xMax - xMin || 1);
+  const yScale = (size.height - EDGE * 2) / (yMax - yMin || 1);
+  return (x: number, y: number): [number, number] => [
+    EDGE + (x - xMin) * xScale,
+    EDGE + (yMax - y) * yScale,
+  ];
+}
+
+function usePlotSize(initial: Size) {
+  const [size, setSize] = useState(initial);
+  const [node, setNode] = useState<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!node) return;
+    const observer = new ResizeObserver(([entry]) => {
+      const { width, height } = entry.contentRect;
+      if (width > 0 && height > 0) setSize({ width: Math.round(width), height: Math.round(height) });
+    });
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [node]);
+
+  return [size, setNode] as const;
+}
+
+/** Drawn once per dataset and size; hover and selection only toggle styles on the cluster groups. */
+const Dots = memo(function Dots({ data, size }: { data: ClusterMapData; size: Size }) {
+  const project = projector(data.points, size);
+  const groups = data.clusters.map(() => [] as ReactNode[]);
+  for (const [x, y, cluster, id] of data.points) {
+    const [cx, cy] = project(x, y);
+    groups[cluster].push(
+      <circle key={id} cx={cx} cy={cy} r={DOT_RADIUS} data-id={id} data-cluster={cluster} />,
+    );
+  }
+  return groups.map((circles, cluster) => (
+    <g key={data.clusters[cluster].id} data-group={cluster} fill={data.clusters[cluster].color}>
+      {circles}
+    </g>
+  ));
+});
+
+function pointFrom(target: EventTarget) {
+  if (!(target instanceof SVGCircleElement) || !target.dataset.id) return null;
+  return { id: Number(target.dataset.id), cluster: Number(target.dataset.cluster) };
+}
+
+export function ClusterMap() {
+  const { data, active, chart, show, lock, openChart } = useClusters();
+  const [size, plotRef] = usePlotSize({ width: 640, height: 512 });
+  const selected = chart === null ? undefined : data.points.find((point) => point[3] === chart);
+  const selectedAt = selected && projector(data.points, size)(selected[0], selected[1]);
+
+  return (
+    <figure className="embeddings-figure">
       <div className="embeddings-layout">
-        <div className={`embeddings-plot${active === null ? "" : " is-active"}`}>
+        <div className="embeddings-plot" ref={plotRef} data-active={active ?? undefined}>
           <svg
-            viewBox={`${bounds.xMin} ${bounds.yMin} ${bounds.width} ${bounds.height}`}
+            viewBox={`0 0 ${size.width} ${size.height}`}
             aria-hidden="true"
+            onPointerOver={(event) => {
+              if (event.pointerType !== "mouse") return;
+              const point = pointFrom(event.target);
+              if (point) show(point.cluster);
+            }}
+            onPointerLeave={() => show(null)}
             onClick={(event) => {
-              if (event.target === event.currentTarget) {
-                setLocked(null);
-                setHover(null);
-              }
+              const point = pointFrom(event.target);
+              if (point) openChart(point.id, point.cluster);
+              else lock(null);
             }}
           >
-            {data.points.map((point, index) => {
-              const cluster = point[2];
-              const on = active === cluster;
-              return (
-                <circle
-                  key={index}
-                  cx={point[0]}
-                  cy={bounds.yFlip - point[1]}
-                  r={on ? radius * 1.35 : radius}
-                  fill={data.clusters[cluster].color}
-                  className={on ? "is-on" : undefined}
-                  onPointerEnter={(event) => {
-                    if (event.pointerType === "mouse") show(cluster);
-                  }}
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    lock(cluster);
-                  }}
-                />
-              );
-            })}
+            <Dots data={data} size={size} />
+            {selected && selectedAt && (
+              <circle
+                className="embeddings-selected"
+                cx={selectedAt[0]}
+                cy={selectedAt[1]}
+                r={DOT_RADIUS * 2.6}
+                stroke={data.clusters[selected[2]].color}
+                strokeWidth={1.75}
+              />
+            )}
           </svg>
+          <style>{`.embeddings-plot[data-active="${active}"] g[data-group="${active}"] { opacity: 1; }`}</style>
         </div>
-        <div className="embeddings-groups" aria-label="Clusters">
-          {data.clusters.map((cluster, index) => {
-            const selected = active === index;
-            return (
-              <div key={cluster.id} className={`embeddings-group${selected ? " is-active" : ""}`}>
-                <button
-                  type="button"
-                  aria-pressed={locked === index}
-                  aria-expanded={selected}
-                  onMouseEnter={() => show(index)}
-                  onClick={() => lock(index)}
-                >
-                  <span className="embeddings-swatch" style={{ background: cluster.color }} />
-                  <span className="embeddings-group-name">{cluster.label}</span>
-                  <span className="embeddings-group-count">{cluster.count.toLocaleString("en-US")}</span>
-                </button>
-                {selected && (
-                  <div className="embeddings-marks">
-                    {cluster.marks.map((mark) => (
-                      <div key={mark.label} className="embeddings-mark">
-                        <span className="embeddings-mark-label">{mark.label}</span>
-                        <span className="embeddings-mark-value">{mark.mean.toFixed(2)}</span>
-                        <span className="embeddings-mark-track">
-                          <span
-                            className="embeddings-mark-fill"
-                            style={{ width: `${mark.mean * 100}%`, background: cluster.color }}
-                          />
-                          <span className="embeddings-mark-tick" style={{ left: `${mark.overall * 100}%` }} />
-                        </span>
-                      </div>
-                    ))}
-                    <p className="embeddings-mark-note">Bar is this group&apos;s mean score. Tick is every patient.</p>
-                  </div>
-                )}
-              </div>
-            );
-          })}
+        <div className="embeddings-panel">
+          {chart === null ? <ClusterList /> : <ChartPanel key={chart} id={chart} />}
         </div>
       </div>
+      <figcaption className="embeddings-caption">
+        {data.shown.toLocaleString("en-US")} of {data.charts.toLocaleString("en-US")} charts, each
+        placed by its {data.scores} presentation scores and sampled so small groups stay visible.
+        Nearby dots read alike. Colors are {data.clusters.length} k-means groups. Click a dot to read
+        its chart.
+      </figcaption>
+    </figure>
+  );
+}
+
+function ClusterList() {
+  const { data, active, locked, show, lock } = useClusters();
+  return (
+    <div className="embeddings-groups" aria-label="Clusters">
+      {data.clusters.map((cluster, index) => {
+        const selected = active === index;
+        return (
+          <div key={cluster.id} className={`embeddings-group${selected ? " is-active" : ""}`}>
+            <button
+              type="button"
+              aria-pressed={locked === index}
+              aria-expanded={selected}
+              onMouseEnter={() => show(index)}
+              onMouseLeave={() => show(null)}
+              onClick={() => lock(index)}
+            >
+              <span className="embeddings-swatch" style={{ background: cluster.color }} />
+              <span className="embeddings-group-name">{cluster.label}</span>
+              <span className="embeddings-group-count">{cluster.count.toLocaleString("en-US")}</span>
+            </button>
+            {selected && <ClusterDetail cluster={cluster} />}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function ClusterDetail({ cluster }: { cluster: Cluster }) {
+  return (
+    <div className="embeddings-marks">
+      <p className="embeddings-detail-line">
+        {cluster.findings.toFixed(1)} positive findings per chart
+      </p>
+      <div className="embeddings-settings" aria-label="Where these charts were written">
+        {SETTING_LABELS.map(([key, label]) => (
+          <span key={key} className="embeddings-setting">
+            <span className="embeddings-setting-label">{label}</span>
+            <span className="embeddings-setting-value">{Math.round(cluster.settings[key] * 100)}%</span>
+          </span>
+        ))}
+      </div>
+      {cluster.marks.length === 0 ? (
+        <p className="embeddings-mark-note">No score stands out. Most are near zero.</p>
+      ) : (
+        <>
+          {cluster.marks.map((mark) => (
+            <div key={mark.label} className="embeddings-mark">
+              <span className="embeddings-mark-label">{mark.label}</span>
+              <span className="embeddings-mark-value">{mark.mean.toFixed(2)}</span>
+              <span className="embeddings-mark-track">
+                <span
+                  className="embeddings-mark-fill"
+                  style={{ width: `${mark.mean * 100}%`, background: cluster.color }}
+                />
+                <span className="embeddings-mark-tick" style={{ left: `${mark.overall * 100}%` }} />
+              </span>
+            </div>
+          ))}
+          <p className="embeddings-mark-note">Bar is this group&apos;s mean score. Tick is every chart.</p>
+        </>
+      )}
+      {cluster.examples.length > 0 && (
+        <ul className="embeddings-examples" aria-label="Typical chief complaints">
+          {cluster.examples.map((example) => (
+            <li key={example}>{example}</li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+const chartCache = new Map<number, Chart>();
+
+type ChartLoad = { status: "loading" } | { status: "error" } | { status: "ready"; chart: Chart };
+
+function useChart(id: number): ChartLoad {
+  const [load, setLoad] = useState<ChartLoad>(() => {
+    const cached = chartCache.get(id);
+    return cached ? { status: "ready", chart: cached } : { status: "loading" };
+  });
+
+  useEffect(() => {
+    if (chartCache.has(id)) return;
+    const controller = new AbortController();
+    fetch(`/embeddings/charts/${id}`, { signal: controller.signal })
+      .then((response) => {
+        if (!response.ok) throw new Error(`chart ${id}: ${response.status}`);
+        return response.json() as Promise<Chart>;
+      })
+      .then((chart) => {
+        chartCache.set(id, chart);
+        setLoad({ status: "ready", chart });
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) setLoad({ status: "error" });
+      });
+    return () => controller.abort();
+  }, [id]);
+
+  return load;
+}
+
+function ChartPanel({ id }: { id: number }) {
+  const { data, closeChart } = useClusters();
+  const load = useChart(id);
+  const [yesOnly, setYesOnly] = useState(false);
+
+  const header = (
+    <button type="button" className="embeddings-back" onClick={closeChart}>
+      ← All groups
+    </button>
+  );
+
+  if (load.status !== "ready") {
+    return (
+      <div className="embeddings-chart">
+        {header}
+        <p className="embeddings-chart-status">
+          {load.status === "loading" ? "Loading chart…" : "This chart could not be loaded."}
+        </p>
+      </div>
+    );
+  }
+
+  const { chart } = load;
+  const cluster = data.clusters[chart.cluster];
+  const used = new Set(data.presentation);
+  const yesCount = chart.answers.filter((value) => value >= 0.5).length;
+  const groups: { name: string; rows: { question: Question; value: number }[] }[] = [];
+  data.questions.forEach((question, index) => {
+    const value = chart.answers[index];
+    if (yesOnly && value < 0.5) return;
+    let group = groups.at(-1);
+    if (!group || group.name !== question.group) {
+      group = { name: question.group, rows: [] };
+      groups.push(group);
+    }
+    group.rows.push({ question, value });
+  });
+
+  return (
+    <div className="embeddings-chart">
+      {header}
+      <p className="embeddings-chart-cluster">
+        <span className="embeddings-swatch" style={{ background: cluster.color }} />
+        {cluster.label}
+      </p>
+      <p className="embeddings-chart-meta">
+        {[SETTING_NAMES[chart.setting] ?? chart.setting, chart.department, chart.date]
+          .filter(Boolean)
+          .join(" · ")}
+      </p>
+      {chart.complaint && <p className="embeddings-chart-complaint">{chart.complaint}</p>}
+      <div className="embeddings-chart-note" tabIndex={0} aria-label="Chart text">
+        {chart.note}
+      </div>
+      <div className="embeddings-answers-head">
+        <span>
+          {data.questions.length} Jev answers, {yesCount} yes
+        </span>
+        <button type="button" aria-pressed={yesOnly} onClick={() => setYesOnly((value) => !value)}>
+          {yesOnly ? "Show all" : "Yes only"}
+        </button>
+      </div>
+      {groups.map((group) => (
+        <section key={group.name} className="embeddings-answer-group">
+          <h3>{group.name}</h3>
+          {group.rows.map(({ question, value }) => (
+            <div
+              key={question.id}
+              className={`embeddings-answer${value >= 0.5 ? " is-yes" : ""}`}
+              title={used.has(question.id) ? "Used to place the chart on the map" : undefined}
+            >
+              <span className="embeddings-answer-label">
+                {question.label}
+                {used.has(question.id) && <span className="embeddings-answer-used" aria-label="used for the map" />}
+              </span>
+              <span className="embeddings-answer-value">{value.toFixed(2)}</span>
+              <span className="embeddings-mark-track">
+                <span
+                  className="embeddings-mark-fill"
+                  style={{ width: `${value * 100}%`, background: value >= 0.5 ? cluster.color : "#b9b5ad" }}
+                />
+              </span>
+            </div>
+          ))}
+        </section>
+      ))}
+      <p className="embeddings-mark-note">A dot marks the 57 answers that place the chart on the map.</p>
     </div>
   );
 }
