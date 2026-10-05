@@ -28,10 +28,11 @@ export function SiteShell({ children }: { children: ReactNode }) {
 
   const shelf = pathname === "/shelf";
   const embeddings = pathname === "/embeddings";
+  const shipped = pathname === "/shipped";
   const home = pathname === "/";
 
   return (
-    <BubbleCanvas enabled={!shelf && !embeddings}>
+    <BubbleCanvas enabled={!shelf && !embeddings && !shipped}>
       {!home && (
         <header className="mobile-header">
           <Link href="/">
@@ -41,7 +42,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
         </header>
       )}
       <div
-        className={`composition${shelf ? " composition--shelf" : ""}${embeddings ? " composition--embeddings" : ""}`}
+        className={`composition${shelf ? " composition--shelf" : ""}${embeddings ? " composition--embeddings" : ""}${shipped ? " composition--shipped" : ""}`}
       >
         <div className={`link-column${home ? " is-home" : ""}`}>
           <Link href="/" aria-label="Home" className="portrait-link">

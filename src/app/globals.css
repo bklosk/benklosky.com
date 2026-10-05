@@ -59,7 +59,8 @@ body {
 }
 
 .composition--shelf,
-.composition--embeddings {
+.composition--embeddings,
+.composition--shipped {
   /* Keep the sidebar at the same horizontal position as on the home page. */
   margin-left: max(0px, calc((100% - 40rem - 10vw) / 2));
   width: calc(100% - max(0px, (100% - 40rem - 10vw) / 2));
@@ -197,7 +198,8 @@ body {
   touch-action: auto;
 }
 
-.bubble-surface:has(.embeddings-page) {
+.bubble-surface:has(.embeddings-page),
+.bubble-surface:has(.shipped-page) {
   cursor: auto;
   touch-action: auto;
 }
@@ -285,7 +287,8 @@ body {
   }
 
   .composition--shelf,
-  .composition--embeddings {
+  .composition--embeddings,
+  .composition--shipped {
     position: relative;
     margin-left: 0;
     margin-right: 0;
@@ -293,12 +296,14 @@ body {
     gap: 0;
   }
 
-  .composition--embeddings {
+  .composition--embeddings,
+  .composition--shipped {
     flex-direction: column;
     gap: 1.25rem;
   }
 
-  .composition--embeddings .page-content {
+  .composition--embeddings .page-content,
+  .composition--shipped .page-content {
     width: 100%;
   }
 

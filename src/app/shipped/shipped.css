@@ -1,0 +1,241 @@
+.shipped-page {
+  padding: 1.75rem 0 3.5rem;
+  color: var(--foreground);
+  user-select: text;
+}
+
+.shipped-page h1 {
+  margin: 0 0 0.55rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.shipped-page h2 {
+  margin: 2.4rem 0 0.35rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.shipped-page > p,
+.shipped-section-note,
+.shipped-note {
+  max-width: 38rem;
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.65;
+  color: #3a3834;
+}
+
+.shipped-note {
+  margin-top: 2.2rem;
+  color: var(--muted);
+  font-size: 0.75rem;
+  line-height: 1.55;
+}
+
+.shipped-page a {
+  color: var(--link);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.shipped-switches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1.6rem;
+  margin: 1.15rem 0 0.85rem;
+}
+
+.shipped-switch {
+  display: inline-flex;
+  gap: 0.85rem;
+}
+
+.shipped-switch button,
+.shipped-legend button {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.shipped-switch button {
+  font-size: 0.875rem;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 0.18em;
+}
+
+.shipped-switch button[aria-pressed="true"] {
+  color: var(--foreground);
+  text-decoration-color: currentColor;
+}
+
+.shipped-switch button:hover,
+.shipped-legend button:hover {
+  color: var(--foreground);
+}
+
+.shipped-switch button:focus-visible,
+.shipped-legend button:focus-visible,
+.shipped-plot svg:focus-visible {
+  outline: 2px solid #c96f45;
+  outline-offset: 3px;
+}
+
+.shipped-ylab {
+  margin: 0 0 0.25rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.01em;
+  color: var(--muted);
+}
+
+.shipped-plot {
+  width: 100%;
+  touch-action: pan-y;
+}
+
+.shipped-plot svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  font-family: inherit;
+  cursor: crosshair;
+}
+
+.shipped-tick {
+  fill: var(--muted);
+  font-size: 11px;
+}
+
+.shipped-grid {
+  stroke: #e7e3db;
+  stroke-width: 1;
+}
+
+.shipped-baseline {
+  stroke: #d9d4cc;
+  stroke-width: 1;
+}
+
+.shipped-series {
+  fill: none;
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.shipped-hover line {
+  stroke: #1b1a18;
+  stroke-opacity: 0.28;
+  stroke-width: 1;
+}
+
+.shipped-hover circle {
+  stroke: var(--background);
+  stroke-width: 1.5;
+}
+
+.shipped-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem 1.15rem;
+  margin-top: 0.55rem;
+}
+
+.shipped-legend button {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  font-size: 0.8125rem;
+  color: var(--foreground);
+  font-variant-numeric: tabular-nums;
+}
+
+.shipped-legend button[aria-pressed="false"] {
+  color: #a39e96;
+}
+
+.shipped-swatch {
+  width: 0.9rem;
+  height: 2px;
+  align-self: center;
+  border-radius: 1px;
+  background: #d4d0c8;
+}
+
+.shipped-legend-value,
+.shipped-cell-value,
+.shipped-when {
+  font-variant-numeric: tabular-nums;
+}
+
+.shipped-legend-value {
+  color: var(--muted);
+}
+
+.shipped-legend button[aria-pressed="false"] .shipped-legend-value {
+  color: #b7b2aa;
+}
+
+.shipped-when {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.9rem;
+  margin: 0.45rem 0 0;
+  padding: 0.35rem 0;
+  background: var(--background);
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+@media (max-width: 640px) {
+  .shipped-when {
+    top: 3.75rem;
+  }
+}
+
+.shipped-empty {
+  margin: 1rem 0;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+.shipped-volume {
+  margin-top: 0.85rem;
+}
+
+.shipped-section-note {
+  margin-bottom: 0.9rem;
+}
+
+.shipped-multiples {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: 1.15rem 1.5rem;
+}
+
+.shipped-cell-label {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 0.8125rem;
+  line-height: 1.2;
+}
+
+.shipped-cell.is-named .shipped-cell-label span:first-child {
+  font-weight: 600;
+}
+
+.shipped-cell-value {
+  color: var(--muted);
+}
