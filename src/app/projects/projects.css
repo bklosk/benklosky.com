@@ -1,0 +1,58 @@
+.projects-content {
+  max-width: 22rem;
+  padding-top: 2rem;
+}
+
+.projects-content .intro {
+  max-width: none;
+  margin: 0;
+  padding-top: 0;
+}
+
+.project-shot {
+  display: block;
+  width: min(16rem, 100%);
+  margin: 0.7rem 0 1.35rem;
+  pointer-events: auto;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.project-shot img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.project-shot:focus-visible {
+  outline: 2px solid #c96f45;
+  outline-offset: 3px;
+}
+
+.shipped-chart {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-top: 0.7rem;
+  color: #1b1a18;
+  pointer-events: none;
+}
+
+.shipped-chart-area {
+  fill: currentColor;
+  opacity: 0.12;
+}
+
+.shipped-chart-line {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.shipped-chart text {
+  fill: #5c5954;
+  font-size: 11px;
+  font-family: Arial, Helvetica, sans-serif;
+}

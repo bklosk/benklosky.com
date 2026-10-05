@@ -74,6 +74,10 @@ body {
   min-height: 2rem;
 }
 
+.mobile-header {
+  display: none;
+}
+
 .link-column {
   display: flex;
   flex-shrink: 0;
@@ -197,6 +201,62 @@ body {
 @media (max-width: 640px) {
   .site-shell {
     padding: 2.5rem 1.5rem 3rem;
+  }
+
+  .site-shell:has(.mobile-header) {
+    --mobile-header: 3.75rem;
+    padding-top: var(--mobile-header);
+  }
+
+  .mobile-header {
+    display: flex;
+    position: fixed;
+    z-index: 20;
+    top: 0;
+    right: 0;
+    left: 0;
+    height: var(--mobile-header);
+    align-items: flex-start;
+    padding: 0.95rem 1.5rem 0 calc(0.95rem + (0.95rem - 0.8125rem) / 2);
+    border: 0;
+    background: linear-gradient(
+      to bottom,
+      var(--background) 0%,
+      var(--background) 42%,
+      transparent 100%
+    );
+    pointer-events: none;
+  }
+
+  .mobile-header a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    color: var(--foreground);
+    font-size: 0.8125rem;
+    line-height: 1;
+    text-decoration: none;
+    pointer-events: auto;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+
+  .mobile-header a span {
+    text-decoration: underline;
+    text-decoration-color: #2563eb;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.15em;
+  }
+
+  .mobile-header svg {
+    width: 0.95rem;
+    height: 0.95rem;
+    flex-shrink: 0;
+  }
+
+  .mobile-header a:focus-visible {
+    outline: 2px solid #c96f45;
+    outline-offset: 3px;
   }
 
   .composition {

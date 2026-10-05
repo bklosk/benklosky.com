@@ -4,7 +4,7 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { Folder, Github, Linkedin, Mail, Twitter, type LucideIcon } from "lucide-react";
+import { ArrowLeft, Folder, Github, Linkedin, Mail, Twitter, type LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import { BubbleCanvas } from "./bubble-canvas";
 
@@ -32,6 +32,14 @@ export function SiteShell({ children }: { children: ReactNode }) {
 
   return (
     <BubbleCanvas enabled={!shelf && !embeddings}>
+      {!home && (
+        <header className="mobile-header">
+          <Link href="/">
+            <ArrowLeft aria-hidden="true" />
+            <span>home</span>
+          </Link>
+        </header>
+      )}
       <div
         className={`composition${shelf ? " composition--shelf" : ""}${embeddings ? " composition--embeddings" : ""}`}
       >
