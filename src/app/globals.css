@@ -20,18 +20,21 @@ body {
 }
 
 .site-shell {
+  --sidebar-top: 5.5rem;
+  --portrait-size: 5rem;
+  --sidebar-gap: 1.5rem;
   box-sizing: border-box;
   display: flex;
   min-height: 100svh;
   align-items: flex-start;
   justify-content: center;
-  padding: 5.5rem 2rem 4rem;
+  padding: var(--sidebar-top) 2rem 4rem;
 }
 
 .bubble-surface {
   position: relative;
   isolation: isolate;
-  overflow: hidden;
+  overflow: clip;
   background: var(--background);
   touch-action: none;
   cursor: crosshair;
@@ -82,18 +85,19 @@ body {
   display: flex;
   flex-shrink: 0;
   flex-direction: column;
-  align-self: flex-start;
-  gap: 1.5rem;
+  align-self: stretch;
+  gap: var(--sidebar-gap);
   width: max-content;
-  position: sticky;
-  top: 5.5rem;
 }
 
 .portrait-link {
   align-self: flex-start;
+  position: sticky;
+  top: var(--sidebar-top);
+  z-index: 1;
   display: block;
-  width: 5rem;
-  height: 5rem;
+  width: var(--portrait-size);
+  height: var(--portrait-size);
   border-radius: 50%;
   line-height: 0;
   pointer-events: auto;
@@ -106,19 +110,25 @@ body {
 }
 
 .portrait {
-  width: 5rem;
-  height: 5rem;
+  width: var(--portrait-size);
+  height: var(--portrait-size);
   border-radius: 50%;
   object-fit: cover;
 }
 
 .link-wall {
+  /* Sticky itself, not inside a sticky parent, so difference blend can see the bubbles. */
+  position: sticky;
+  top: calc(var(--sidebar-top) + var(--portrait-size) + var(--sidebar-gap));
+  z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  align-self: flex-start;
   gap: 0.85rem;
   padding-top: 0.15rem;
-  color: var(--foreground);
+  color: #fff;
+  mix-blend-mode: difference;
 }
 
 .link-wall a {
@@ -200,6 +210,7 @@ body {
 
 @media (max-width: 640px) {
   .site-shell {
+    --sidebar-top: 2.5rem;
     padding: 2.5rem 1.5rem 3rem;
   }
 
@@ -267,10 +278,6 @@ body {
 
   .composition:not(:has(.is-home)) {
     margin-right: 0;
-  }
-
-  .link-column {
-    top: 2.5rem;
   }
 
   .link-column:not(.is-home) {

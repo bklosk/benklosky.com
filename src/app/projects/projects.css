@@ -12,7 +12,7 @@
 .project-shot {
   display: block;
   width: min(16rem, 100%);
-  margin: 0.7rem 0 1.35rem;
+  margin: 0.7rem 0 4.5rem;
   pointer-events: auto;
   cursor: pointer;
   touch-action: manipulation;
@@ -33,7 +33,7 @@
   display: block;
   width: 100%;
   height: auto;
-  margin-top: 0.7rem;
+  margin: 0.7rem 0 4.5rem;
   color: #1b1a18;
   pointer-events: none;
 }
