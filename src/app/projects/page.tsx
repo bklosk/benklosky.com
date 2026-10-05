@@ -8,7 +8,12 @@ export const metadata: Metadata = {
 export default function ProjectsPage() {
   return (
     <div className="intro projects-content">
-      <Link href="/shelf">The game shelf</Link>
+      <p>
+        <Link href="/shelf">The game shelf</Link>
+      </p>
+      <p>
+        <Link href="/shipped">Shipped</Link>
+      </p>
     </div>
   );
 }

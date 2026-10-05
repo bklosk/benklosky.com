@@ -80,82 +80,41 @@ body {
   flex-direction: column;
   align-self: flex-start;
   gap: 1.5rem;
+  width: max-content;
   position: sticky;
   top: 5.5rem;
 }
 
-.portrait-slot {
-  position: relative;
-  width: 5rem;
-  height: 5rem;
-  flex-shrink: 0;
-}
-
 .portrait-link {
   align-self: flex-start;
-  pointer-events: auto;
-  touch-action: manipulation;
-}
-
-.portrait-home,
-.portrait-toggle {
-  position: absolute;
-  z-index: 2;
-  top: 0;
-  left: 0;
+  display: block;
   width: 5rem;
   height: 5rem;
   border-radius: 50%;
-}
-
-.portrait-toggle {
-  display: none;
-  border: 0;
-  padding: 0;
-  background: transparent;
-  cursor: pointer;
+  line-height: 0;
+  pointer-events: auto;
+  touch-action: manipulation;
 }
 
 .portrait-link:focus-visible {
   outline: 2px solid #c96f45;
   outline-offset: 3px;
-  border-radius: 50%;
 }
 
 .portrait {
-  position: relative;
-  z-index: 1;
   width: 5rem;
   height: 5rem;
   border-radius: 50%;
   object-fit: cover;
 }
 
-.link-wall-clip {
-  min-height: 0;
-}
-
-.link-wall-backdrop {
-  display: none;
-}
-
 .link-wall {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
   gap: 0.85rem;
   padding-top: 0.15rem;
   color: var(--foreground);
-}
-
-@media (min-width: 641px) {
-  .link-wall-clip,
-  .link-wall {
-    height: auto !important;
-    opacity: 1 !important;
-    transform: none !important;
-    overflow: visible !important;
-    pointer-events: auto;
-  }
 }
 
 .link-wall a {
@@ -246,49 +205,16 @@ body {
     margin-right: 0.75rem;
   }
 
+  .composition:not(:has(.is-home)) {
+    margin-right: 0;
+  }
+
   .link-column {
     top: 2.5rem;
-    width: 5rem;
-    z-index: 5;
   }
 
-  .portrait-home {
+  .link-column:not(.is-home) {
     display: none;
-  }
-
-  .portrait-toggle {
-    display: block;
-  }
-
-  .link-wall-clip {
-    position: absolute;
-    top: calc(100% + 1.5rem);
-    left: 0;
-    width: max-content;
-    height: 0;
-    overflow: hidden;
-    opacity: 0;
-    pointer-events: none;
-  }
-
-  .link-column.is-open .link-wall-clip {
-    pointer-events: auto;
-  }
-
-  .link-wall-backdrop {
-    display: block;
-    position: absolute;
-    z-index: 0;
-    inset: 0;
-    background: var(--background);
-    border-radius: 0.85rem;
-    pointer-events: none;
-  }
-
-  .link-wall {
-    position: relative;
-    z-index: 1;
-    padding: 0.7rem 0.95rem 0.75rem 0.7rem;
   }
 
   .composition--shelf,
@@ -305,20 +231,8 @@ body {
     gap: 1.25rem;
   }
 
-  .composition--embeddings .link-column {
-    position: relative;
-    top: auto;
-  }
-
   .composition--embeddings .page-content {
     width: 100%;
-  }
-
-  .composition--shelf .link-column {
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 6;
   }
 
   .composition--shelf .page-content {
