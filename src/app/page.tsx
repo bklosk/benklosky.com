@@ -5,7 +5,7 @@ export default function Home() {
     <div id="about" className="intro">
       <Ink>
         <p>
-          I create new ventures and productsfor Steve Levitt&apos;s{" "}
+          I create new ventures and products for Steve Levitt&apos;s{" "}
           <a href="https://risc.uchicago.edu">lab</a> (of{" "}
           <span className="italic">Freakonomics</span> fame).
         </p>
@@ -16,7 +16,10 @@ export default function Home() {
         </p>
         <p>
           I&apos;ve worked as a machine learning engineer, an econ researcher, and
-          as an apprentice at a police department. I&apos;m also a{" "}
+          as an apprentice at a police department.
+        </p>
+        <p>
+          I&apos;m also a{" "}
           <a href="https://en.wikipedia.org/wiki/Maker_culture">maker</a>. I love
           economics, fabricating objects, and{" "}
           <a href="https://en.wikipedia.org/wiki/Just-in-time_learning">
