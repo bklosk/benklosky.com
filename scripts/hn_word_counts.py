@@ -7,7 +7,8 @@ Files:  hf://datasets/open-index/hacker-news/data/*/*.parquet
 Each count is the number of comments (type=2, field text) or story titles
 (type=1, field title) that contain the word at least once. Matching is
 case-insensitive with a word boundary, so "ship" does not match "shipped"
-or "shipping". Months are UTC.
+or "shipping". smoke_test is the phrase "smoke test" or "smoke tests",
+with a space or a hyphen. Months are UTC.
 """
 
 from __future__ import annotations
@@ -47,6 +48,8 @@ WORDS = [
 
 # Longer alternatives first so the regex engine prefers the full word.
 PATTERN = r"\b(" + "|".join(sorted(WORDS, key=len, reverse=True)) + r")\b"
+# Kept separate so "test" inside "smoke test" still counts toward test.
+SMOKE_TEST = r"\bsmoke[- ]tests?\b"
 
 
 def year_sql(year: int) -> str:
@@ -59,15 +62,12 @@ def year_sql(year: int) -> str:
       SELECT
         strftime(time AT TIME ZONE 'UTC', '%Y-%m') AS month,
         CASE type WHEN 2 THEN 'comment' WHEN 1 THEN 'title' END AS source,
-        regexp_extract_all(
-          lower(
-            CASE type
-              WHEN 2 THEN coalesce(text, '')
-              WHEN 1 THEN coalesce(title, '')
-            END
-          ),
-          '{PATTERN}'
-        ) AS hits
+        lower(
+          CASE type
+            WHEN 2 THEN coalesce(text, '')
+            WHEN 1 THEN coalesce(title, '')
+          END
+        ) AS body
       FROM read_parquet('{DATASET.format(year=year)}')
       WHERE type IN (1, 2)
     )
@@ -75,8 +75,16 @@ def year_sql(year: int) -> str:
       month,
       source,
       count(*) AS items,
-      {counts}
-    FROM base
+      {counts},
+      count(*) FILTER (WHERE regexp_matches(body, '{SMOKE_TEST}')) AS smoke_test
+    FROM (
+      SELECT
+        month,
+        source,
+        regexp_extract_all(body, '{PATTERN}') AS hits,
+        body
+      FROM base
+    ) AS counted
     GROUP BY month, source
     ORDER BY month, source
     """
