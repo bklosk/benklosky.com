@@ -7,7 +7,10 @@ Files:  hf://datasets/open-index/hacker-news/data/*/*.parquet
 Each count is the number of comments (type=2, field text) or story titles
 (type=1, field title) that contain the word at least once. Matching is
 case-insensitive with a word boundary, so "ship" does not match "shipped"
-or "shipping". Months are UTC.
+or "shipping". Phrase columns match a space or a hyphen:
+smoke_test ("smoke test" / "smoke tests"), re_derived, load_bearing
+("load-bearing"), absolutely_right, failure_mode ("failure mode" /
+"failure modes"), and push_back. Months are UTC.
 """
 
 from __future__ import annotations
@@ -45,29 +48,51 @@ WORDS = [
     "problem",
 ]
 
-# Longer alternatives first so the regex engine prefers the full word.
-PATTERN = r"\b(" + "|".join(sorted(WORDS, key=len, reverse=True)) + r")\b"
+# Single tokens counted from one extraction. Phrases are matched on the
+# raw text so "test" inside "smoke test" still counts toward test.
+CLAUDE_WORDS = [
+    "plainly",
+    "quietly",
+    "survived",
+    "halves",
+    "asserted",
+    "nobody",
+    "genuinely",
+    "structurally",
+    "gating",
+]
+TOKEN_WORDS = WORDS + CLAUDE_WORDS
+PATTERN = r"\b(" + "|".join(sorted(TOKEN_WORDS, key=len, reverse=True)) + r")\b"
+PHRASES = [
+    ("smoke_test", r"\bsmoke[- ]tests?\b"),
+    ("re_derived", r"\bre[- ]?derived\b"),
+    ("load_bearing", r"\bload[- ]bearing\b"),
+    ("absolutely_right", r"\babsolutely right\b"),
+    ("failure_mode", r"\bfailure modes?\b"),
+    ("push_back", r"\bpush back\b"),
+]
 
 
 def year_sql(year: int) -> str:
     counts = ",\n    ".join(
         f"count(*) FILTER (WHERE list_contains(hits, '{word}')) AS {word}"
-        for word in WORDS
+        for word in TOKEN_WORDS
+    )
+    phrases = ",\n    ".join(
+        f"count(*) FILTER (WHERE regexp_matches(body, '{pattern}')) AS {name}"
+        for name, pattern in PHRASES
     )
     return f"""
     WITH base AS (
       SELECT
         strftime(time AT TIME ZONE 'UTC', '%Y-%m') AS month,
         CASE type WHEN 2 THEN 'comment' WHEN 1 THEN 'title' END AS source,
-        regexp_extract_all(
-          lower(
-            CASE type
-              WHEN 2 THEN coalesce(text, '')
-              WHEN 1 THEN coalesce(title, '')
-            END
-          ),
-          '{PATTERN}'
-        ) AS hits
+        lower(
+          CASE type
+            WHEN 2 THEN coalesce(text, '')
+            WHEN 1 THEN coalesce(title, '')
+          END
+        ) AS body
       FROM read_parquet('{DATASET.format(year=year)}')
       WHERE type IN (1, 2)
     )
@@ -75,8 +100,16 @@ def year_sql(year: int) -> str:
       month,
       source,
       count(*) AS items,
-      {counts}
-    FROM base
+      {counts},
+      {phrases}
+    FROM (
+      SELECT
+        month,
+        source,
+        regexp_extract_all(body, '{PATTERN}') AS hits,
+        body
+      FROM base
+    ) AS counted
     GROUP BY month, source
     ORDER BY month, source
     """
