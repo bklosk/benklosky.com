@@ -5,7 +5,7 @@ export default function Home() {
     <div id="about" className="intro">
       <Ink>
         <p>
-          I design and create products for Steve Levitt&apos;s{" "}
+          I create new ventures and productsfor Steve Levitt&apos;s{" "}
           <a href="https://risc.uchicago.edu">lab</a> (of{" "}
           <span className="italic">Freakonomics</span> fame).
         </p>

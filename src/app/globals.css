@@ -38,6 +38,9 @@ body {
   isolation: isolate;
   overflow: clip;
   background: var(--background);
+}
+
+.bubble-surface.bubbles-on {
   touch-action: none;
   cursor: crosshair;
 }
@@ -215,15 +218,6 @@ body {
 
 .projects-content {
   user-select: none;
-}
-
-.bubble-surface:has(.shelf-page) {
-  touch-action: auto;
-}
-
-.bubble-surface:has(.embeddings-page) {
-  cursor: auto;
-  touch-action: auto;
 }
 
 .composition--shelf .shelf-page {

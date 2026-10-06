@@ -26,7 +26,10 @@ function paintBubbles(canvas: HTMLCanvasElement | null, bubbles: Bubble[]) {
   const context = canvas?.getContext("2d");
   if (!canvas || !context) return;
 
-  context.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
+  context.save();
+  context.setTransform(1, 0, 0, 1, 0, 0);
+  context.clearRect(0, 0, canvas.width, canvas.height);
+  context.restore();
   for (const bubble of bubbles) {
     context.fillStyle = bubble.color;
     context.beginPath();
@@ -136,6 +139,7 @@ export function BubbleCanvas({ children, enabled = true }: { children: ReactNode
       if (frameRef.current !== null) cancelAnimationFrame(frameRef.current);
       frameRef.current = null;
       lastFrameRef.current = 0;
+      paintBubbles(canvas, bubblesRef.current);
       return;
     }
 
@@ -165,7 +169,7 @@ export function BubbleCanvas({ children, enabled = true }: { children: ReactNode
   return (
     <main
       ref={shellRef}
-      className="site-shell bubble-surface"
+      className={`site-shell bubble-surface${enabled ? " bubbles-on" : ""}`}
       onPointerDown={handlePointerDown}
       onPointerUp={releasePointer}
       onPointerCancel={releasePointer}

@@ -31,7 +31,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
   const home = pathname === "/";
 
   return (
-    <BubbleCanvas enabled={!shelf && !embeddings}>
+    <BubbleCanvas enabled={home}>
       {!home && (
         <header className="mobile-header">
           <Link href="/">
