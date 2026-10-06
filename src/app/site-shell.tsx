@@ -4,7 +4,7 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowLeft, Folder, Github, Linkedin, Mail, Twitter, type LucideIcon } from "lucide-react";
+import { ArrowLeft, Folder, Linkedin, Mail, Twitter, type LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import { BubbleCanvas } from "./bubble-canvas";
 
@@ -17,7 +17,6 @@ const linkIconProps = {
 const links: { label: string; href: string; icon: LucideIcon; external?: boolean }[] = [
   { label: "Email", href: "mailto:benklosky@uchicago.edu", icon: Mail },
   { label: "LinkedIn", href: "https://www.linkedin.com/in/ben-klosky", icon: Linkedin, external: true },
-  { label: "GitHub", href: "https://github.com/bklosk", icon: Github, external: true },
   { label: "Twitter", href: "https://x.com/benklosky", icon: Twitter, external: true },
   { label: "Projects", href: "/projects", icon: Folder },
 ];
