@@ -35,6 +35,8 @@
 .embeddings-page a {
   color: var(--link);
   text-decoration: underline;
+  text-decoration-color: var(--underline);
+  text-decoration-thickness: var(--underline-thickness);
   text-underline-offset: 0.15em;
 }
 

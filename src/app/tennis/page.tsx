@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Ink } from "../ink";
 
 export const metadata: Metadata = {
   title: "Tennis · Ben Klosky",
@@ -7,7 +8,9 @@ export const metadata: Metadata = {
 export default function TennisPage() {
   return (
     <div className="intro">
-      <p>Tennis — coming soon.</p>
+      <Ink>
+        <p>Tennis — coming soon.</p>
+      </Ink>
     </div>
   );
 }

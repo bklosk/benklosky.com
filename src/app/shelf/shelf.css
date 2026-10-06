@@ -35,7 +35,7 @@
 .shelf-selection-facts span, .shelf-selection-link { display: inline-flex; align-items: center; gap: 6px; }
 .shelf-selection .shelf-selection-plays { color: #737d69; font-size: 11px; }
 .shelf-selection summary { cursor: pointer; color: #53694a; }
-.shelf-selection-link { margin-top: 14px; color: #596d4d; text-decoration: underline; text-underline-offset: 3px; }
+.shelf-selection-link { margin-top: 14px; color: #596d4d; text-decoration: underline; text-decoration-color: var(--underline); text-decoration-thickness: var(--underline-thickness); text-underline-offset: 3px; }
 @media (min-width: 1500px) { .shelf-page { max-width: 1700px; margin: auto; } .shelf-stage { height: 870px; } }
 @media (max-width: 1100px) { .shelf-stage { height: 750px; } }
 @media (max-width: 900px) {
