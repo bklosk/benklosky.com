@@ -7,8 +7,10 @@ Files:  hf://datasets/open-index/hacker-news/data/*/*.parquet
 Each count is the number of comments (type=2, field text) or story titles
 (type=1, field title) that contain the word at least once. Matching is
 case-insensitive with a word boundary, so "ship" does not match "shipped"
-or "shipping". smoke_test is the phrase "smoke test" or "smoke tests",
-with a space or a hyphen. Months are UTC.
+or "shipping". Phrase columns match a space or a hyphen:
+smoke_test ("smoke test" / "smoke tests"), re_derived, load_bearing
+("load-bearing"), absolutely_right, failure_mode ("failure mode" /
+"failure modes"), and push_back. Months are UTC.
 """
 
 from __future__ import annotations
@@ -46,16 +48,39 @@ WORDS = [
     "problem",
 ]
 
-# Longer alternatives first so the regex engine prefers the full word.
-PATTERN = r"\b(" + "|".join(sorted(WORDS, key=len, reverse=True)) + r")\b"
-# Kept separate so "test" inside "smoke test" still counts toward test.
-SMOKE_TEST = r"\bsmoke[- ]tests?\b"
+# Single tokens counted from one extraction. Phrases are matched on the
+# raw text so "test" inside "smoke test" still counts toward test.
+CLAUDE_WORDS = [
+    "plainly",
+    "quietly",
+    "survived",
+    "halves",
+    "asserted",
+    "nobody",
+    "genuinely",
+    "structurally",
+    "gating",
+]
+TOKEN_WORDS = WORDS + CLAUDE_WORDS
+PATTERN = r"\b(" + "|".join(sorted(TOKEN_WORDS, key=len, reverse=True)) + r")\b"
+PHRASES = [
+    ("smoke_test", r"\bsmoke[- ]tests?\b"),
+    ("re_derived", r"\bre[- ]?derived\b"),
+    ("load_bearing", r"\bload[- ]bearing\b"),
+    ("absolutely_right", r"\babsolutely right\b"),
+    ("failure_mode", r"\bfailure modes?\b"),
+    ("push_back", r"\bpush back\b"),
+]
 
 
 def year_sql(year: int) -> str:
     counts = ",\n    ".join(
         f"count(*) FILTER (WHERE list_contains(hits, '{word}')) AS {word}"
-        for word in WORDS
+        for word in TOKEN_WORDS
+    )
+    phrases = ",\n    ".join(
+        f"count(*) FILTER (WHERE regexp_matches(body, '{pattern}')) AS {name}"
+        for name, pattern in PHRASES
     )
     return f"""
     WITH base AS (
@@ -76,7 +101,7 @@ def year_sql(year: int) -> str:
       source,
       count(*) AS items,
       {counts},
-      count(*) FILTER (WHERE regexp_matches(body, '{SMOKE_TEST}')) AS smoke_test
+      {phrases}
     FROM (
       SELECT
         month,
