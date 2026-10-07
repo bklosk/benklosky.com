@@ -11,10 +11,13 @@ export const metadata: Metadata = {
 };
 
 export default async function EmbeddingsPage() {
-  const data = await readJson<ClusterMapData>("symptom_clusters.json");
+  const [data, openai] = await Promise.all([
+    readJson<ClusterMapData>("symptom_clusters.json"),
+    readJson<ClusterMapData>("openai_clusters.json"),
+  ]);
   return (
     <article className="embeddings-page">
-      <ClusterProvider data={data}>
+      <ClusterProvider data={data} openai={openai}>
         <Article />
       </ClusterProvider>
     </article>
