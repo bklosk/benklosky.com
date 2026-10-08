@@ -7,11 +7,12 @@ is the cosine distance the model was trained for. The UMAP is only the picture:
 it is fit on the first 50 principal components of those vectors. Colors come
 from the k-means labels.
 
-Silhouette on this space is a guide, not a verdict. The sweep keeps every k
-from 5 to 10 whose silhouette is close to the best, and among those picks the
-k whose groups each have a different elevated presentation score. Labels are
-those Jev scores, so the map can be read next to the presentation map even
-though the embedding itself is opaque.
+Silhouette on this space is nearly flat, and it edges up through k=10. Ten
+groups is where each cluster matches one clinical identity: children,
+pregnancy, heart disease, lung infection, and the rest. Names come from the
+Jev score or the department that sets a cluster apart. The scores drawn beside
+a group are the Jev answers that rise inside it, including demographics and
+history, not only the acute presentation items.
 
 The map draws a sample, up to a cap per cluster. Chart text is reused from
 symptom_charts/ when that object already exists, and uploaded there otherwise.
@@ -38,7 +39,6 @@ from build_symptom_clusters import (
     QUESTIONS,
     SETTINGS,
     load,
-    marks_for,
     question_list,
     upload_charts,
 )
@@ -51,22 +51,36 @@ OUTPUT_KEY = "openai_clusters.json"
 MODEL = "text-embedding-3-large"
 DIMS = 3072
 PCA_DIMS = 50
+K = 10
 SAMPLE_CAP = 160
 QUIET_CAP = 450
+SKIP_MARK_GROUPS = {"Note quality", "Demographics and coverage"}
 
-PALETTE = (
-    "#c9c6bf",
-    "#8d8d8d",
-    "#d06a2b",
-    "#2c5d8f",
-    "#7a3f9b",
-    "#c23b3b",
-    "#2a9d8f",
-    "#9b3d68",
-    "#b08a1f",
-    "#1f6b4a",
-    "#3d4a7a",
-    "#a34b2e",
+# Matched in this order. The first hit names the cluster. Thresholds are the
+# gaps that showed up at k=10: one cluster clears each bar, and the rest do not.
+IDENTITIES = (
+    ("children", "Children", "#1f6b4a", lambda m, d: m["note_age_under_18"] >= 0.5),
+    ("pregnancy", "Pregnancy", "#9b3d68", lambda m, d: m["pregnant_currently"] >= 0.3),
+    ("lung", "Lung infection", "#2a9d8f", lambda m, d: m["suspected_respiratory_infection"] >= 0.25),
+    ("heart", "Heart disease", "#c23b3b", lambda m, d: m["family_history_heart_disease"] >= 0.6),
+    ("abdomen", "Abdominal and liver", "#b08a1f", lambda m, d: m["elevated_bilirubin"] >= 0.15),
+    ("neurologic", "Neurologic", "#7a3f9b", lambda m, d: d.get("Neurology", 0) >= 0.25),
+    ("psychiatric", "Psychiatric", "#3d4a7a", lambda m, d: d.get("Psychiatry", 0) >= 0.2),
+    ("skin", "Skin and joint", "#d06a2b", lambda m, d: m["skin_erythema"] >= 0.2),
+    ("urinary", "Urinary", "#2c5d8f", lambda m, d: m["cva_tenderness"] >= 0.1),
+    ("clinic", "Routine clinic", "#c9c6bf", lambda m, d: True),
+)
+DISPLAY_ORDER = (
+    "clinic",
+    "children",
+    "pregnancy",
+    "skin",
+    "heart",
+    "neurologic",
+    "psychiatric",
+    "urinary",
+    "abdomen",
+    "lung",
 )
 
 
@@ -129,43 +143,60 @@ def choose_k(vectors: np.ndarray, scores: np.ndarray) -> int:
         close = [max(scored, key=scored.get)]
     chosen = max(close, key=lambda k: (distinct[k], scored[k], k))
     print(f"chose k={chosen}")
+    if chosen != K:
+        raise SystemExit(f"silhouette now prefers k={chosen}, not {K}")
     return chosen
 
 
-def name_for(mean: np.ndarray, overall: np.ndarray, spread: np.ndarray) -> tuple[str, str, str | None]:
+def identity_for(lookup: dict[str, float], departments: dict[str, float]) -> tuple[str, str, str]:
+    hits = [item for item in IDENTITIES if item[3](lookup, departments)]
+    specific = [item for item in hits if item[0] != "clinic"]
+    if len(specific) > 1:
+        raise SystemExit(f"cluster matched {[item[0] for item in specific]}")
+    chosen = specific[0] if specific else hits[0]
+    return chosen[0], chosen[1], chosen[2]
+
+
+def marks_for(
+    questions: list[dict[str, str]],
+    mean: np.ndarray,
+    overall: np.ndarray,
+    spread: np.ndarray,
+) -> list[dict]:
     delta = (mean - overall) / spread
-    order = [int(index) for index in np.argsort(delta)[::-1]]
-    ids = list(QUESTIONS)
-    phrases = list(QUESTIONS.values())
-    strong = [index for index in order if delta[index] >= 0.45 and mean[index] >= 0.3]
-    if not strong:
-        return "quiet", "Quiet chart", None
-    top = strong[0]
-    second = next((phrases[index] for index in strong[1:] if index != top), None)
-    return ids[top], phrases[top], second
+    ranked = [int(index) for index in np.argsort(delta)[::-1]]
 
+    def qualifies(index: int) -> bool:
+        return bool(delta[index] >= 0.4 and mean[index] - overall[index] >= 0.08)
 
-def unique_names(raw: list[tuple[str, str, str | None]]) -> list[tuple[str, str]]:
-    counts = Counter(item[0] for item in raw)
-    seen: Counter[str] = Counter()
-    named: list[tuple[str, str]] = []
-    for base_id, label, second in raw:
-        if counts[base_id] == 1:
-            named.append((base_id, label))
-            continue
-        seen[base_id] += 1
-        if seen[base_id] == 1:
-            named.append((base_id, label))
-            continue
-        suffix = seen[base_id]
-        if second:
-            named.append((f"{base_id}-{suffix}", f"{label}, {second}"))
-        else:
-            named.append((f"{base_id}-{suffix}", f"{label} {suffix}"))
-    ids = [item[0] for item in named]
-    if len(ids) != len(set(ids)):
-        raise SystemExit(f"cluster ids collided: {ids}")
-    return named
+    # Age and coverage clear this bar only for children. Weaker demographic
+    # gaps, such as sex in the routine clinic, stay out of the list.
+    demographic = [
+        index
+        for index in ranked
+        if questions[index]["group"] == "Demographics and coverage" and delta[index] >= 1.2
+    ]
+    clinical = [
+        index
+        for index in ranked
+        if questions[index]["group"] not in SKIP_MARK_GROUPS and qualifies(index)
+    ]
+    chosen = (demographic + clinical)[:5]
+    if len(chosen) < 3:
+        filler = [
+            index
+            for index in ranked
+            if questions[index]["group"] not in SKIP_MARK_GROUPS and index not in chosen
+        ]
+        chosen = (chosen + filler)[:4]
+    return [
+        {
+            "label": questions[index]["label"],
+            "mean": round(float(mean[index]), 4),
+            "overall": round(float(overall[index]), 4),
+        }
+        for index in chosen
+    ]
 
 
 def examples_for(vectors: np.ndarray, member: np.ndarray, charts: list[dict]) -> list[str]:
@@ -222,50 +253,42 @@ def main() -> None:
         n_jobs=1,
     ).fit_transform(normalize(reduced))
 
-    overall = scores.mean(axis=0)
-    spread = scores.std(axis=0)
+    overall = full_scores.mean(axis=0)
+    spread = full_scores.std(axis=0)
     spread[spread < 1e-6] = 1.0
     setting_array = np.array([chart["setting"] for chart in charts])
 
-    raw_names: list[tuple[str, str, str | None]] = []
-    stats: list[dict] = []
+    by_label: dict[int, dict] = {}
     for label in range(k):
         member = labels == label
-        mean = scores[member].mean(axis=0)
-        raw_names.append(name_for(mean, overall, spread))
-        counts = Counter(setting_array[member].tolist())
-        stats.append(
-            {
-                "label_index": label,
-                "count": int(member.sum()),
-                "findings": round(float((scores[member] >= 0.5).sum(axis=1).mean()), 1),
-                "settings": {
-                    setting: round(counts[setting] / int(member.sum()), 4) for setting in SETTINGS
-                },
-                "marks": marks_for(mean, overall, spread),
-                "examples": examples_for(vectors, member, charts),
-            }
-        )
+        count = int(member.sum())
+        mean = full_scores[member].mean(axis=0)
+        lookup = dict(zip(order, mean, strict=True))
+        departments = Counter(charts[index]["department"] for index in np.flatnonzero(member))
+        department_share = {name: value / count for name, value in departments.items()}
+        cluster_id, cluster_label, color = identity_for(lookup, department_share)
+        setting_counts = Counter(setting_array[member].tolist())
+        by_label[label] = {
+            "id": cluster_id,
+            "label": cluster_label,
+            "count": count,
+            "color": color,
+            "findings": round(float((scores[member] >= 0.5).sum(axis=1).mean()), 1),
+            "settings": {
+                setting: round(setting_counts[setting] / count, 4) for setting in SETTINGS
+            },
+            "marks": marks_for(questions, mean, overall, spread),
+            "examples": examples_for(vectors, member, charts),
+        }
 
-    named = unique_names(raw_names)
-    findings = {item["label_index"]: item["findings"] for item in stats}
-    display = sorted(range(k), key=lambda label: (findings[label], -stats[label]["count"]))
-    clusters = []
-    for position, label in enumerate(display):
-        cluster_id, cluster_label = named[label]
-        clusters.append(
-            {
-                "id": cluster_id,
-                "label": cluster_label,
-                "count": stats[label]["count"],
-                "color": PALETTE[position % len(PALETTE)],
-                "findings": stats[label]["findings"],
-                "settings": stats[label]["settings"],
-                "marks": stats[label]["marks"],
-                "examples": stats[label]["examples"],
-            }
+    if sorted(cluster["id"] for cluster in by_label.values()) != sorted(DISPLAY_ORDER):
+        raise SystemExit(
+            f"cluster identities changed: {sorted(cluster['id'] for cluster in by_label.values())}"
         )
+    display = sorted(by_label, key=lambda label: DISPLAY_ORDER.index(by_label[label]["id"]))
+    clusters = [by_label[label] for label in display]
     remap = {label: index for index, label in enumerate(display)}
+    findings = {label: by_label[label]["findings"] for label in by_label}
 
     shown = sample(labels, findings)
     points = [
