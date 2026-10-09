@@ -1,0 +1,178 @@
+.clickbait-page {
+  max-width: 34rem;
+  padding-bottom: 4rem;
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+.clickbait-page .intro {
+  max-width: none;
+}
+
+.clickbait-page section {
+  margin-top: 2.25rem;
+}
+
+.clickbait-page h2 {
+  margin: 0 0 0.35rem;
+  font-size: 0.875rem;
+  font-weight: bold;
+}
+
+.clickbait-status,
+.clickbait-note,
+.clickbait-stats {
+  color: var(--muted);
+}
+
+.clickbait-status {
+  margin-top: 2.25rem;
+}
+
+.clickbait-error {
+  color: #9a3b1f;
+}
+
+.clickbait-note {
+  margin: 0 0 0.75rem;
+  font-size: 0.8125rem;
+}
+
+.clickbait-prompt {
+  margin: 0 0 0.6rem;
+  font-weight: bold;
+}
+
+.clickbait-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.clickbait-page button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.clickbait-page button:disabled {
+  cursor: default;
+}
+
+.clickbait-page button:focus-visible {
+  outline: 2px solid #c96f45;
+  outline-offset: 3px;
+}
+
+.clickbait-option {
+  position: relative;
+  min-height: 6.5rem;
+  padding: 0.9rem 1rem 1.6rem;
+  border: 1px solid #d9d5cc;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 1rem;
+  line-height: 1.35;
+  text-align: left;
+  transition: border-color 140ms ease, transform 140ms ease, opacity 140ms ease;
+}
+
+.clickbait-option::first-letter {
+  text-transform: uppercase;
+}
+
+.clickbait-option:hover:not(:disabled) {
+  border-color: var(--underline);
+}
+
+.clickbait-option:active:not(:disabled) {
+  transform: scale(0.985);
+}
+
+.clickbait-option:disabled {
+  opacity: 0.55;
+}
+
+.clickbait-key {
+  position: absolute;
+  right: 0.8rem;
+  bottom: 0.45rem;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.clickbait-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  margin-top: 0.75rem;
+}
+
+.clickbait-controls button {
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: 0.8125rem;
+  text-decoration: underline;
+  text-decoration-color: var(--underline);
+  text-decoration-thickness: var(--underline-thickness);
+  text-underline-offset: 3px;
+}
+
+.clickbait-controls button:disabled {
+  opacity: 0.45;
+}
+
+.clickbait-stats {
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.clickbait-pool,
+.clickbait-samples {
+  margin: 0;
+  padding-left: 1.4rem;
+}
+
+.clickbait-pool li {
+  padding: 0.15rem 0;
+  background: var(--background);
+}
+
+.clickbait-pool li::first-letter,
+.clickbait-samples li::first-letter {
+  text-transform: uppercase;
+}
+
+.clickbait-reward {
+  margin-left: 0.6rem;
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.clickbait-samples {
+  margin-top: 0.6rem;
+}
+
+@media (max-width: 640px) {
+  .clickbait-pair {
+    grid-template-columns: 1fr;
+  }
+
+  .clickbait-option {
+    min-height: 4.5rem;
+  }
+}
+
+/* Keyboard hints mean nothing on touch screens. */
+@media (hover: none) {
+  .clickbait-key,
+  .clickbait-hint {
+    display: none;
+  }
+}
