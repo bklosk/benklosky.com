@@ -1,13 +1,13 @@
 "use client";
 
-import { motion, useReducedMotion } from "motion/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { DPOSession, PreferStats, Tokens } from "./engine/index.js";
 
 const MODEL_URL = "/clickbait/headline-gpt-v1.bin";
-const POOL_SIZE = 12;
+const SAMPLE_COUNT = 5;
+const SAMPLE_EVERY = 10; // picks
 
-type Ranked = { ids: Tokens; text: string; reward: number; start: number };
+type Samples = { texts: string[]; afterPicks: number };
 type Phase =
   | { kind: "loading"; loaded: number; total: number }
   | { kind: "ready" }
@@ -25,16 +25,14 @@ function loadSession(onProgress: (loaded: number, total: number) => void) {
 }
 
 export function ClickbaitTrainer() {
-  const reduceMotion = useReducedMotion();
   const [session, setSession] = useState<DPOSession | null>(null);
   const busyRef = useRef(false);
   const [phase, setPhase] = useState<Phase>({ kind: "loading", loaded: 0, total: 0 });
   const [pair, setPair] = useState<[Tokens, Tokens] | null>(null);
-  const [pool, setPool] = useState<Ranked[]>([]);
   const [busy, setBusy] = useState(false);
   const [clicks, setClicks] = useState(0);
   const [last, setLast] = useState<PreferStats | null>(null);
-  const [samples, setSamples] = useState<string[]>([]);
+  const [samples, setSamples] = useState<Samples | null>(null);
 
   useEffect(() => {
     let live = true;
@@ -43,10 +41,10 @@ export function ClickbaitTrainer() {
         session.device.lost.then((info) => {
           if (info.reason !== "destroyed") setPhase({ kind: "error", message: `The GPU went away (${info.message || "device lost"}). Reload to start over.` });
         });
-        const seeds = await session.sample(POOL_SIZE);
+        const seeds = await session.sample(SAMPLE_COUNT);
         const first = await session.samplePair();
         if (!live) return;
-        setPool(seeds.map((ids, start) => ({ ids, text: session.text(ids), reward: 0, start })));
+        setSamples({ texts: seeds.map((ids) => session.text(ids)), afterPicks: 0 });
         setPair(first);
         setSession(session);
         setPhase({ kind: "ready" });
@@ -82,9 +80,9 @@ export function ClickbaitTrainer() {
     }
   }, [session]);
 
-  const rerank = useCallback(async (session: DPOSession, current: Ranked[]) => {
-    const rewards = await session.rewards(current.map((p) => p.ids));
-    setPool(current.map((p, i) => ({ ...p, reward: rewards[i] })).sort((a, b) => b.reward - a.reward || a.start - b.start));
+  const resample = useCallback(async (session: DPOSession, afterPicks: number) => {
+    const rows = await session.sample(SAMPLE_COUNT);
+    setSamples({ texts: rows.map((ids) => session.text(ids)), afterPicks });
   }, []);
 
   const choose = useCallback(
@@ -92,20 +90,16 @@ export function ClickbaitTrainer() {
       run(async (session) => {
         if (!pair) return;
         const stats = await session.prefer(pair[winner], pair[1 - winner]);
+        const picks = clicks + 1;
         setLast(stats);
-        setClicks((c) => c + 1);
-        await rerank(session, pool);
+        setClicks(picks);
+        if (picks % SAMPLE_EVERY === 0) await resample(session, picks);
         setPair(await session.samplePair());
       }),
-    [pair, pool, rerank, run],
+    [clicks, pair, resample, run],
   );
 
   const skip = useCallback(() => run(async (session) => setPair(await session.samplePair())), [run]);
-
-  const sampleFresh = useCallback(
-    () => run(async (session) => setSamples((await session.sample(5)).map((ids) => session.text(ids)))),
-    [run],
-  );
 
   const reset = useCallback(
     () =>
@@ -113,11 +107,10 @@ export function ClickbaitTrainer() {
         session.reset();
         setClicks(0);
         setLast(null);
-        setSamples([]);
-        await rerank(session, pool);
+        await resample(session, 0);
         setPair(await session.samplePair());
       }),
-    [pool, rerank, run],
+    [resample, run],
   );
 
   useEffect(() => {
@@ -169,34 +162,23 @@ export function ClickbaitTrainer() {
         </div>
       </section>
 
-      <section aria-label="Ranking">
-        <h2>How your model ranks these</h2>
-        <p className="clickbait-note">
-          Twelve headlines from the original model, ordered by the reward your picks have taught it, β·log(π/π<sub>ref</sub>).
-        </p>
-        <ol className="clickbait-pool">
-          {pool.map((p) => (
-            <motion.li key={p.start} layout={!reduceMotion} transition={{ duration: 0.35, ease: "easeInOut" }}>
-              <span>{p.text}</span>
-              <span className="clickbait-reward">{clicks ? (p.reward >= 0 ? "+" : "") + p.reward.toFixed(2) : ""}</span>
-            </motion.li>
-          ))}
-        </ol>
-      </section>
-
       <section aria-label="Samples">
         <h2>What your model writes now</h2>
-        <div className="clickbait-controls">
-          <button onClick={sampleFresh} disabled={busy}>Sample 5</button>
-          <button onClick={reset} disabled={busy || clicks === 0}>Start over</button>
-        </div>
-        {samples.length > 0 && (
-          <ul className="clickbait-samples">
-            {samples.map((s, i) => (
-              <li key={i}>{s}</li>
+        <p className="clickbait-note">
+          {samples?.afterPicks
+            ? `Fresh samples after ${samples.afterPicks} picks. New ones every ${SAMPLE_EVERY} picks.`
+            : `Samples from the original model. New ones every ${SAMPLE_EVERY} picks.`}
+        </p>
+        {samples && (
+          <ul className="clickbait-samples" aria-live="polite">
+            {samples.texts.map((s, i) => (
+              <li key={`${samples.afterPicks}-${i}`}>{s}</li>
             ))}
           </ul>
         )}
+        <div className="clickbait-controls">
+          <button onClick={reset} disabled={busy || clicks === 0}>Start over</button>
+        </div>
       </section>
     </div>
   );

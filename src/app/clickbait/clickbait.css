@@ -132,31 +132,28 @@
   font-variant-numeric: tabular-nums;
 }
 
-.clickbait-pool,
 .clickbait-samples {
   margin: 0;
   padding-left: 1.4rem;
 }
 
-.clickbait-pool li {
+.clickbait-samples li {
   padding: 0.15rem 0;
-  background: var(--background);
+  animation: clickbait-fade 300ms ease;
 }
 
-.clickbait-pool li::first-letter,
 .clickbait-samples li::first-letter {
   text-transform: uppercase;
 }
 
-.clickbait-reward {
-  margin-left: 0.6rem;
-  color: var(--muted);
-  font-size: 0.75rem;
-  font-variant-numeric: tabular-nums;
+@keyframes clickbait-fade {
+  from { opacity: 0; }
 }
 
-.clickbait-samples {
-  margin-top: 0.6rem;
+@media (prefers-reduced-motion: reduce) {
+  .clickbait-samples li {
+    animation: none;
+  }
 }
 
 @media (max-width: 640px) {
