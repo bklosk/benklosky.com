@@ -18,3 +18,9 @@ Some groups are a single organ system: <Cluster id="pneumonia">pneumonia</Cluste
 <Cluster id="urinary">urinary infection</Cluster>, and
 <Cluster id="liver">abnormal liver labs</Cluster>, which is the one
 acute-looking group seen mostly in clinic.
+
+## The note as one vector
+
+Jev scores are built to be read. text-embedding-3-large is not: it turns the whole note into one vector. These groups are k-means in that space, drawn with UMAP. They follow the kind of visit more than the sepsis syndromes above: children, pregnancy, heart disease, skin, and a lung infection group sit apart. The scores on a group are still Jev, which is how you can tell what the embedding picked up.
+
+<ClusterMap source="openai" />

@@ -36,12 +36,18 @@ export type ClusterMapData = {
   charts: number;
   shown: number;
   scores: number;
+  /** What each chart was placed by. Defaults to the presentation scores. */
+  placement?: string;
+  /** When false, the chart panel does not mark Jev answers as used for the map. */
+  answersPlaceChart?: boolean;
   presentation: string[];
   questions: Question[];
   clusters: Cluster[];
   /** [x, y, cluster index, encounter id] */
   points: [number, number, number, number][];
 };
+
+type MapId = "jev" | "openai";
 
 type Chart = {
   id: number;
@@ -71,16 +77,26 @@ const SETTING_NAMES: Record<string, string> = {
   telehealth: "Telehealth",
 };
 
-type ClusterState = {
-  data: ClusterMapData;
-  active: number | null;
+type Selection = {
+  hover: number | null;
   locked: number | null;
   chart: number | null;
-  show: (index: number | null) => void;
-  lock: (index: number | null) => void;
-  openChart: (id: number, cluster: number) => void;
-  closeChart: () => void;
+  chartCluster: number | null;
 };
+
+type ClusterState = {
+  jev: ClusterMapData;
+  openai: ClusterMapData;
+  sel: Record<MapId, Selection>;
+  show: (source: MapId, index: number | null) => void;
+  lock: (source: MapId, index: number | null) => void;
+  openChart: (source: MapId, id: number, cluster: number) => void;
+  closeChart: (source: MapId) => void;
+};
+
+function blankSelection(): Selection {
+  return { hover: null, locked: null, chart: null, chartCluster: null };
+}
 
 const ClusterContext = createContext<ClusterState | null>(null);
 
@@ -90,33 +106,73 @@ function useClusters() {
   return state;
 }
 
-export function ClusterProvider({ data, children }: { data: ClusterMapData; children: ReactNode }) {
-  const [hover, setHover] = useState<number | null>(null);
-  const [locked, setLocked] = useState<number | null>(null);
-  const [chart, setChart] = useState<number | null>(null);
+function useMap(source: MapId) {
+  const state = useClusters();
+  const sel = state.sel[source];
+  return {
+    data: state[source],
+    active: sel.locked ?? sel.hover,
+    locked: sel.locked,
+    chart: sel.chart,
+    chartCluster: sel.chartCluster,
+    show: (index: number | null) => state.show(source, index),
+    lock: (index: number | null) => state.lock(source, index),
+    openChart: (id: number, cluster: number) => state.openChart(source, id, cluster),
+    closeChart: () => state.closeChart(source),
+  };
+}
+
+export function ClusterProvider({
+  data,
+  openai,
+  children,
+}: {
+  data: ClusterMapData;
+  openai: ClusterMapData;
+  children: ReactNode;
+}) {
+  const [sel, setSel] = useState<Record<MapId, Selection>>({
+    jev: blankSelection(),
+    openai: blankSelection(),
+  });
 
   const state = useMemo<ClusterState>(
     () => ({
-      data,
-      active: locked ?? hover,
-      locked,
-      chart,
-      show: (index) => {
-        if (locked === null) setHover(index);
+      jev: data,
+      openai,
+      sel,
+      show: (source, index) => {
+        setSel((current) => {
+          const item = current[source];
+          if (item.locked !== null || item.hover === index) return current;
+          return { ...current, [source]: { ...item, hover: index } };
+        });
       },
-      lock: (index) => {
-        setHover(null);
-        setChart(null);
-        setLocked((current) => (index === null || current === index ? null : index));
+      lock: (source, index) => {
+        setSel((current) => {
+          const item = current[source];
+          const locked = index === null || item.locked === index ? null : index;
+          return {
+            ...current,
+            [source]: { hover: null, locked, chart: null, chartCluster: null },
+          };
+        });
       },
-      openChart: (id, cluster) => {
-        setHover(null);
-        setLocked(cluster);
-        setChart(id);
+      openChart: (source, id, cluster) => {
+        setSel((current) => ({
+          ...current,
+          [source]: { hover: null, locked: cluster, chart: id, chartCluster: cluster },
+        }));
       },
-      closeChart: () => setChart(null),
+      closeChart: (source) => {
+        setSel((current) => {
+          const item = current[source];
+          if (item.chart === null) return current;
+          return { ...current, [source]: { ...item, chart: null, chartCluster: null } };
+        });
+      },
     }),
-    [data, hover, locked, chart],
+    [data, openai, sel],
   );
 
   return <ClusterContext value={state}>{children}</ClusterContext>;
@@ -124,7 +180,7 @@ export function ClusterProvider({ data, children }: { data: ClusterMapData; chil
 
 /** Inline text that highlights one cluster on the map, e.g. <Cluster id="shock">septic shock</Cluster>. */
 export function Cluster({ id, children }: { id: string; children: ReactNode }) {
-  const { data, active, locked, show, lock } = useClusters();
+  const { data, active, locked, show, lock } = useMap("jev");
   const index = data.clusters.findIndex((cluster) => cluster.id === id);
   if (index === -1) throw new Error(`No cluster with id "${id}"`);
   const cluster = data.clusters[index];
@@ -208,16 +264,22 @@ function pointFrom(target: EventTarget) {
   return { id: Number(target.dataset.id), cluster: Number(target.dataset.cluster) };
 }
 
-export function ClusterMap() {
-  const { data, active, chart, show, lock, openChart } = useClusters();
+export function ClusterMap({ source = "jev" }: { source?: MapId }) {
+  const { data, active, chart, show, lock, openChart } = useMap(source);
   const [size, plotRef] = usePlotSize({ width: 640, height: 512 });
   const selected = chart === null ? undefined : data.points.find((point) => point[3] === chart);
   const selectedAt = selected && projector(data.points, size)(selected[0], selected[1]);
+  const placement = data.placement ?? `its ${data.scores} presentation scores`;
 
   return (
     <figure className="embeddings-figure">
       <div className="embeddings-layout">
-        <div className="embeddings-plot" ref={plotRef} data-active={active ?? undefined}>
+        <div
+          className="embeddings-plot"
+          ref={plotRef}
+          data-map={source}
+          data-active={active ?? undefined}
+        >
           <svg
             viewBox={`0 0 ${size.width} ${size.height}`}
             aria-hidden="true"
@@ -245,24 +307,25 @@ export function ClusterMap() {
               />
             )}
           </svg>
-          <style>{`.embeddings-plot[data-active="${active}"] g[data-group="${active}"] { opacity: 1; }`}</style>
+          {active !== null && (
+            <style>{`.embeddings-plot[data-map="${source}"][data-active="${active}"] g[data-group="${active}"] { opacity: 1; }`}</style>
+          )}
         </div>
         <div className="embeddings-panel">
-          {chart === null ? <ClusterList /> : <ChartPanel key={chart} id={chart} />}
+          {chart === null ? <ClusterList source={source} /> : <ChartPanel key={chart} id={chart} source={source} />}
         </div>
       </div>
       <figcaption className="embeddings-caption">
         {data.shown.toLocaleString("en-US")} of {data.charts.toLocaleString("en-US")} charts, each
-        placed by its {data.scores} presentation scores and sampled so small groups stay visible.
-        Nearby dots read alike. Colors are {data.clusters.length} k-means groups. Click a dot to read
-        its chart.
+        placed by {placement} and sampled so small groups stay visible. Nearby dots read alike. Colors
+        are {data.clusters.length} k-means groups. Click a dot to read its chart.
       </figcaption>
     </figure>
   );
 }
 
-function ClusterList() {
-  const { data, active, locked, show, lock } = useClusters();
+function ClusterList({ source }: { source: MapId }) {
+  const { data, active, locked, show, lock } = useMap(source);
   return (
     <div className="embeddings-groups" aria-label="Clusters">
       {data.clusters.map((cluster, index) => {
@@ -365,8 +428,8 @@ function useChart(id: number): ChartLoad {
   return load;
 }
 
-function ChartPanel({ id }: { id: number }) {
-  const { data, closeChart } = useClusters();
+function ChartPanel({ id, source }: { id: number; source: MapId }) {
+  const { data, chartCluster, closeChart } = useMap(source);
   const load = useChart(id);
   const [yesOnly, setYesOnly] = useState(false);
 
@@ -388,8 +451,9 @@ function ChartPanel({ id }: { id: number }) {
   }
 
   const { chart } = load;
-  const cluster = data.clusters[chart.cluster];
-  const used = new Set(data.presentation);
+  const cluster = data.clusters[chartCluster ?? chart.cluster];
+  const marksPlacement = data.answersPlaceChart !== false;
+  const used = marksPlacement ? new Set(data.presentation) : new Set<string>();
   const yesCount = chart.answers.filter((value) => value >= 0.5).length;
   const groups: { name: string; rows: { question: Question; value: number }[] }[] = [];
   data.questions.forEach((question, index) => {
@@ -451,7 +515,11 @@ function ChartPanel({ id }: { id: number }) {
           ))}
         </section>
       ))}
-      <p className="embeddings-mark-note">A dot marks the 57 answers that place the chart on the map.</p>
+      <p className="embeddings-mark-note">
+        {marksPlacement
+          ? "A dot marks the 57 answers that place the chart on the map."
+          : "The map placed this chart from the note text. These scores are Jev answers for the same chart."}
+      </p>
     </div>
   );
 }

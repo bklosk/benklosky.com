@@ -75,6 +75,15 @@ def upload(source: Path, key: str) -> None:
     print(f"uploaded {key} to {bucket}", flush=True)
 
 
+def list_keys(prefix: str) -> list[str]:
+    client, bucket = _client()
+    keys: list[str] = []
+    for page in client.get_paginator("list_objects_v2").paginate(Bucket=bucket, Prefix=prefix):
+        for obj in page.get("Contents", []):
+            keys.append(obj["Key"])
+    return keys
+
+
 @contextmanager
 def workdir() -> Iterator[Path]:
     with tempfile.TemporaryDirectory(prefix="benklosky-data-") as path:
