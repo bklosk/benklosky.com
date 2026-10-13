@@ -6,18 +6,21 @@ learned in plain English, and lets you correct it.
 ## Approach: QA embeddings
 
 1. **Question bank.** Each domain has ~220 questions about items
-   (`scripts/taste/questions/*.json`): 229 for films, 228 for books, 220 for
+   (`scripts/taste/questions/*.json`): 229 for films, 230 for books, 220 for
    art. Only *score* questions (ordered levels: "How fast is the pacing?")
    and *choice* questions (one of a fixed set: "Where is it mainly set?").
    There are no yes/no predicates. Each question carries the English the
    profile uses to talk about it ("slow, contemplative films" / "fast-paced
-   films"). Two book questions (author gender, political lean) were dropped
-   so the public profile never states them.
+   films"). Two book questions (author gender, political lean) are marked
+   `hidden`. They feed the model but are never shown: not as traits, "not
+   sure yet", card or recommendation reasons, or in the trait picker. A test
+   (`model.test.ts`) checks this. They barely matter: books' validation
+   log-likelihood moved from −0.53153 to −0.53155.
 2. **Answers.** The OpenAI Decisions API answers every question for every
    item: 1500 films, 1500 books, and 985 artworks, which it reads from the
    image. It returns a probability for each option. A score becomes one
    feature (its expected level, 0–1); a choice becomes one feature per option.
-   Features that barely vary are dropped, leaving 656 / 705 / 649.
+   Features that barely vary are dropped, leaving 656 / 710 / 649.
 3. **Model.** Bayesian logistic regression on the standardized features. A
    swipe right is a like. The weights' prior, N(μ, UUᵀ + diag d), is learned by
    EM from 4000 training users per domain (MovieLens, Goodreads), so the
@@ -69,12 +72,12 @@ Provider options considered:
   bank is a repeated prefix, but it would need logprobs, which `gpt-6-luna`
   doesn't document.
 
-Actual spend for everything, including the pilot: **$15.29**.
+Actual spend for everything, including the pilot: **$15.38**.
 
 | | Requests | Input tokens | Cost |
 |---|---|---|---|
 | Films | 5,997 | 56.5M | $5.65 |
-| Books | 6,000 | 59.5M | $5.95 |
+| Books | 7,500 | 60.4M | $6.04 |
 | Art (with images) | 3,940 | 36.1M | $3.61 |
 | Embeddings (baseline) | 48 | 0.7M | $0.09 |
 
@@ -110,20 +113,20 @@ training:
 
 | swipes | 0 | 5 | 10 | 20 | 30 | 50 |
 |---|---|---|---|---|---|---|
-| QA, picked cards (the demo) | 0.644 | 0.676 | 0.688 | 0.701 | **0.712** | **0.720** |
-| QA, random cards | 0.644 | 0.668 | 0.676 | 0.688 | 0.697 | 0.716 |
-| Embeddings, picked cards | 0.648 | 0.675 | 0.687 | 0.696 | 0.701 | 0.707 |
-| Embeddings, random cards | 0.648 | 0.658 | 0.667 | 0.675 | 0.684 | 0.701 |
+| QA, picked cards (the demo) | 0.644 | 0.678 | 0.689 | 0.702 | **0.713** | **0.721** |
+| QA, random cards | 0.644 | 0.668 | 0.677 | 0.688 | 0.698 | 0.716 |
+| Embeddings, picked cards | 0.649 | 0.675 | 0.687 | 0.697 | 0.701 | 0.707 |
+| Embeddings, random cards | 0.649 | 0.658 | 0.667 | 0.675 | 0.685 | 0.700 |
 | Popularity (no personalization) | 0.671 | | | | | |
 
 What this says:
 
 - **Picking cards helps.** BALD beats random cards at every point. For books it
-  is worth about 10 swipes: 30 picked swipes ≈ 0.712, which random cards only
+  is worth about 10 swipes: 30 picked swipes ≈ 0.713, which random cards only
   reach somewhere between 40 and 50. For films the gain is small (+0.006 at 30), about one
   standard error.
 - **QA features match or beat dense embeddings.** For books they are clearly
-  better (0.712 vs 0.701 at 30; 0.720 vs 0.707 at 50). For films they are a
+  better (0.713 vs 0.701 at 30; 0.721 vs 0.707 at 50). For films they are a
   wash, with QA ahead on log loss at every k (0.543 vs 0.547 at 30) but level
   on AUC.
 - **Zero swipes is worse than popularity.** With no swipes, the population
@@ -141,8 +144,8 @@ than they disliked them?
 |---|---|---|---|
 | Films, 20 swipes | 40 | 90% | 94% |
 | Films, 30 swipes | 51 | 90% | 94% |
-| Books, 20 swipes | 8 | 83% | 87% |
-| Books, 30 swipes | 14 | 81% | 85% |
+| Books, 20 swipes | 9 | 83% | 88% |
+| Books, 30 swipes | 14 | 82% | 86% |
 
 \* Before deduplication; the page shows at most ten.
 

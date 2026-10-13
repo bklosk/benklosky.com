@@ -4,6 +4,7 @@ A score question becomes one feature: the expected level, scaled to [0, 1].
 A choice question becomes one feature per option: its probability. Features
 that barely vary across the catalog carry no signal and are dropped.
 Every feature keeps the English it came from, so a weight can be read back.
+Features from hidden questions feed the model but are never shown.
 """
 
 from __future__ import annotations
@@ -58,6 +59,7 @@ def raw_features(bank: list[dict], items: list[dict], found: dict) -> tuple[np.n
                     "neg": q["low"],
                     "topic": q["topic"],
                     "levels": [level["label"] for level in q["levels"]],
+                    "hidden": bool(q.get("hidden")),
                 }
             )
         else:
@@ -74,6 +76,7 @@ def raw_features(bank: list[dict], items: list[dict], found: dict) -> tuple[np.n
                         "neg": choice["phrase"],
                         "topic": choice["phrase"],
                         "levels": None,
+                        "hidden": bool(q.get("hidden")),
                     }
                 )
     X = np.stack(columns, 1)

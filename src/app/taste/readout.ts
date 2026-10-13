@@ -4,7 +4,8 @@ import type { Feature, Posterior, TasteModel } from "./model";
  * Turn the posterior into English. Every sentence is computed from the model:
  * a trait is claimed only when its posterior interval excludes zero and its
  * size passes the threshold set from real users (see build.py), so the
- * profile never says more than the model has learned.
+ * profile never says more than the model has learned. Features from hidden
+ * questions still shape predictions but are never named.
  */
 
 export type Trait = {
@@ -42,6 +43,7 @@ export function profile(model: TasteModel, post: Posterior, pinned: Set<number>,
 
   const credible: number[] = [];
   for (let j = 0; j < F; j++) {
+    if (features[j].hidden) continue;
     const m = post.traitMean[j];
     if (Math.abs(m) >= min && Math.abs(m) >= z * post.traitSd[j]) credible.push(j);
   }
@@ -74,7 +76,7 @@ export function profile(model: TasteModel, post: Posterior, pinned: Set<number>,
   const unsure: Unsure[] = [];
   const open: number[] = [];
   const order = Array.from({ length: F }, (_, j) => j)
-    .filter((j) => !credible.includes(j) && !pinned.has(j))
+    .filter((j) => !features[j].hidden && !credible.includes(j) && !pinned.has(j))
     .sort((a, b) => post.traitSd[b] - post.traitSd[a]);
   for (const j of order) {
     if (open.some((k) => Math.abs(C[j * F + k]) >= dedupe) || shown.some((k) => Math.abs(C[j * F + k]) >= dedupe)) continue;
@@ -102,6 +104,7 @@ export function topReasons(model: TasteModel, parts: Float64Array, item: number,
   const features = model.artifact.features;
   const byQuestion = new Map<string, { total: number; best: number; bestPart: number }>();
   for (let j = 0; j < model.F; j++) {
+    if (features[j].hidden) continue;
     const part = parts[j + 1] * sign;
     const q = features[j].question;
     const entry = byQuestion.get(q) ?? { total: 0, best: -1, bestPart: -Infinity };

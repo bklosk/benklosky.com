@@ -19,6 +19,8 @@ export type Feature = {
   neg: string;
   topic: string;
   levels: string[] | null;
+  /** Used by the model but never shown on the page. */
+  hidden?: boolean;
 };
 
 export type Item = {

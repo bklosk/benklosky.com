@@ -54,7 +54,7 @@ def validation_score(X: np.ndarray, prior: Prior, users: list[tuple]) -> float:
     return float(np.mean(scores))
 
 
-def thresholds(X: np.ndarray, C: np.ndarray, prior: Prior, by_user: dict, users: list[int]) -> dict:
+def thresholds(X: np.ndarray, C: np.ndarray, prior: Prior, by_user: dict, users: list[int], shown: np.ndarray) -> dict:
     """Trait size cutoffs: 'lean' at the 50th and 'strong' at the 85th percentile
     of |trait| among validation users' full-data posteriors."""
     CU, CCd = C @ prior.U[1:], (C * C) @ prior.d[1:]
@@ -66,7 +66,7 @@ def thresholds(X: np.ndarray, C: np.ndarray, prior: Prior, by_user: dict, users:
             items, y = items[keep], y[keep]
         post = fit(prior, X[items], np.ones(len(y), bool), y)
         mean, sd = traits(post, C, CU, CCd)
-        sizes.append(np.abs(mean[np.abs(mean) > Z * sd]))
+        sizes.append(np.abs(mean[shown & (np.abs(mean) > Z * sd)]))
     sizes = np.concatenate(sizes) if sizes else np.zeros(1)
     return {"min": float(np.percentile(sizes, 50)), "strong": float(np.percentile(sizes, 85))}
 
@@ -116,7 +116,8 @@ def main() -> None:
                 if best is None or score > best[0]:
                     best = (score, rank, candidate)
             _, rank, prior = best
-            cut = thresholds(X, C, prior, by_user, groups["val"][:150])
+            shown = np.array([not m["hidden"] for m in meta])
+            cut = thresholds(X, C, prior, by_user, groups["val"][:150], shown)
             stats.update(prior="learned", rank=rank, train_users=len(train), validation_loglik=best[0])
         print(f"thresholds {cut}", flush=True)
 

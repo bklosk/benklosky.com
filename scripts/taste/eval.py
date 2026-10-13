@@ -84,9 +84,10 @@ def simulate(X, prior, pool_items, pool_y, test_items, test_y, strategy, rng, pr
     return out, claims
 
 
-def claimed(post, C, CU, CCd, cut, z):
+def claimed(post, C, CU, CCd, cut, z, shown):
+    """The traits the page would state; `shown` masks out hidden questions."""
     mean, sd = traits(post, C, CU, CCd)
-    ok = (np.abs(mean) >= cut["min"]) & (np.abs(mean) >= z * sd)
+    ok = shown & (np.abs(mean) >= cut["min"]) & (np.abs(mean) >= z * sd)
     return {int(j): (float(mean[j]), bool(abs(mean[j]) >= cut["strong"])) for j in np.flatnonzero(ok)}
 
 
@@ -145,7 +146,8 @@ def main() -> None:
         pop_auc = []
         profile = {k: {"claims": [], "personal": [], "agree": [], "agree_strong": [], "agree_personal": [], "agree_shared": []} for k in PROFILE_AT}
         # What the population prior alone would claim about anyone.
-        everyone = claimed(fit(qa_prior, X[:0], np.zeros(0, bool), np.zeros(0)), C, CU, CCd, cut, z)
+        shown = np.array([not f.get("hidden") for f in model["features"]])
+        everyone = claimed(fit(qa_prior, X[:0], np.zeros(0, bool), np.zeros(0)), C, CU, CCd, cut, z, shown)
         prior_agree = []
         test_users = groups["test"][: args.users]
         for n, u in enumerate(test_users, 1):
@@ -168,7 +170,7 @@ def main() -> None:
             for feats, prior in (("qa", qa_prior), ("dense", dense_prior)):
                 for strategy in ("active", "random"):
                     rng = np.random.default_rng(u)
-                    check = (lambda post, swiped: (claimed(post, C, CU, CCd, cut, z), direction(swiped))) if (feats, strategy) == ("qa", "active") else None
+                    check = (lambda post, swiped: (claimed(post, C, CU, CCd, cut, z, shown), direction(swiped))) if (feats, strategy) == ("qa", "active") else None
                     out, claims = simulate(
                         X if feats == "qa" else Xd, prior, pool_items, pool_y, test_items, test_y, strategy, rng, check
                     )

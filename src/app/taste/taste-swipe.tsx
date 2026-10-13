@@ -532,7 +532,8 @@ function AddTrait({ model, onPick }: { model: TasteModel; onPick: (feature: numb
   const options = useMemo(
     () =>
       model.artifact.features
-        .map((f, j) => ({ j, label: f.kind === "score" ? `${f.topic} (${f.neg} ↔ ${f.pos})` : f.pos, group: f.group }))
+        .map((f, j) => ({ j, f, label: f.kind === "score" ? `${f.topic} (${f.neg} ↔ ${f.pos})` : f.pos, group: f.group }))
+        .filter(({ f }) => !f.hidden)
         .sort((a, b) => a.group.localeCompare(b.group) || a.label.localeCompare(b.label)),
     [model],
   );

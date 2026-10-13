@@ -64,3 +64,7 @@ fields. So phrases must read naturally in these templates:
 - `group` is a short section name used to organize the profile.
 - `instructions` is one clear question an LLM can answer from the item's
   metadata (and, for art, the image) plus general knowledge.
+- `"hidden": true` (optional) keeps the question in the model but out of
+  everything the page shows: traits, "not sure yet", card and
+  recommendation reasons, and the trait picker. Used for author gender and
+  political lean in books.

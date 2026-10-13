@@ -6152,6 +6152,38 @@
     "topic": "the central theme"
   },
   {
+    "id": "political_lean",
+    "type": "score",
+    "group": "Themes",
+    "hidden": true,
+    "instructions": "How do the book's politics lean, as readers typically take it?",
+    "levels": [
+      {
+        "label": "strongly progressive",
+        "description": "Openly argues for left or progressive positions."
+      },
+      {
+        "label": "somewhat progressive",
+        "description": "Its sympathies lean left or progressive."
+      },
+      {
+        "label": "apolitical or balanced",
+        "description": "No clear political lean, or even-handed."
+      },
+      {
+        "label": "somewhat conservative",
+        "description": "Its sympathies lean right or conservative."
+      },
+      {
+        "label": "strongly conservative",
+        "description": "Openly argues for right or conservative positions."
+      }
+    ],
+    "low": "progressive-leaning books",
+    "high": "conservative-leaning books",
+    "topic": "political lean"
+  },
+  {
     "id": "religion_tradition",
     "type": "choice",
     "group": "Themes",
@@ -7349,6 +7381,41 @@
       }
     ],
     "topic": "when it was written"
+  },
+  {
+    "id": "author_gender",
+    "type": "choice",
+    "group": "Reputation and context",
+    "hidden": true,
+    "instructions": "What is the gender of the book's author or authors?",
+    "choices": [
+      {
+        "value": "woman",
+        "description": "Written by a woman, or by several women.",
+        "phrase": "books by women"
+      },
+      {
+        "value": "man",
+        "description": "Written by a man, or by several men.",
+        "phrase": "books by men"
+      },
+      {
+        "value": "mixed",
+        "description": "Co-written by authors of different genders.",
+        "phrase": "books by mixed-gender teams"
+      },
+      {
+        "value": "nonbinary",
+        "description": "Written by a nonbinary author.",
+        "phrase": "books by nonbinary authors"
+      },
+      {
+        "value": "unknown",
+        "description": "Pseudonymous, anonymous, institutional, or otherwise unclear.",
+        "phrase": "books by authors of unknown gender"
+      }
+    ],
+    "topic": "author gender"
   },
   {
     "id": "author_origin",
