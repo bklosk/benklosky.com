@@ -20,7 +20,11 @@ export default function ProjectsPage() {
       <Link href="/shelf" className="project-shot">
         <Image src={shelfStage} alt="The game shelf in 3D" sizes="16rem" />
       </Link>
-
+      <p className="intro">
+        <Ink>
+          <Link href="/taste">Swipe on films, books, or art and see what a model learns about your taste</Link>
+        </Ink>
+      </p>
     </div>
   );
 }
