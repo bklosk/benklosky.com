@@ -5,6 +5,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/../.."
 py() { uv run --python 3.12 --with numpy --with pandas --with boto3 python "$@"; }
+py_map() { uv run --python 3.12 --with numpy --with boto3 --with scikit-learn --with umap-learn --with leidenalg --with igraph python "$@"; }
 
 py scripts/taste/fetch_raw.py           # raw datasets -> taste/raw/
 py scripts/taste/ingest_movies.py       # MovieLens catalog + rating sample
@@ -20,6 +21,7 @@ for domain in movies books; do
 done
 for domain in movies books art; do
   py scripts/taste/build.py --domain "$domain"   # features, prior, browser artifact
+  py_map scripts/taste/map.py --domain "$domain" # clusters + UMAP for the page's map
 done
 for domain in movies books; do
   py scripts/taste/eval.py --domain "$domain"
