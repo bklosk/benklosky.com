@@ -13,7 +13,7 @@ learned in plain English, and lets you correct it.
    profile uses to talk about it ("slow, contemplative films" / "fast-paced
    films"). Two book questions (author gender, political lean) are marked
    `hidden`. They feed the model but are never shown: not as traits, "not
-   sure yet", card or recommendation reasons, or in the trait picker. A test
+   sure yet", or recommendation reasons. A test
    (`model.test.ts`) checks this. They barely matter: books' validation
    log-likelihood moved from −0.53153 to −0.53155.
 2. **Answers.** The OpenAI Decisions API answers every question for every
@@ -42,11 +42,17 @@ learned in plain English, and lets you correct it.
    (sd 0.05). The edit moves correlated traits and recommendations through
    the learned prior, and the profile then reads it back like any other trait.
 6. **Next card.** The unseen item with the highest BALD score (mutual
-   information between the swipe and the weights). "Why this card" splits
-   that item's predictive variance exactly into per-feature parts, xⱼ(Sx)ⱼ, and
-   names the largest. Recommendation reasons split the item's score the same
-   way (xⱼmⱼ).
-7. **Letterboxd.** On the Movies tab you can load a `ratings.csv` export. It is
+   information between the swipe and the weights). The cards that a like, a
+   dislike, or a skip would lead to are fitted ahead of time (up to 100
+   observations) and wait underneath the current one. The model refits on every
+   swipe to pick it, but the profile and recommendations only update every 8
+   swipes, with a countdown under the card. Edits show at once. Items with
+   no poster or cover (6 films, 10 books) are never shown as cards or
+   recommendations, but they stay in the model.
+7. **Recommendations.** The five unseen items with the highest predicted
+   chance of a like. Clicking one splits its score exactly into per-feature
+   parts, xⱼmⱼ, grouped by question, and lists the largest each way.
+8. **Letterboxd.** On the Movies tab you can load a `ratings.csv` export. It is
    parsed in the browser and matched to the catalog by title and year: 3.5★
    and up is a like, 2.5★ and down a dislike. Nothing is uploaded. Letterboxd is
    never scraped.

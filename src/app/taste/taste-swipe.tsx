@@ -1,11 +1,21 @@
 "use client";
 
-import { AnimatePresence, motion, useMotionValue, useReducedMotion, useTransform, type PanInfo } from "motion/react";
+import {
+  AnimatePresence,
+  motion,
+  useIsPresent,
+  useMotionValue,
+  useMotionValueEvent,
+  useReducedMotion,
+  useTransform,
+  type PanInfo,
+  type Variants,
+} from "motion/react";
 import Image from "next/image";
-import { useCallback, useEffect, useMemo, useState, type ChangeEvent } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useState, type ChangeEvent } from "react";
 import { DOMAINS, type Domain } from "./domains";
 import { importLetterboxd } from "./letterboxd";
-import { bald, predictive, TasteModel, type Artifact, type Observation } from "./model";
+import { bald, predictive, TasteModel, type Artifact, type Observation, type Posterior } from "./model";
 import { DOMAIN_NOUN, profile, sentence, summary, topReasons } from "./readout";
 
 const LABELS: Record<Domain, string> = { movies: "Movies", books: "Books", art: "Art" };
@@ -15,7 +25,9 @@ const PROMPTS: Record<Domain, string> = {
   art: "Do you like this?",
 };
 const SWIPE_AT = 110; // px of drag that counts as a swipe
-const RECOMMEND = 6;
+const RECOMMEND = 5;
+const REVEAL_EVERY = 8; // swipes between updates to the profile and recommendations
+const LOOKAHEAD_UPTO = 100; // observations; past this a fit takes tens of ms, too slow to run two per swipe
 
 type Saved = { swipes: [string, boolean][]; skipped: string[]; pins: [string, number][] };
 type State = { swipes: { item: number; like: boolean }[]; skipped: number[]; pins: Map<number, number> };
@@ -74,7 +86,46 @@ function save(model: TasteModel, domain: Domain, state: State) {
   }
 }
 
+const observe = (swipes: State["swipes"], pins: State["pins"]): Observation[] => [
+  ...swipes.map(({ item, like }) => ({ kind: "swipe" as const, item, like })),
+  ...[...pins].map(([feature, value]) => ({ kind: "pin" as const, feature, value })),
+];
+
+// Recent fits per model, keyed by their observations. The fits for both answers to the current card
+// run ahead of time, so the one for the answer actually given is usually already here.
+const fits = new WeakMap<TasteModel, Map<string, Posterior>>();
+
+function fitOf(model: TasteModel, swipes: State["swipes"], pins: State["pins"]) {
+  const key = `${swipes.map((s) => (s.like ? "+" : "-") + s.item).join()}|${[...pins].map(([f, v]) => `${f}=${v}`).join()}`;
+  let cache = fits.get(model);
+  if (!cache) fits.set(model, (cache = new Map()));
+  const post = cache.get(key) ?? model.fit(observe(swipes, pins));
+  cache.delete(key);
+  cache.set(key, post);
+  if (cache.size > 8) cache.delete(cache.keys().next().value!);
+  return post;
+}
+
+/** The candidate whose swipe would tell the model the most. */
+function bestCard(post: Posterior, candidates: number[], except: number | null = null) {
+  let best: number | null = null;
+  let bestInfo = -Infinity;
+  for (const i of candidates) {
+    if (i === except) continue;
+    const info = bald(post.itemMean[i], post.itemVar[i]);
+    if (info > bestInfo) {
+      best = i;
+      bestInfo = info;
+    }
+  }
+  return best;
+}
+
+type Answer = "like" | "nope" | "skip";
+type Lookahead = { state: State } & Record<Answer, number | null>;
+
 const pct = (p: number) => `${Math.round(100 * p)}%`;
+const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;
 
 export function TasteSwipe() {
   const [domain, setDomain] = useState<Domain>("movies");
@@ -120,49 +171,60 @@ function Session({ domain, model }: { domain: Domain; model: TasteModel }) {
   const [state, setState] = useState<State>(() => restore(model, domain));
   const [history, setHistory] = useState<State[]>([]);
   const [direction, setDirection] = useState(0);
+  const [lean, setLean] = useState(0);
+  const [lookahead, setLookahead] = useState<Lookahead | null>(null);
   const [editing, setEditing] = useState<number | null>(null);
+  const [opened, setOpened] = useState<number | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const items = model.artifact.items;
   const noun = DOMAIN_NOUN[domain];
 
   useEffect(() => save(model, domain, state), [model, domain, state]);
 
-  const observations = useMemo<Observation[]>(
-    () => [
-      ...state.swipes.map(({ item, like }) => ({ kind: "swipe" as const, item, like })),
-      ...[...state.pins].map(([feature, value]) => ({ kind: "pin" as const, feature, value })),
-    ],
-    [state],
-  );
-  const post = useMemo(() => model.fit(observations), [model, observations]);
-  const seen = useMemo(() => new Set([...state.swipes.map((s) => s.item), ...state.skipped]), [state]);
+  // Every swipe refits the model and picks the next card, but the profile and recommendations only
+  // catch up every REVEAL_EVERY swipes. Edits are the user's own words, so they show at once.
+  const revealed = state.swipes.length - (state.swipes.length % REVEAL_EVERY);
+  const post = useMemo(() => fitOf(model, state.swipes, state.pins), [model, state]);
+  const shown = useMemo(() => fitOf(model, state.swipes.slice(0, revealed), state.pins), [model, state, revealed]);
+  // Unseen items with a picture. Only these become cards or recommendations; the rest stay in the
+  // model, so an imported rating of one still counts.
+  const unseen = useMemo(() => {
+    const seen = new Set([...state.swipes.map((s) => s.item), ...state.skipped]);
+    return items.flatMap((item, i) => (item.image && !seen.has(i) ? [i] : []));
+  }, [items, state]);
 
-  // The next card: the unseen item whose swipe would tell the model the most.
-  const next = useMemo(() => {
-    let best = -1;
-    let bestInfo = -Infinity;
-    for (let i = 0; i < model.N; i++) {
-      if (seen.has(i)) continue;
-      const info = bald(post.itemMean[i], post.itemVar[i]);
-      if (info > bestInfo) {
-        best = i;
-        bestInfo = info;
-      }
+  const next = useMemo(() => bestCard(post, unseen), [post, unseen]);
+
+  // The card each answer would lead to, so it can already be sitting under this one. It's worked out
+  // once the last card has flown off; a faster swipe just gets its next card without the preview.
+  useEffect(() => {
+    if (next === null || state.swipes.length + state.pins.size >= LOOKAHEAD_UPTO) return;
+    const timer = setTimeout(() => {
+      const after = (like: boolean) => bestCard(fitOf(model, [...state.swipes, { item: next, like }], state.pins), unseen, next);
+      setLookahead({ state, like: after(true), nope: after(false), skip: bestCard(post, unseen, next) });
+    }, 250);
+    return () => clearTimeout(timer);
+  }, [model, state, post, unseen, next]);
+
+  // One card per distinct item; each knows which answers it follows.
+  const below = useMemo(() => {
+    const cards = new Map<number, Set<Answer>>();
+    if (lookahead?.state !== state) return cards;
+    for (const answer of ["like", "nope", "skip"] as const) {
+      const item = lookahead[answer];
+      if (item !== null) cards.set(item, (cards.get(item) ?? new Set()).add(answer));
     }
-    if (best < 0) return null;
-    const reasons = topReasons(model, model.varianceParts(post, best), best, 3);
-    return { item: best, info: bestInfo, p: predictive(post.itemMean[best], post.itemVar[best]), sd: Math.sqrt(post.itemVar[best]), reasons };
-  }, [model, post, seen]);
+    return cards;
+  }, [lookahead, state]);
 
   const pinnedSet = useMemo(() => new Set(state.pins.keys()), [state.pins]);
-  const { traits, unsure } = useMemo(() => profile(model, post, pinnedSet), [model, post, pinnedSet]);
+  const { traits, unsure } = useMemo(() => profile(model, shown, pinnedSet), [model, shown, pinnedSet]);
 
   const recommendations = useMemo(() => {
-    const scored: { item: number; p: number }[] = [];
-    for (let i = 0; i < model.N; i++) if (!seen.has(i)) scored.push({ item: i, p: predictive(post.itemMean[i], post.itemVar[i]) });
+    const scored = unseen.map((item) => ({ item, p: predictive(shown.itemMean[item], shown.itemVar[item]) }));
     scored.sort((a, b) => b.p - a.p);
-    return scored.slice(0, RECOMMEND).map(({ item, p }) => ({ item, p, reasons: topReasons(model, model.scoreParts(post, item), item, 2) }));
-  }, [model, post, seen]);
+    return scored.slice(0, RECOMMEND);
+  }, [shown, unseen]);
 
   const update = useCallback(
     (change: (s: State) => State) => {
@@ -174,11 +236,10 @@ function Session({ domain, model }: { domain: Domain; model: TasteModel }) {
 
   const swipe = useCallback(
     (like: boolean | null) => {
-      if (!next) return;
+      if (next === null) return;
       setDirection(like === null ? 0 : like ? 1 : -1);
-      update((s) =>
-        like === null ? { ...s, skipped: [...s.skipped, next.item] } : { ...s, swipes: [...s.swipes, { item: next.item, like }] },
-      );
+      setLean(0);
+      update((s) => (like === null ? { ...s, skipped: [...s.skipped, next] } : { ...s, swipes: [...s.swipes, { item: next, like }] }));
     },
     [next, update],
   );
@@ -238,54 +299,47 @@ function Session({ domain, model }: { domain: Domain; model: TasteModel }) {
   };
 
   const likes = state.swipes.filter((s) => s.like).length;
+  const pending = state.swipes.length - revealed;
 
   return (
     <>
       <section className="taste-deck" aria-label="Swipe">
         <p className="taste-prompt">{PROMPTS[domain]}</p>
-        <div className="taste-stack">
-          <AnimatePresence mode="popLayout" custom={direction} initial={false}>
-            {next ? (
-              <Card key={next.item} domain={domain} model={model} item={next.item} direction={direction} onSwipe={swipe} />
-            ) : (
-              <p className="taste-status">You&rsquo;ve seen every card in this catalog.</p>
-            )}
+        <div className={`taste-stack taste-stack--${domain}`}>
+          <AnimatePresence custom={direction} initial={false}>
+            {[
+              // While a card is dragged, the one its answer leads to shows underneath.
+              ...[...below].map(([item, answers]) => (
+                <Card key={item} domain={domain} model={model} item={item} hidden={!answers.has(lean < 0 ? "nope" : "like")} />
+              )),
+              next !== null && <Card key={next} domain={domain} model={model} item={next} onSwipe={swipe} onLean={setLean} />,
+            ]}
           </AnimatePresence>
+          {next === null && <p className="taste-status">You&rsquo;ve seen every card in this catalog.</p>}
         </div>
         <div className="taste-buttons">
-          <button onClick={() => swipe(false)} disabled={!next} aria-label="Dislike">
+          <button onClick={() => swipe(false)} disabled={next === null} aria-label="Dislike">
             ← Nope
           </button>
-          <button onClick={() => swipe(null)} disabled={!next} className="taste-skip">
+          <button onClick={() => swipe(null)} disabled={next === null} className="taste-skip">
             Don&rsquo;t know
           </button>
-          <button onClick={() => swipe(true)} disabled={!next} aria-label="Like">
+          <button onClick={() => swipe(true)} disabled={next === null} aria-label="Like">
             Like →
           </button>
         </div>
-        {next && (
-          <p className="taste-why" aria-live="polite">
-            <strong>Why this card:</strong>{" "}
-            {state.swipes.length === 0 && state.pins.size === 0 ? (
-              <>it&rsquo;s the {noun.replace(/s$/, "")} the average person is most split on, so your answer teaches the most. </>
-            ) : (
-              <>of every unseen card, your answer to this one should teach the model the most ({next.info.toFixed(2)} bits). </>
-            )}
-            The model gives it {pct(next.p)} (±{next.sd.toFixed(1)} logits)
-            {next.reasons.length > 0 && (
-              <>
-                , and most of that doubt is about{" "}
-                {next.reasons.map((r, i) => (
-                  <span key={r.feature}>
-                    {i > 0 && (i === next.reasons.length - 1 ? " and " : ", ")}
-                    <em>{r.phrase}</em>
-                  </span>
-                ))}
-              </>
-            )}
-            .
-          </p>
-        )}
+        <p className="taste-countdown">
+          <span className="taste-pips" aria-hidden="true">
+            {Array.from({ length: REVEAL_EVERY }, (_, i) => (
+              <span key={i} data-on={i < pending || undefined} />
+            ))}
+          </span>
+          {revealed === 0
+            ? `First update in ${plural(REVEAL_EVERY - pending, "swipe")}`
+            : pending === 0
+              ? `Updated with ${plural(revealed, "swipe")} · next in ${REVEAL_EVERY}`
+              : `Next update in ${plural(REVEAL_EVERY - pending, "swipe")}`}
+        </p>
         <p className="taste-meta">
           {state.swipes.length} swipe{state.swipes.length === 1 ? "" : "s"} ({likes} likes){state.skipped.length ? ` · ${state.skipped.length} skipped` : ""}
           {" · "}
@@ -302,7 +356,7 @@ function Session({ domain, model }: { domain: Domain; model: TasteModel }) {
       <section className="taste-profile" aria-label="Your taste">
         <h2>What it thinks you like</h2>
         <p className="taste-summary" aria-live="polite">
-          {summary(traits, unsure, state.swipes.length)}
+          {summary(traits, unsure, revealed)}
         </p>
         {traits.length > 0 && (
           <ul className="taste-traits">
@@ -356,25 +410,24 @@ function Session({ domain, model }: { domain: Domain; model: TasteModel }) {
               ))}
           </p>
         )}
-        <AddTrait model={model} onPick={setEditing} />
       </section>
 
       <section className="taste-recs" aria-label="Recommendations">
-        <h2>It would show you next</h2>
-        <p className="taste-note">The unseen {noun} it gives the highest chance you&rsquo;ll like, and the features that push each one up most.</p>
+        <h2>Top {RECOMMEND} for you</h2>
+        <p className="taste-note">
+          The unseen {noun} it gives the highest chance you’ll like. Click one to see which features predict it.
+        </p>
         <ol>
           {recommendations.map((r) => (
             <li key={r.item}>
-              <span className="taste-rec-title">
-                <a href={items[r.item].link} target="_blank" rel="noreferrer">
-                  {items[r.item].title}
-                </a>{" "}
-                <span className="taste-dim">{items[r.item].subtitle}</span>
-              </span>
-              <span className="taste-dim">
-                {pct(r.p)}
-                {r.reasons.length > 0 && <> · {r.reasons.map((x) => x.phrase).join(", ")}</>}
-              </span>
+              <button className="taste-rec" onClick={() => setOpened(opened === r.item ? null : r.item)} aria-expanded={opened === r.item}>
+                <span>
+                  <span className="taste-rec-title">{items[r.item].title}</span>{" "}
+                  <span className="taste-dim">{items[r.item].subtitle}</span>
+                </span>
+                <span className="taste-dim">{pct(r.p)}</span>
+              </button>
+              {opened === r.item && <Predictors model={model} post={shown} item={r.item} />}
             </li>
           ))}
         </ol>
@@ -398,43 +451,67 @@ function Session({ domain, model }: { domain: Domain; model: TasteModel }) {
   );
 }
 
+// The card on top flies off over the one taking its place; cards waiting for another answer just go.
+const EXIT: Variants = {
+  fly: (direction: number) => ({
+    x: direction * 420,
+    rotate: direction * 18,
+    opacity: 0,
+    zIndex: 2,
+    transition: { duration: 0.22, zIndex: { duration: 0 } },
+  }),
+  fade: { opacity: 0, zIndex: 2, transition: { duration: 0.18, zIndex: { duration: 0 } } },
+  drop: { opacity: 0, transition: { duration: 0 } },
+};
+
+/** A card in the deck. With onSwipe it's the top card; without, it waits underneath. */
 function Card({
   domain,
   model,
   item,
-  direction,
+  hidden = false,
   onSwipe,
+  onLean,
 }: {
   domain: Domain;
   model: TasteModel;
   item: number;
-  direction: number;
-  onSwipe: (like: boolean | null) => void;
+  hidden?: boolean;
+  onSwipe?: (like: boolean | null) => void;
+  onLean?: (side: number) => void;
 }) {
   const reduceMotion = useReducedMotion();
+  const present = useIsPresent();
+  const top = onSwipe !== undefined;
   const x = useMotionValue(0);
   const rotate = useTransform(x, [-300, 300], [-12, 12]);
   const likeOpacity = useTransform(x, [20, SWIPE_AT], [0, 1]);
   const nopeOpacity = useTransform(x, [-SWIPE_AT, -20], [1, 0]);
   const data = model.artifact.items[item];
 
+  useMotionValueEvent(x, "change", (v) => {
+    if (present) onLean?.(Math.sign(v));
+  });
+
   const onDragEnd = (_: unknown, info: PanInfo) => {
-    if (info.offset.x > SWIPE_AT || info.velocity.x > 800) onSwipe(true);
-    else if (info.offset.x < -SWIPE_AT || info.velocity.x < -800) onSwipe(false);
+    if (info.offset.x > SWIPE_AT || info.velocity.x > 800) onSwipe?.(true);
+    else if (info.offset.x < -SWIPE_AT || info.velocity.x < -800) onSwipe?.(false);
   };
 
   return (
     <motion.article
       className={`taste-card taste-card--${domain}`}
-      style={{ x, rotate }}
-      drag={reduceMotion ? false : "x"}
+      style={{ x, rotate, zIndex: top ? 1 : 0 }}
+      data-hidden={hidden || undefined}
+      aria-hidden={!top}
+      inert={!top}
+      drag={top && !reduceMotion ? "x" : false}
       dragSnapToOrigin
       dragElastic={0.7}
       onDragEnd={onDragEnd}
-      initial={reduceMotion ? false : { opacity: 0, scale: 0.96 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={reduceMotion ? { opacity: 0 } : { x: direction * 420, opacity: 0, rotate: direction * 18, transition: { duration: 0.22 } }}
-      custom={direction}
+      initial={false}
+      variants={EXIT}
+      exit={!top ? "drop" : reduceMotion ? "fade" : "fly"}
     >
       <motion.span className="taste-stamp taste-stamp--like" style={{ opacity: likeOpacity }} aria-hidden="true">
         LIKE
@@ -449,6 +526,7 @@ function Card({
             alt={data.alt || data.title}
             fill
             unoptimized
+            loading="eager"
             draggable={false}
             sizes="(max-width: 40rem) 90vw, 34rem"
           />
@@ -472,6 +550,45 @@ function Card({
         </p>
       </div>
     </motion.article>
+  );
+}
+
+/** The features that move one item's score most, each way: its score split into parts x_j m_j. */
+function Predictors({ model, post, item }: { model: TasteModel; post: Posterior; item: number }) {
+  const data = model.artifact.items[item];
+  const parts = model.scoreParts(post, item);
+  const groups = [
+    { side: "prefer", label: "Pushing it up", sign: "+", reasons: topReasons(model, parts, item, 5) },
+    { side: "avoid", label: "Holding it back", sign: "−", reasons: topReasons(model, parts, item, 3, -1) },
+  ].filter((g) => g.reasons.length > 0);
+  const scale = Math.max(...groups.flatMap((g) => g.reasons.map((r) => r.share)));
+  return (
+    <div className="taste-predictors">
+      {groups.map((g) => (
+        <Fragment key={g.side}>
+          <h3>{g.label}</h3>
+          <ul>
+            {g.reasons.map((r) => (
+              <li key={r.feature}>
+                <span className="taste-bar" aria-hidden="true">
+                  <span style={{ width: `${(100 * r.share) / scale}%` }} data-side={g.side} />
+                </span>
+                <span>{r.phrase}</span>
+                <span className="taste-dim" title="logits">
+                  {g.sign}
+                  {r.share.toFixed(2)}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </Fragment>
+      ))}
+      <p className="taste-credit">
+        <a href={data.link} target="_blank" rel="noreferrer">
+          {data.credit}
+        </a>
+      </p>
+    </div>
   );
 }
 
@@ -525,41 +642,5 @@ function Editor({
         </button>
       )}
     </div>
-  );
-}
-
-function AddTrait({ model, onPick }: { model: TasteModel; onPick: (feature: number) => void }) {
-  const options = useMemo(
-    () =>
-      model.artifact.features
-        .map((f, j) => ({ j, f, label: f.kind === "score" ? `${f.topic} (${f.neg} ↔ ${f.pos})` : f.pos, group: f.group }))
-        .filter(({ f }) => !f.hidden)
-        .sort((a, b) => a.group.localeCompare(b.group) || a.label.localeCompare(b.label)),
-    [model],
-  );
-  const groups = [...new Set(options.map((o) => o.group))];
-  return (
-    <label className="taste-add">
-      <span>Tell it something directly:</span>
-      <select
-        value=""
-        onChange={(e) => {
-          if (e.target.value) onPick(Number(e.target.value));
-        }}
-      >
-        <option value="">Pick a trait…</option>
-        {groups.map((g) => (
-          <optgroup key={g} label={g}>
-            {options
-              .filter((o) => o.group === g)
-              .map((o) => (
-                <option key={o.j} value={o.j}>
-                  {o.label}
-                </option>
-              ))}
-          </optgroup>
-        ))}
-      </select>
-    </label>
   );
 }
