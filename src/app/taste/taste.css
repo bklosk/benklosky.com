@@ -222,20 +222,20 @@
 .taste-countdown {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  margin: 0.75rem 0 0;
+  gap: 0.6rem;
+  margin: 0 0 0.75rem;
   color: var(--muted);
-  font-size: 0.8125rem;
+  font-size: 0.9375rem;
 }
 
 .taste-pips {
   display: flex;
-  gap: 3px;
+  gap: 4px;
 }
 
 .taste-pips span {
-  width: 0.45rem;
-  height: 0.45rem;
+  width: 0.55rem;
+  height: 0.55rem;
   border-radius: 999px;
   background: #e6e2da;
   transition: background-color 0.2s;
@@ -258,11 +258,6 @@
   text-decoration: underline;
   text-decoration-color: var(--underline);
   text-underline-offset: 2px;
-}
-
-.taste-summary {
-  margin: 0 0 0.75rem;
-  font-size: 0.9375rem;
 }
 
 .taste-traits {
@@ -424,66 +419,7 @@
   margin: 0;
 }
 
-.taste-file input {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  opacity: 0;
-}
-
-.taste-file span {
-  display: inline-block;
-  padding: 0.3rem 0.75rem;
-  border: 1px solid #d8d4cc;
-  border-radius: 6px;
-  background: #fffdf9;
-  cursor: pointer;
-}
-
-.taste-file input:focus-visible + span {
-  outline: 2px solid var(--underline);
-}
-
 /* The map: every item in question-space, its groups, and the user. */
-.taste-legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.2rem 0.3rem;
-  margin: 0 0 0.6rem;
-  padding: 0;
-  list-style: none;
-}
-
-.taste-legend button {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.1rem 0.5rem;
-  border: 1px solid transparent;
-  border-radius: 999px;
-  background: none;
-  font-size: 0.75rem;
-}
-
-.taste-legend button:hover,
-.taste-legend button:focus-visible {
-  background: #efece6;
-}
-
-.taste-legend button[aria-pressed="true"] {
-  border-color: var(--foreground);
-}
-
-.taste-legend .taste-dim {
-  font-variant-numeric: tabular-nums;
-}
-
-.taste-swatch {
-  width: 0.55rem;
-  height: 0.55rem;
-  border-radius: 50%;
-}
-
 .taste-plot {
   position: relative;
   touch-action: manipulation;
@@ -502,10 +438,6 @@
   cursor: pointer;
 }
 
-.taste-plot g {
-  transition: opacity 0.15s;
-}
-
 .taste-plot circle {
   stroke: var(--background);
   stroke-width: 0.5;
@@ -520,7 +452,6 @@
   stroke-width: 3px;
   stroke-linejoin: round;
   pointer-events: none;
-  transition: opacity 0.15s;
 }
 
 .taste-plot .taste-mark {
@@ -638,7 +569,7 @@
   line-height: 1;
 }
 
-.taste-map-detail p {
+.taste-map-you {
   min-height: 3em;
   margin: 0.5rem 0 0;
   font-size: 0.8125rem;
@@ -768,8 +699,6 @@
 @media (prefers-reduced-motion: reduce) {
   .taste-bar span,
   .taste-pips span,
-  .taste-plot g,
-  .taste-map-label,
   .taste-you {
     transition: none;
   }

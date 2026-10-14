@@ -49,7 +49,6 @@ export class QuestionMap {
   /** One per catalog item the map knows, in map order. */
   readonly points: MapPoint[];
   readonly clusters: MapCluster[];
-  readonly examples: number[][];
   private readonly at = new Map<number, number>();
   /** Centered question-space rows (points × shown features), and their lengths. */
   private readonly Q: Float64Array;
@@ -68,7 +67,6 @@ export class QuestionMap {
     });
     this.points.forEach((p, k) => this.at.set(p.item, k));
     this.clusters = artifact.clusters;
-    this.examples = artifact.clusters.map((c) => c.examples.flatMap((id) => (index.has(id) ? [index.get(id)!] : [])));
 
     // Question-space as map.py builds it: answers centered on the catalog, with each choice option
     // scaled by 1/√2 so every question weighs the same. Hidden questions are left out.

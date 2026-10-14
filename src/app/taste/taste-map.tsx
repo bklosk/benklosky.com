@@ -7,7 +7,7 @@ import { answers, type Placement, type QuestionMap } from "./map";
 import { DOMAIN_NOUN } from "./readout";
 
 // Categorical slots, biggest group first. Eight can't all be told apart pairwise in a scatter, so
-// every group also carries a direct label on the map and a legend entry that isolates it.
+// every group also carries a direct label on the map.
 const COLORS = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4", "#008300", "#4a3aa7", "#e34948"];
 const DOT = 2.6;
 const EDGE = 12;
@@ -98,15 +98,12 @@ function placeLabels(anchors: Spot[], size: Size, you: readonly [number, number]
   return out;
 }
 
-/** Drawn once per map and size; highlighting only changes each group's opacity. */
-const Dots = memo(function Dots({ map, screen, active }: { map: QuestionMap; screen: Float64Array; active: number | null }) {
-  const groups = useMemo(() => {
-    const out = map.clusters.map(() => [] as ReactNode[]);
-    map.points.forEach((p, k) => out[p.cluster].push(<circle key={p.item} cx={screen[2 * k]} cy={screen[2 * k + 1]} r={DOT} />));
-    return out;
-  }, [map, screen]);
+/** Drawn once per map and size; hover and selection draw on top. */
+const Dots = memo(function Dots({ map, screen }: { map: QuestionMap; screen: Float64Array }) {
+  const groups = map.clusters.map(() => [] as ReactNode[]);
+  map.points.forEach((p, k) => groups[p.cluster].push(<circle key={p.item} cx={screen[2 * k]} cy={screen[2 * k + 1]} r={DOT} />));
   return groups.map((circles, c) => (
-    <g key={c} fill={COLORS[c % COLORS.length]} opacity={active === null || active === c ? 0.9 : 0.12}>
+    <g key={c} fill={COLORS[c % COLORS.length]} opacity={0.9}>
       {circles}
     </g>
   ));
@@ -133,9 +130,6 @@ export function TasteMap({
   const [width, plotRef] = usePlotWidth(544);
   const [hover, setHover] = useState<Target | null>(null);
   const [selected, setSelected] = useState<number | null>(null);
-  const [legendHover, setLegendHover] = useState<number | null>(null);
-  const [locked, setLocked] = useState<number | null>(null);
-  const active = legendHover ?? locked;
 
   const { size, project } = useMemo(() => projector(map, width), [map, width]);
   const screen = useMemo(() => {
@@ -155,7 +149,6 @@ export function TasteMap({
     let best = -1;
     let bestDistance = HIT;
     for (let k = 0; k < map.points.length; k++) {
-      if (active !== null && map.points[k].cluster !== active) continue;
       const d = Math.hypot(screen[2 * k] - x, screen[2 * k + 1] - y);
       if (d < bestDistance) [best, bestDistance] = [k, d];
     }
@@ -190,32 +183,6 @@ export function TasteMap({
 
   return (
     <section className="taste-map" aria-label="Map of the catalog">
-      <h2>Map of the catalog</h2>
-      <p className="taste-note">
-        Every one of the {map.points.length.toLocaleString("en-US")} {noun}, placed by its answers to the questions, so {noun} that
-        answer alike sit together (UMAP). The colors are {map.clusters.length} groups found in those same answers (Leiden). Hover a
-        dot to see what it is; click it to read its answers.
-      </p>
-
-      <ul className="taste-legend" aria-label="Groups">
-        {map.clusters.map((cluster, c) => (
-          <li key={cluster.center}>
-            <button
-              aria-pressed={locked === c}
-              onMouseEnter={() => setLegendHover(c)}
-              onMouseLeave={() => setLegendHover(null)}
-              onFocus={() => setLegendHover(c)}
-              onBlur={() => setLegendHover(null)}
-              onClick={() => setLocked(locked === c ? null : c)}
-            >
-              <span className="taste-swatch" style={{ background: COLORS[c % COLORS.length] }} aria-hidden="true" />
-              {cluster.name}
-              <span className="taste-dim">{cluster.size}</span>
-            </button>
-          </li>
-        ))}
-      </ul>
-
       <div className="taste-plot" ref={plotRef} style={{ height: size.height }}>
         <svg
           viewBox={`0 0 ${size.width} ${size.height}`}
@@ -229,7 +196,7 @@ export function TasteMap({
           }}
           data-pointing={hover ? "" : undefined}
         >
-          <Dots map={map} screen={screen} active={active} />
+          <Dots map={map} screen={screen} />
           {swipes.map(({ item, like }) => {
             if (map.indexOf(item) < 0) return null;
             const [x, y] = at(item);
@@ -240,14 +207,7 @@ export function TasteMap({
             );
           })}
           {labels.map(({ c, x, y }) => (
-            <text
-              key={c}
-              className="taste-map-label"
-              x={x}
-              y={y}
-              fontSize={LABEL_SIZE}
-              opacity={active === null || active === c ? 1 : 0.35}
-            >
+            <text key={c} className="taste-map-label" x={x} y={y} fontSize={LABEL_SIZE}>
               {map.clusters[c].name}
             </text>
           ))}
@@ -314,24 +274,9 @@ export function TasteMap({
         )}
       </p>
 
-      <div className="taste-map-detail" aria-live="polite">
-        {active !== null ? (
-          <p>
-            <strong>{map.clusters[active].name}</strong>: {map.clusters[active].traits.join(", ")}. Most central:{" "}
-            {map.examples[active].slice(0, 3).map((item, i) => (
-              <span key={item}>
-                {i > 0 && (i === 2 ? ", and " : ", ")}
-                <button className="taste-link" onClick={() => setSelected(item)}>
-                  {items[item].title}
-                </button>
-              </span>
-            ))}
-            .
-          </p>
-        ) : (
-          <p>{youLine}</p>
-        )}
-      </div>
+      <p className="taste-map-you" aria-live="polite">
+        {youLine}
+      </p>
 
       {selected !== null && (
         <Answers

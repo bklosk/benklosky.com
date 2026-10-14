@@ -12,12 +12,11 @@ import {
   type Variants,
 } from "motion/react";
 import Image from "next/image";
-import { Fragment, useCallback, useEffect, useMemo, useState, type ChangeEvent } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import { DOMAINS, type Domain } from "./domains";
-import { importLetterboxd } from "./letterboxd";
 import { QuestionMap, type MapArtifact } from "./map";
 import { bald, predictive, TasteModel, type Artifact, type Observation, type Posterior } from "./model";
-import { DOMAIN_NOUN, profile, sentence, summary, topReasons } from "./readout";
+import { DOMAIN_NOUN, profile, sentence, topReasons } from "./readout";
 import { TasteMap } from "./taste-map";
 
 const LABELS: Record<Domain, string> = { movies: "Movies", books: "Books", art: "Art" };
@@ -192,7 +191,6 @@ function Session({ domain, model }: { domain: Domain; model: TasteModel }) {
   const [lookahead, setLookahead] = useState<Lookahead | null>(null);
   const [editing, setEditing] = useState<number | null>(null);
   const [opened, setOpened] = useState<number | null>(null);
-  const [notice, setNotice] = useState<string | null>(null);
   const [map, setMap] = useState<QuestionMap | null>(null);
   const items = model.artifact.items;
   const noun = DOMAIN_NOUN[domain];
@@ -246,7 +244,12 @@ function Session({ domain, model }: { domain: Domain; model: TasteModel }) {
   }, [lookahead, state]);
 
   const pinnedSet = useMemo(() => new Set(state.pins.keys()), [state.pins]);
-  const { traits, unsure } = useMemo(() => profile(model, shown, pinnedSet), [model, shown, pinnedSet]);
+  // Before the first update the posterior is the population prior plus any edits. Its traits would be
+  // true of everyone, not this user, so only the user's own edits show until then.
+  const traits = useMemo(() => {
+    const { traits } = profile(model, shown, pinnedSet);
+    return revealed === 0 ? traits.filter((t) => t.pinned) : traits;
+  }, [model, shown, pinnedSet, revealed]);
 
   // The map shows the same profile: the revealed swipes, and the user placed from them.
   const you = useMemo(() => map?.place(shown) ?? null, [map, shown]);
@@ -307,28 +310,7 @@ function Session({ domain, model }: { domain: Domain; model: TasteModel }) {
     setEditing(null);
   };
 
-  const onImport = async (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    event.target.value = "";
-    if (!file) return;
-    try {
-      const result = importLetterboxd(await file.text(), items);
-      const fresh = result.matched.filter(({ item }) => !state.swipes.some((s) => s.item === item));
-      update((s) => ({ ...s, swipes: [...s.swipes, ...fresh] }));
-      const likes = fresh.filter((m) => m.like).length;
-      setNotice(
-        `Read ${result.rows} ratings: ${fresh.length} matched films in this catalog (${likes} likes, ${fresh.length - likes} dislikes), ` +
-          `${result.unmatched} not in the catalog, ${result.unrated} rated 3★ or unrated and skipped.`,
-      );
-    } catch (error) {
-      setNotice((error as Error).message);
-    }
-  };
-
-  const reset = () => {
-    update(() => ({ swipes: [], skipped: [], pins: new Map() }));
-    setNotice(null);
-  };
+  const reset = () => update(() => ({ swipes: [], skipped: [], pins: new Map() }));
 
   const likes = state.swipes.filter((s) => s.like).length;
   const pending = state.swipes.length - revealed;
@@ -360,18 +342,6 @@ function Session({ domain, model }: { domain: Domain; model: TasteModel }) {
             Like →
           </button>
         </div>
-        <p className="taste-countdown">
-          <span className="taste-pips" aria-hidden="true">
-            {Array.from({ length: REVEAL_EVERY }, (_, i) => (
-              <span key={i} data-on={i < pending || undefined} />
-            ))}
-          </span>
-          {revealed === 0
-            ? `First update in ${plural(REVEAL_EVERY - pending, "swipe")}`
-            : pending === 0
-              ? `Updated with ${plural(revealed, "swipe")} · next in ${REVEAL_EVERY}`
-              : `Next update in ${plural(REVEAL_EVERY - pending, "swipe")}`}
-        </p>
         <p className="taste-meta">
           {state.swipes.length} swipe{state.swipes.length === 1 ? "" : "s"} ({likes} likes){state.skipped.length ? ` · ${state.skipped.length} skipped` : ""}
           {" · "}
@@ -386,8 +356,17 @@ function Session({ domain, model }: { domain: Domain; model: TasteModel }) {
       </section>
 
       <section className="taste-profile" aria-label="Your taste">
-        <p className="taste-summary" aria-live="polite">
-          {summary(traits, unsure, revealed)}
+        <p className="taste-countdown">
+          <span className="taste-pips" aria-hidden="true">
+            {Array.from({ length: REVEAL_EVERY }, (_, i) => (
+              <span key={i} data-on={i < pending || undefined} />
+            ))}
+          </span>
+          {revealed === 0
+            ? `First update in ${plural(REVEAL_EVERY - pending, "swipe")}`
+            : pending === 0
+              ? `Updated with ${plural(revealed, "swipe")} · next in ${REVEAL_EVERY}`
+              : `Next update in ${plural(REVEAL_EVERY - pending, "swipe")}`}
         </p>
         {traits.length > 0 && (
           <ul className="taste-traits">
@@ -409,19 +388,6 @@ function Session({ domain, model }: { domain: Domain; model: TasteModel }) {
               </li>
             ))}
           </ul>
-        )}
-        {unsure.length > 0 && (
-          <p className="taste-unsure">
-            Not sure yet:{" "}
-            {unsure.map((u, i) => (
-              <span key={u.feature}>
-                {i > 0 && " · "}
-                <button className="taste-link" onClick={() => setEditing(editing === u.feature ? null : u.feature)}>
-                  {u.topic}
-                </button>
-              </span>
-            ))}
-          </p>
         )}
         {editing !== null && !traits.some((t) => t.feature === editing) && (
           <Editor model={model} feature={editing} pinned={state.pins.get(editing)} onPin={setPin} />
@@ -460,21 +426,6 @@ function Session({ domain, model }: { domain: Domain; model: TasteModel }) {
           ))}
         </ol>
       </section>
-
-      {domain === "movies" && (
-        <section className="taste-import" aria-label="Import from Letterboxd">
-          <h2>Bring your Letterboxd ratings</h2>
-          <p className="taste-note">
-            Export your data from Letterboxd (Settings → Data → Export) and pick <code>ratings.csv</code>. It&rsquo;s read in your
-            browser; nothing is uploaded. 3.5★ and up counts as a like, 2.5★ and down as a dislike.
-          </p>
-          <label className="taste-file">
-            <input type="file" accept=".csv,text/csv" onChange={onImport} />
-            <span>Choose ratings.csv</span>
-          </label>
-          {notice && <p className="taste-note" role="status">{notice}</p>}
-        </section>
-      )}
 
       {map && <TasteMap domain={domain} map={map} you={you} swipes={shownSwipes} fresh={revealed === 0 && state.pins.size === 0} />}
     </>
