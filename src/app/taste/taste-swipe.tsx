@@ -15,8 +15,10 @@ import Image from "next/image";
 import { Fragment, useCallback, useEffect, useMemo, useState, type ChangeEvent } from "react";
 import { DOMAINS, type Domain } from "./domains";
 import { importLetterboxd } from "./letterboxd";
+import { QuestionMap, type MapArtifact } from "./map";
 import { bald, predictive, TasteModel, type Artifact, type Observation, type Posterior } from "./model";
 import { DOMAIN_NOUN, profile, sentence, summary, topReasons } from "./readout";
+import { TasteMap } from "./taste-map";
 
 const LABELS: Record<Domain, string> = { movies: "Movies", books: "Books", art: "Art" };
 const PROMPTS: Record<Domain, string> = {
@@ -45,6 +47,21 @@ function load(domain: Domain) {
     ]).then(([artifact, bin]) => new TasteModel(artifact as Artifact, bin));
     promise.catch(() => loads.delete(domain));
     loads.set(domain, promise);
+  }
+  return promise;
+}
+
+// The map loads after the model, once per model, and is optional: the page works without it.
+const maps = new WeakMap<TasteModel, Promise<QuestionMap>>();
+
+function loadMap(domain: Domain, model: TasteModel) {
+  let promise = maps.get(model);
+  if (!promise) {
+    promise = fetch(`/taste/data/${domain}/map`)
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`map.json: HTTP ${r.status}`))))
+      .then((artifact) => new QuestionMap(model, artifact as MapArtifact));
+    promise.catch(() => maps.delete(model));
+    maps.set(model, promise);
   }
   return promise;
 }
@@ -176,10 +193,21 @@ function Session({ domain, model }: { domain: Domain; model: TasteModel }) {
   const [editing, setEditing] = useState<number | null>(null);
   const [opened, setOpened] = useState<number | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [map, setMap] = useState<QuestionMap | null>(null);
   const items = model.artifact.items;
   const noun = DOMAIN_NOUN[domain];
 
   useEffect(() => save(model, domain, state), [model, domain, state]);
+
+  useEffect(() => {
+    let live = true;
+    loadMap(domain, model)
+      .then((m) => live && setMap(m))
+      .catch(() => {});
+    return () => {
+      live = false;
+    };
+  }, [domain, model]);
 
   // Every swipe refits the model and picks the next card, but the profile and recommendations only
   // catch up every REVEAL_EVERY swipes. Edits are the user's own words, so they show at once.
@@ -220,6 +248,10 @@ function Session({ domain, model }: { domain: Domain; model: TasteModel }) {
   const pinnedSet = useMemo(() => new Set(state.pins.keys()), [state.pins]);
   const { traits, unsure } = useMemo(() => profile(model, shown, pinnedSet), [model, shown, pinnedSet]);
 
+  // The map shows the same profile: the revealed swipes, and the user placed from them.
+  const you = useMemo(() => map?.place(shown) ?? null, [map, shown]);
+  const shownSwipes = useMemo(() => state.swipes.slice(0, revealed), [state.swipes, revealed]);
+
   const recommendations = useMemo(() => {
     const scored = unseen.map((item) => ({ item, p: predictive(shown.itemMean[item], shown.itemVar[item]) }));
     scored.sort((a, b) => b.p - a.p);
@@ -253,7 +285,7 @@ function Session({ domain, model }: { domain: Domain; model: TasteModel }) {
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.metaKey || event.ctrlKey || event.altKey) return;
-      if ((event.target as HTMLElement).closest("input, textarea, select")) return;
+      if ((event.target as HTMLElement).closest("input, textarea, select, [data-own-keys]")) return;
       if (event.key === "ArrowLeft") swipe(false);
       else if (event.key === "ArrowRight") swipe(true);
       else if (event.key === "ArrowDown" || event.key === "s") swipe(null);
@@ -354,7 +386,6 @@ function Session({ domain, model }: { domain: Domain; model: TasteModel }) {
       </section>
 
       <section className="taste-profile" aria-label="Your taste">
-        <h2>What it thinks you like</h2>
         <p className="taste-summary" aria-live="polite">
           {summary(traits, unsure, revealed)}
         </p>
@@ -413,10 +444,7 @@ function Session({ domain, model }: { domain: Domain; model: TasteModel }) {
       </section>
 
       <section className="taste-recs" aria-label="Recommendations">
-        <h2>Top {RECOMMEND} for you</h2>
-        <p className="taste-note">
-          The unseen {noun} it gives the highest chance you’ll like. Click one to see which features predict it.
-        </p>
+        <h2>Top {RECOMMEND} recommendations for you</h2>
         <ol>
           {recommendations.map((r) => (
             <li key={r.item}>
@@ -447,6 +475,8 @@ function Session({ domain, model }: { domain: Domain; model: TasteModel }) {
           {notice && <p className="taste-note" role="status">{notice}</p>}
         </section>
       )}
+
+      {map && <TasteMap domain={domain} map={map} you={you} swipes={shownSwipes} fresh={revealed === 0 && state.pins.size === 0} />}
     </>
   );
 }

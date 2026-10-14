@@ -4,7 +4,7 @@ import { TasteSwipe } from "./taste-swipe";
 import "./taste.css";
 
 export const metadata: Metadata = {
-  title: "Taste swipe · Ben Klosky",
+  title: "Taste by Ben Klosky",
   description:
     "Swipe on films, books, or art. An interpretable model learns your taste from a few hundred LLM-answered questions and says what it learned in plain English.",
 };
@@ -15,9 +15,10 @@ export default function TastePage() {
       <div className="intro">
         <Ink>
           <p>
-What if you could understand Netflix's recommendation algorithm?
+What if recommendation algorithms could explain their predictions? <br /><br />
             
-            I used the OpenAI decisions API to generate human-readable embeddings for every movie in the dataset, and a small bayesian model tries to predict your preferences across those vectors. </p>
+            I used the OpenAI decisions API to generate hundreds of questions about each item. 
+A local bayesian model tries to predict your location in question-space as you swipe! </p>
         </Ink>
       </div>
       <TasteSwipe />

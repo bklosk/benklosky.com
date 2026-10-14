@@ -56,6 +56,33 @@ learned in plain English, and lets you correct it.
    parsed in the browser and matched to the catalog by title and year: 3.5★
    and up is a like, 2.5★ and down a dislike. Nothing is uploaded. Letterboxd is
    never scraped.
+9. **Map** (`scripts/taste/map.py`, drawn by `taste-map.tsx`). The bottom of the
+   page is a UMAP of the catalog in question-space. Each item is its answers to
+   the shown questions: a score's expected level, a choice's option
+   probabilities scaled by 1/√2, so a full disagreement on any one question
+   costs the same. Columns are centered, compared by cosine, with 15 neighbors.
+   Hidden questions are left out, so neither the map nor its groups can encode
+   them. The groups come from Leiden community detection on UMAP's neighbor
+   graph, which is built in question-space, not on the 2-D picture. Each
+   resolution runs 10 seeds and keeps the partition that agrees most with the
+   rest. The page keeps the most stable resolution with 6–8 groups (it has
+   eight colors). Agreement across seeds (adjusted Rand) is 0.82 for films (8
+   groups), 0.89 for books (8), and 0.90 for art (7). The traits under each
+   group are computed: the answers furthest from the catalog mean, one per
+   question. The group names are written by hand from those traits. Clicking a
+   dot lists its answers to every shown question.
+10. **You on the map.** Your taste becomes a point in question-space: every
+    item's answers averaged with weights (p/(1−p))³, the odds you'd like it
+    under the profile on show, cubed so the average leans on the few hundred
+    items it is surest about. With plain odds, a synthetic horror fan landed
+    among dark thrillers. With cubed odds, each of five synthetic one-genre
+    users lands in its own group. The point is placed the way UMAP starts a new
+    sample: the average position of its 15 nearest items, weighted by UMAP's
+    membership strengths. Placing a real item this way lands it within 1.1%
+    (films), 0.5% (books), and 0.6% (art) of the map's diagonal from where UMAP
+    put it (median). Before any swipes, films and books show where the
+    population prior points. Art has no prior, so you appear after your first
+    reveal.
 
 ## Provider and cost
 
@@ -220,3 +247,6 @@ question or item text changed.
   server.
 - `scripts/taste/parity.py` + `bun test src/app/taste` checks that the browser
   model matches Python.
+- `scripts/taste/map.py --domain <d> --dry-run` prints the groups, their traits,
+  and their most central items without uploading. Check the hand-written names
+  in `NAMES` against it whenever the features change.
