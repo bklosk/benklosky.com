@@ -10,7 +10,15 @@ const nextConfig: NextConfig = {
         source: "/clickbait/:file*.bin",
         headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
       },
+      {
+        // Open in the browser's PDF viewer, and save under a real name.
+        source: "/resume",
+        headers: [{ key: "Content-Disposition", value: 'inline; filename="Klosky Resume.pdf"' }],
+      },
     ];
+  },
+  async rewrites() {
+    return [{ source: "/resume", destination: "/klosky-resume.pdf" }];
   },
 };
 
