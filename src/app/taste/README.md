@@ -25,8 +25,9 @@ learned in plain English, and lets you correct it.
    swipe right is a like. The weights' prior, N(μ, UUᵀ + diag d), is learned by
    EM from 4000 training users per domain (MovieLens, Goodreads), so the
    population's taste correlations do most of the work early on. The rank of U
-   is picked on validation users. Art has no ratings dataset, so it starts from
-   an independent prior. Inference is a Laplace approximation in observation
+   is picked on validation users. Art has no ratings dataset, so its prior is
+   built from the catalog in the shape of the learned ones (see "Art prior"
+   below). Inference is a Laplace approximation in observation
    space, so the browser refits on every swipe in a few milliseconds
    (`model.ts`, a line-for-line port of `scripts/taste/model.py`, checked by
    `model.test.ts`).
@@ -35,7 +36,8 @@ learned in plain English, and lets you correct it.
    question j across the whole catalog: "films one sd slower score this much
    higher for you". It is linear in w, so its posterior mean and sd are exact.
    The profile states a trait only when its 90% interval excludes zero and it
-   passes a size threshold set from validation users. Traits the population
+   passes a size threshold set from validation users (for art, from users
+   drawn from its prior). Traits the population
    prior would claim for anyone are tagged "like most people". Before the first
    update the profile shows only the user's own edits, since everything else it
    could say then comes from the prior alone. Correlated traits
@@ -46,12 +48,11 @@ learned in plain English, and lets you correct it.
    sure (|mean| ≥ 0.5 sd). These are worded as guesses ("you might lean
    toward…") and drawn with a fainter bar. Without them, simulated users often
    saw an empty profile at the first update: 9 of 20 for books, 3 of 20 for
-   films, and all of them for art, which stated nothing until about 40 swipes.
-   With them, no simulated user sees an empty profile at 8 swipes (40 per
-   domain). The guesses' direction matches the user's true taste 100% of the
-   time for films, 95% for books, and 77% for art at 8 swipes, and 85% for art
-   at 16. Here, simulated users are drawn from each domain's prior, plus, for
-   art, users who care strongly about four random features.
+   films, and all of them for art. With them, no simulated user sees an empty
+   profile at 8 swipes (40 per domain). At 8 swipes the guesses' direction
+   matches the user's true taste 100% of the time for films, 95% for books, and
+   78–86% for art. Here, simulated users are drawn from each domain's prior,
+   and for art also from the kinds of user in `eval_art.py`.
 5. **Edits.** Setting a trait adds a Gaussian observation of that same t_j
    (sd 0.05). The edit moves correlated traits and recommendations through
    the learned prior, and the profile then reads it back like any other trait.
@@ -94,8 +95,8 @@ learned in plain English, and lets you correct it.
    membership strengths. Placing a real item this way lands it within 1.1%
    (films), 0.5% (books), and 0.6% (art) of the map's diagonal from where UMAP
    put it (median). Before any swipes, films and books show where the
-   population prior points. Art has no prior, so you appear after your first
-   reveal.
+   population prior points. Art's prior has no average taste, so you appear
+   after your first reveal.
 
 ## Provider and cost
 
@@ -203,6 +204,49 @@ than they disliked them?
 - **The gap between the two columns matters.** "Strongly" claims are more
   reliable, so the strength words carry real information.
 
+### Art prior
+
+Art has no ratings, so `build.py` can't learn its prior. It borrows the shape
+of the film and book priors instead, measured in item-score space:
+
+- **Scale.** An item's score has prior sd 1.5 logits, as before. That is also a
+  film's (prior plus population mean).
+- **Low-rank share.** 45% of that variance is low-rank (films 47%, books 41%),
+  on art's own top 32 principal components. The learned film and book low-rank
+  parts keep 84% of their variance on their catalogs' top 32 components.
+- **Effective dimension.** The weight variance on component k grows as λₖ^0.75,
+  so taste varies along about 16 effective directions (participation ratio).
+  Films vary along 15 and books along 16. The independent prior it replaced
+  varied along 47, so each swipe taught it far less.
+- **Cutoffs.** The trait cutoffs come from the same rule as films and books,
+  applied to 150 users drawn from the prior with 300 swipes each: lean 0.26,
+  strong 0.43 (films 0.27 / 0.47, books 0.27 / 0.41). The old prior used
+  hand-set 0.15 / 0.40.
+
+`scripts/taste/eval_art.py` compares the two priors on 100 simulated users of
+each kind. Two kinds come from neither prior: users who care strongly about four
+random features, and users who like one or two of the map's groups. The other
+two are drawn from each prior, so each prior gets one kind that suits it.
+
+| users | prior | claims at 24 swipes | claims at 40 | claims right at 40 | AUC at 8 | AUC at 40 |
+|---|---|---|---|---|---|---|
+| four strong features | old (independent) | 0.1 | 1.2 | 97% | 0.570 | 0.622 |
+| | catalog | 1.3 | 5.2 | 95% | 0.568 | 0.624 |
+| one or two map groups | old | 0.0 | 2.8 | 100% | 0.553 | 0.609 |
+| | catalog | 2.6 | 5.8 | 97% | 0.567 | 0.617 |
+| drawn from the old prior | old | 0.0 | 1.1 | 100% | 0.545 | 0.615 |
+| | catalog | 0.9 | 4.6 | 97% | 0.556 | 0.619 |
+| drawn from the catalog prior | old | 0.0 | 2.2 | 99% | 0.572 | 0.659 |
+| | catalog | 2.4 | 5.8 | 99% | 0.593 | 0.671 |
+
+- **Claims come 3–5× sooner.** Under the old prior, art said almost nothing
+  for sure before 40 swipes. Under the catalog prior, it starts around 24.
+- **The claims stay reliable.** 95–99% point the right way at 40 swipes. The
+  weakest case is four-feature users at 24 swipes: 90%.
+- **Predictions barely change.** AUC is level or a little higher, including for
+  users drawn from the old prior.
+- **None of this is real data.** Every user here is synthetic.
+
 ## Limitations
 
 - **Popularity.** With no swipes the model ranks films worse than plain
@@ -219,9 +263,9 @@ than they disliked them?
   stiff ("you steer clear of films without awards attention").
 - **Confident answers.** The answerer is very confident (often 1.0 on one
   option), so features are close to one-hot rather than graded.
-- **Art.** It is unevaluated and has no learned prior, so its first swipes teach
-  it less than they do for films and books. Until about 40 swipes its profile
-  is mostly guesses.
+- **Art.** It has no learned prior, and its catalog prior is checked only on
+  simulated users. Its first swipes still teach it less than they do for films
+  and books: until about 24 swipes its profile is mostly guesses.
 - **Eval caveats.** Evaluation users are heavy raters (80+ ratings in the
   catalog). Their swipes are simulated from cards they had already rated, at
   most 200 per user. "Like" means 4★ or more.
@@ -261,6 +305,10 @@ question or item text changed.
   server.
 - `scripts/taste/parity.py` + `bun test src/app/taste` checks that the browser
   model matches Python.
+- `scripts/taste/build.py --domain <d> --dry-run DIR` writes the artifact to
+  `DIR` instead of uploading it.
+- `scripts/taste/eval_art.py` compares the art priors (above). It reads the Space
+  and writes nothing.
 - `scripts/taste/map.py --domain <d> --dry-run` prints the groups, their traits,
   and their most central items without uploading. Check the hand-written names
   in `NAMES` against it whenever the features change.

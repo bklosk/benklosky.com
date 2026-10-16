@@ -26,4 +26,5 @@ done
 for domain in movies books; do
   py scripts/taste/eval.py --domain "$domain"
 done
+py scripts/taste/eval_art.py             # art has no ratings: simulated users only
 py scripts/taste/parity.py && bun test src/app/taste

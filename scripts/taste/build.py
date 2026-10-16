@@ -4,33 +4,46 @@
 1. Answers -> features (features.py), standardized over the catalog.
 2. A population prior fit by EM on training users (model.py). The rank of
    its covariance is chosen on validation users. Art has no ratings dataset,
-   so its prior is isotropic.
-3. Readout thresholds, set from the spread of traits among validation users.
+   so its prior is built from the catalog instead (catalog_prior).
+3. Readout thresholds, set from the spread of traits among validation users
+   (for art, among users drawn from its prior).
 4. The artifact the page loads: taste/<domain>/model.json and model.bin.
    Intermediate arrays go to taste/<domain>/build.npz for eval.py.
 
     uv run --python 3.12 --with numpy --with boto3 python scripts/taste/build.py --domain movies
+
+--dry-run DIR writes the three files to DIR instead of uploading them.
 """
 
 from __future__ import annotations
 
 import argparse
 import json
+import shutil
 import time
+from pathlib import Path
 
 import numpy as np
 
 import data
 from answer import CACHE_KEY, PROVIDERS
-from common import fetch, key, load_questions, read_json, upload, workdir, write_json
+from common import fetch, key, load_questions, read_json, upload, workdir
 from features import answers, raw_features, standardize
-from model import Prior, fit, fit_prior, predictive, traits
+from model import Prior, fit, fit_prior, predictive, sigmoid, traits
 
 RANKS = (8, 16, 32)
 VAL_SWIPES = 20
 Z = 1.645  # a trait is claimed only when its 90% interval excludes zero
 DEDUPE = 0.6  # skip a trait whose feature correlates this much with one already shown
 PIN_SD = 0.05  # profile edits are observations of a trait with this sd
+
+# The art prior copies the shape of the learned film and book priors, which put about half of an
+# item's score variance in a low-rank part and vary along about 15 effective directions. The art
+# isotropic prior it replaces spread the same variance over 47, so each swipe taught it far less.
+CATALOG_SCORE_VAR = 2.25  # prior variance of an item's score: sd 1.5 logits
+CATALOG_RANK = 32  # the low-rank part lies on the catalog's top principal components
+CATALOG_BETA = 0.75  # weight variance on component k grows as eigenvalue_k^beta: 16 effective directions
+CATALOG_LOW_SHARE = 0.45  # films 47%, books 41%
 
 
 def quantize_features(raw: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
@@ -71,13 +84,48 @@ def thresholds(X: np.ndarray, C: np.ndarray, prior: Prior, by_user: dict, users:
     return {"min": float(np.percentile(sizes, 50)), "strong": float(np.percentile(sizes, 85))}
 
 
+def catalog_prior(C: np.ndarray) -> Prior:
+    """A prior for a domain with no ratings: taste varies most along the catalog's main axes."""
+    F = len(C)
+    lam, V = np.linalg.eigh(C)
+    lam, V = lam[::-1][:CATALOG_RANK], V[:, ::-1][:, :CATALOG_RANK]
+    # An item's score varies by lam_k c_k along component k, so the low-rank part gets its share.
+    c = lam**CATALOG_BETA
+    c *= CATALOG_LOW_SHARE * CATALOG_SCORE_VAR / (lam @ c)
+    U = np.zeros((F + 1, CATALOG_RANK))
+    U[1:] = V * np.sqrt(c)
+    d = np.full(F + 1, (1 - CATALOG_LOW_SHARE) * CATALOG_SCORE_VAR / F)
+    d[0] = 1.0
+    return Prior(np.zeros(F + 1), U, d)
+
+
+def prior_users(X: np.ndarray, prior: Prior, users: int = 150, ratings: int = 300) -> dict:
+    """Simulated users drawn from the prior, standing in for validation users when there are none."""
+    rng = np.random.default_rng(0)
+    by_user = {}
+    for u in range(users):
+        w = prior.mu + prior.U @ rng.standard_normal(prior.U.shape[1]) + np.sqrt(prior.d) * rng.standard_normal(len(prior.d))
+        items = rng.choice(len(X), ratings, replace=False)
+        by_user[u] = (items, (rng.random(ratings) < sigmoid(X[items] @ w)).astype(float))
+    return by_user
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--domain", required=True)
     parser.add_argument("--provider", default="decisions")
+    parser.add_argument("--dry-run", metavar="DIR", type=Path, help="write the artifact to DIR instead of uploading it")
     args = parser.parse_args()
     started = time.time()
     model_name = PROVIDERS[args.provider]["model"]
+
+    def publish(path: Path, object_key: str) -> None:
+        if args.dry_run:
+            args.dry_run.mkdir(parents=True, exist_ok=True)
+            shutil.copy(path, args.dry_run / path.name)
+            print(f"wrote {args.dry_run / path.name} (not uploaded)", flush=True)
+        else:
+            upload(path, object_key)
 
     with workdir() as tmp:
         items = read_json(key(args.domain, "items.json"), tmp)
@@ -93,15 +141,12 @@ def main() -> None:
         print(f"{len(items)} items, {len(meta)} features from {len(bank)} questions, {missing:.1%} answers missing", flush=True)
 
         stats: dict = {"items": len(items), "questions": len(bank), "features": len(meta), "missing": missing}
+        shown = np.array([not m["hidden"] for m in meta])
         if args.domain == "art":
-            # No ratings to learn from: independent weights, scaled so the prior
-            # sd of an item's score is about 1.5 logits.
-            mu = np.zeros(D)
-            d = np.full(D, 2.25 / (D - 1))
-            d[0] = 1.0
-            prior = Prior(mu, np.zeros((D, 1)), d)
-            cut = {"min": 0.15, "strong": 0.4}
-            stats["prior"] = "isotropic"
+            prior = catalog_prior(C)
+            by_user = prior_users(X, prior)
+            cut = thresholds(X, C, prior, by_user, list(by_user), shown)
+            stats.update(prior="catalog", rank=CATALOG_RANK, beta=CATALOG_BETA, low_share=CATALOG_LOW_SHARE)
         else:
             by_user = data.load_ratings(args.domain, tmp)
             groups = data.split(by_user)
@@ -116,21 +161,20 @@ def main() -> None:
                 if best is None or score > best[0]:
                     best = (score, rank, candidate)
             _, rank, prior = best
-            shown = np.array([not m["hidden"] for m in meta])
             cut = thresholds(X, C, prior, by_user, groups["val"][:150], shown)
             stats.update(prior="learned", rank=rank, train_users=len(train), validation_loglik=best[0])
         print(f"thresholds {cut}", flush=True)
 
         npz = tmp / "build.npz"
         np.savez_compressed(npz, X=X, C=C, mu=prior.mu, U=prior.U, d=prior.d)
-        upload(npz, key(args.domain, "build.npz"))
+        publish(npz, key(args.domain, "build.npz"))
 
         # The browser artifact: JSON for small things, one binary for the matrices.
         U = prior.U.astype("<f4")
         blob = codes.tobytes() + C_codes.tobytes() + U.tobytes()
         bin_path = tmp / "model.bin"
         bin_path.write_bytes(blob)
-        upload(bin_path, key(args.domain, "model.bin"))
+        publish(bin_path, key(args.domain, "model.bin"))
         public_items = [
             {k: item.get(k) for k in ("id", "title", "creator", "year", "subtitle", "blurb", "tags", "link", "credit", "alt")}
             | {"image": bool(item.get("image"))}
@@ -151,7 +195,9 @@ def main() -> None:
             "readout": {"z": Z, "min": cut["min"], "strong": cut["strong"], "dedupe": DEDUPE, "pinSd": PIN_SD},
             "stats": stats,
         }
-        write_json(artifact, key(args.domain, "model.json"), tmp)
+        json_path = tmp / "model.json"
+        json_path.write_text(json.dumps(artifact, separators=(",", ":")))
+        publish(json_path, key(args.domain, "model.json"))
         print(f"built {args.domain} in {time.time() - started:.0f}s: {json.dumps(stats)}", flush=True)
 
 
