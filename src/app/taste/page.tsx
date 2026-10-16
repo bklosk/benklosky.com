@@ -15,10 +15,10 @@ export default function TastePage() {
       <div className="intro">
         <Ink>
           <p>
-What if recommendation algorithms could explain their predictions? <br /><br />
+What if recommendation algorithms were purely interpretable? <br /><br />
             
-            I used the OpenAI decisions API to generate hundreds of questions about each item. 
-A local bayesian model tries to predict your location in question-space as you swipe! </p>
+            I used the OpenAI decisions API to generate a few hundred of questions about each movie/book/painting. 
+A local model tries to predict your preference for each of those questions from your answers. </p>
         </Ink>
       </div>
       <TasteSwipe />
