@@ -312,7 +312,6 @@ function Session({ domain, model }: { domain: Domain; model: TasteModel }) {
 
   const reset = () => update(() => ({ swipes: [], skipped: [], pins: new Map() }));
 
-  const likes = state.swipes.filter((s) => s.like).length;
   const pending = state.swipes.length - revealed;
 
   return (
@@ -343,8 +342,6 @@ function Session({ domain, model }: { domain: Domain; model: TasteModel }) {
           </button>
         </div>
         <p className="taste-meta">
-          {state.swipes.length} swipe{state.swipes.length === 1 ? "" : "s"} ({likes} likes){state.skipped.length ? ` · ${state.skipped.length} skipped` : ""}
-          {" · "}
           <button className="taste-link" onClick={undo} disabled={!history.length}>
             undo (u)
           </button>
@@ -377,6 +374,7 @@ function Session({ domain, model }: { domain: Domain; model: TasteModel }) {
                     <span
                       style={{ width: `${Math.min(100, (100 * Math.abs(t.mean)) / (1.5 * model.artifact.readout.strong))}%` }}
                       data-side={t.verb}
+                      data-guess={t.guess || undefined}
                     />
                   </span>
                   <span>
@@ -409,23 +407,26 @@ function Session({ domain, model }: { domain: Domain; model: TasteModel }) {
         )}
       </section>
 
-      <section className="taste-recs" aria-label="Recommendations">
-        <h2>Top {RECOMMEND} recommendations for you</h2>
-        <ol>
-          {recommendations.map((r) => (
-            <li key={r.item}>
-              <button className="taste-rec" onClick={() => setOpened(opened === r.item ? null : r.item)} aria-expanded={opened === r.item}>
-                <span>
-                  <span className="taste-rec-title">{items[r.item].title}</span>{" "}
-                  <span className="taste-dim">{items[r.item].subtitle}</span>
-                </span>
-                <span className="taste-dim">{pct(r.p)}</span>
-              </button>
-              {opened === r.item && <Predictors model={model} post={shown} item={r.item} />}
-            </li>
-          ))}
-        </ol>
-      </section>
+      {/* Before the first update these would be the population's picks, not this user's. */}
+      {revealed > 0 && (
+        <section className="taste-recs" aria-label="Recommendations">
+          <h2>Top {RECOMMEND} recommendations for you</h2>
+          <ol>
+            {recommendations.map((r) => (
+              <li key={r.item}>
+                <button className="taste-rec" onClick={() => setOpened(opened === r.item ? null : r.item)} aria-expanded={opened === r.item}>
+                  <span>
+                    <span className="taste-rec-title">{items[r.item].title}</span>{" "}
+                    <span className="taste-dim">{items[r.item].subtitle}</span>
+                  </span>
+                  <span className="taste-dim">{pct(r.p)}</span>
+                </button>
+                {opened === r.item && <Predictors model={model} post={shown} item={r.item} />}
+              </li>
+            ))}
+          </ol>
+        </section>
+      )}
 
       {map && <TasteMap domain={domain} map={map} you={you} swipes={shownSwipes} fresh={revealed === 0 && state.pins.size === 0} />}
     </>

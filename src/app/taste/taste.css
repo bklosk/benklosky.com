@@ -301,6 +301,10 @@
   background: #9a3b1f;
 }
 
+.taste-bar span[data-guess] {
+  opacity: 0.45;
+}
+
 .taste-tag {
   margin-left: 0.4rem;
   padding: 0 0.4rem;

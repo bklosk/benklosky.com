@@ -4,9 +4,13 @@ import type { Feature, Posterior, TasteModel } from "./model";
  * Turn the posterior into English. Every sentence is computed from the model:
  * a trait is claimed only when its posterior interval excludes zero and its
  * size passes the threshold set from real users (see build.py), so the
- * profile never says more than the model has learned. Features from hidden
+ * profile never says more than the model has learned. When it can claim too
+ * few, it adds its likeliest leanings, worded as guesses. Features from hidden
  * questions still shape predictions but are never named.
  */
+
+/** A guess must be about 70% sure of its direction: |mean| ≥ 0.5 sd. */
+const GUESS_Z = 0.5;
 
 export type Trait = {
   feature: number;
@@ -20,6 +24,8 @@ export type Trait = {
   /** Whether the population prior already leans this way on its own. */
   shared: boolean;
   pinned: boolean;
+  /** Below the bar for a claim: the direction is likely, not settled. */
+  guess: boolean;
 };
 
 export type Unsure = { feature: number; topic: string; sd: number };
@@ -31,15 +37,18 @@ export function phrasing(f: Feature, mean: number): { phrase: string; verb: "pre
   return { phrase: f.pos, verb: mean > 0 ? "prefer" : "avoid" };
 }
 
-export function sentence(t: Pick<Trait, "strong" | "verb" | "phrase">) {
+export function sentence(t: Pick<Trait, "strong" | "verb" | "phrase"> & { guess?: boolean }) {
+  if (t.guess) return `${t.verb === "prefer" ? "might lean toward" : "might avoid"} ${t.phrase}`;
   if (t.verb === "prefer") return `${t.strong ? "strongly prefer" : "lean toward"} ${t.phrase}`;
   return `${t.strong ? "steer clear of" : "tend to avoid"} ${t.phrase}`;
 }
 
-export function profile(model: TasteModel, post: Posterior, pinned: Set<number>, limit = 10) {
+/** Up to `limit` traits; if fewer than `fill` are claims, guesses make up the difference. */
+export function profile(model: TasteModel, post: Posterior, pinned: Set<number>, limit = 10, fill = 3) {
   const { z, min, strong, dedupe } = model.artifact.readout;
   const { F, C } = model;
   const features = model.artifact.features;
+  const zOf = (j: number) => Math.abs(post.traitMean[j]) / post.traitSd[j];
 
   const credible: number[] = [];
   for (let j = 0; j < F; j++) {
@@ -51,12 +60,17 @@ export function profile(model: TasteModel, post: Posterior, pinned: Set<number>,
   credible.sort(
     (a, b) => Number(pinned.has(b)) - Number(pinned.has(a)) || Math.abs(post.traitMean[b]) - Math.abs(post.traitMean[a]),
   );
+  // Guesses: the surest directions among the rest. An edit is never a guess; it's either claimed or listed as neutral.
+  const claimed = new Set(credible);
+  const guesses = Array.from({ length: F }, (_, j) => j)
+    .filter((j) => !features[j].hidden && !claimed.has(j) && !pinned.has(j) && zOf(j) >= GUESS_Z)
+    .sort((a, b) => zOf(b) - zOf(a));
 
   // Correlated features say the same thing twice; keep the strongest of each cluster.
   const traits: Trait[] = [];
   const shown: number[] = [];
-  for (const j of credible) {
-    if (shown.some((k) => Math.abs(C[j * F + k]) >= dedupe)) continue;
+  const add = (j: number, guess: boolean) => {
+    if (shown.some((k) => Math.abs(C[j * F + k]) >= dedupe)) return;
     shown.push(j);
     const m = post.traitMean[j];
     const p0 = model.priorTraitMean[j];
@@ -64,12 +78,20 @@ export function profile(model: TasteModel, post: Posterior, pinned: Set<number>,
       feature: j,
       mean: m,
       sd: post.traitSd[j],
-      strong: Math.abs(m) >= strong,
+      strong: !guess && Math.abs(m) >= strong,
       ...phrasing(features[j], m),
       shared: Math.sign(p0) === Math.sign(m) && Math.abs(p0) >= min && Math.abs(p0) >= z * model.priorTraitSd[j],
       pinned: pinned.has(j),
+      guess,
     });
+  };
+  for (const j of credible) {
     if (traits.length >= limit) break;
+    add(j, false);
+  }
+  for (const j of guesses) {
+    if (traits.length >= Math.min(fill, limit)) break;
+    add(j, true);
   }
 
   // "Not sure yet": where people differ most and these swipes haven't settled it.

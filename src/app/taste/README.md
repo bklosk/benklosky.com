@@ -40,6 +40,18 @@ learned in plain English, and lets you correct it.
    update the profile shows only the user's own edits, since everything else it
    could say then comes from the prior alone. Correlated traits
    are deduplicated.
+
+   If fewer than three traits pass, the profile adds the traits whose direction
+   it is surest of (the largest |mean|/sd), as long as it is at least about 70%
+   sure (|mean| ≥ 0.5 sd). These are worded as guesses ("you might lean
+   toward…") and drawn with a fainter bar. Without them, simulated users often
+   saw an empty profile at the first update: 9 of 20 for books, 3 of 20 for
+   films, and all of them for art, which stated nothing until about 40 swipes.
+   With them, no simulated user sees an empty profile at 8 swipes (40 per
+   domain). The guesses' direction matches the user's true taste 100% of the
+   time for films, 95% for books, and 77% for art at 8 swipes, and 85% for art
+   at 16. Here, simulated users are drawn from each domain's prior, plus, for
+   art, users who care strongly about four random features.
 5. **Edits.** Setting a trait adds a Gaussian observation of that same t_j
    (sd 0.05). The edit moves correlated traits and recommendations through
    the learned prior, and the profile then reads it back like any other trait.
@@ -52,8 +64,10 @@ learned in plain English, and lets you correct it.
    no poster or cover (6 films, 10 books) are never shown as cards or
    recommendations, but they stay in the model.
 7. **Recommendations.** The five unseen items with the highest predicted
-   chance of a like. Clicking one splits its score exactly into per-feature
-   parts, xⱼmⱼ, grouped by question, and lists the largest each way.
+   chance of a like. They first appear at the first update; before that they
+   would be the population's picks, not the user's. Clicking one splits its
+   score exactly into per-feature parts, xⱼmⱼ, grouped by question, and lists
+   the largest each way.
 8. **Map** (`scripts/taste/map.py`, drawn by `taste-map.tsx`). The bottom of the
    page is a UMAP of the catalog in question-space. Each item is its answers to
    the shown questions: a score's expected level, a choice's option
@@ -206,7 +220,8 @@ than they disliked them?
 - **Confident answers.** The answerer is very confident (often 1.0 on one
   option), so features are close to one-hot rather than graded.
 - **Art.** It is unevaluated and has no learned prior, so its first swipes teach
-  it less than they do for films and books.
+  it less than they do for films and books. Until about 40 swipes its profile
+  is mostly guesses.
 - **Eval caveats.** Evaluation users are heavy raters (80+ ratings in the
   catalog). Their swipes are simulated from cards they had already rated, at
   most 200 per user. "Like" means 4★ or more.
