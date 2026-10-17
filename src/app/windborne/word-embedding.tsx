@@ -22,20 +22,10 @@ const WORDS: Word[] = (
 const FAR = new THREE.Color("#cfcac1");
 const NEAR = new THREE.Color("#c96f45");
 const SECRET = new THREE.Color("#1b1a18");
-const GUIDE = "#e4e0d8";
+const GUIDE = "#d8d3c9";
 
-/** Cosine similarity, scaled by 100 like the game shows it. */
+/** Cosine similarity, scaled by 100 like the game shows it. Drives the color of each vector. */
 const score = (a: Word, b: Word) => a.v.dot(b.v) * 100;
-
-function circle(axis: "x" | "y" | "z") {
-  const points: THREE.Vector3[] = [];
-  for (let i = 0; i <= 96; i++) {
-    const t = (i / 96) * Math.PI * 2;
-    const [c, s] = [Math.cos(t), Math.sin(t)];
-    points.push(axis === "x" ? new THREE.Vector3(0, c, s) : axis === "y" ? new THREE.Vector3(c, 0, s) : new THREE.Vector3(c, s, 0));
-  }
-  return new THREE.BufferGeometry().setFromPoints(points);
-}
 
 type Scene = { setSecret: (index: number | null) => void };
 
@@ -68,7 +58,7 @@ export function WordEmbedding() {
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 50);
-    camera.position.set(0, 0, 4.1);
+    camera.position.set(0, 0, 4.6);
 
     const world = new THREE.Group();
     world.rotation.set(0.7, 1.8, 0);
@@ -80,9 +70,11 @@ export function WordEmbedding() {
       return item;
     };
 
-    // Faint guides: three great circles make the sphere readable as 3D.
     const guideMaterial = track(new THREE.LineBasicMaterial({ color: GUIDE }));
-    for (const axis of ["x", "y", "z"] as const) world.add(new THREE.Line(track(circle(axis)), guideMaterial));
+    for (const axis of [new THREE.Vector3(1, 0, 0), new THREE.Vector3(0, 1, 0), new THREE.Vector3(0, 0, 1)]) {
+      const ends = [axis.clone().multiplyScalar(-1.2), axis.clone().multiplyScalar(1.2)];
+      world.add(new THREE.Line(track(new THREE.BufferGeometry().setFromPoints(ends)), guideMaterial));
+    }
 
     const origin = new THREE.Mesh(
       track(new THREE.SphereGeometry(0.025, 12, 12)),
@@ -225,8 +217,6 @@ export function WordEmbedding() {
     };
   }, []);
 
-  const chosen = secret === null ? null : WORDS[secret];
-
   return (
     <figure className="windborne-figure">
       <div className="windborne-embedding" ref={stageRef}>
@@ -245,16 +235,9 @@ export function WordEmbedding() {
             }}
           >
             <span>{word.word}</span>
-            {chosen && secret !== i && <small>{score(word, chosen).toFixed(1)}</small>}
           </button>
         ))}
       </div>
-      <figcaption className="windborne-caption">
-        Seven words as vectors from the origin. Drag to rotate, and click a word to make it the secret
-        word. Every other word shows its similarity to it (the cosine of the angle between the
-        vectors, times 100): words that point the same way score high. Real embeddings use hundreds of
-        dimensions, not three.
-      </figcaption>
     </figure>
   );
 }

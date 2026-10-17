@@ -30,26 +30,12 @@
   margin: 1.6rem 0 2rem;
 }
 
-.windborne-caption {
-  margin-top: 0.7rem;
-  font-size: 0.75rem;
-  line-height: 1.5;
-  color: var(--muted);
-}
-
-.windborne-caption strong {
-  font-weight: 600;
-  color: var(--foreground);
-}
-
 /* Word embedding */
 
 .windborne-embedding {
   position: relative;
   height: 20rem;
   overflow: hidden;
-  border-radius: 0.5rem;
-  background: #f1efe9;
   cursor: grab;
   touch-action: pan-y;
 }
@@ -75,7 +61,7 @@
   padding: 0.15rem 0.4rem;
   border: 0;
   border-radius: 0.3rem;
-  background: rgba(241, 239, 233, 0.78);
+  background: rgba(248, 247, 244, 0.8);
   color: var(--foreground);
   font: inherit;
   font-size: 0.8125rem;
@@ -83,12 +69,6 @@
   white-space: nowrap;
   cursor: pointer;
   will-change: transform;
-}
-
-.windborne-word small {
-  font-size: 0.6875rem;
-  color: #a4552f;
-  font-variant-numeric: tabular-nums;
 }
 
 .windborne-word:hover {
@@ -107,15 +87,10 @@
 
 /* Guess tree */
 
-.windborne-tree-scroll {
-  overflow-x: auto;
-  overscroll-behavior-x: contain;
-}
-
 .windborne-tree {
   display: block;
   width: 100%;
-  min-width: 30rem;
+  max-width: 22rem;
   height: auto;
   overflow: visible;
   font-size: 11px;
@@ -141,10 +116,6 @@
   stroke-width: 4px;
   stroke-linejoin: round;
   transition: fill 140ms ease;
-}
-
-.windborne-tree .windborne-tree-guess {
-  fill: #5c5954;
 }
 
 .windborne-tree-node {
@@ -177,11 +148,6 @@
   stroke: #c96f45;
   stroke-width: 3;
   stroke-opacity: 0.45;
-}
-
-.windborne-tree .windborne-tree-count {
-  fill: #a4552f;
-  font-variant-numeric: tabular-nums;
 }
 
 /* Making mosaic: justified rows, each tile sized by its own aspect ratio. */
