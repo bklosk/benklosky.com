@@ -64,7 +64,7 @@ body {
 }
 
 .composition--shelf,
-.composition--embeddings {
+.composition--article {
   /* Keep the sidebar at the same horizontal position as on the home page. */
   margin-left: max(0px, calc((100% - 40rem - 10vw) / 2));
   width: calc(100% - max(0px, (100% - 40rem - 10vw) / 2));
@@ -303,7 +303,7 @@ body {
   }
 
   .composition--shelf,
-  .composition--embeddings {
+  .composition--article {
     position: relative;
     margin-left: 0;
     margin-right: 0;
@@ -311,12 +311,12 @@ body {
     gap: 0;
   }
 
-  .composition--embeddings {
+  .composition--article {
     flex-direction: column;
     gap: 1.25rem;
   }
 
-  .composition--embeddings .page-content {
+  .composition--article .page-content {
     width: 100%;
   }
 

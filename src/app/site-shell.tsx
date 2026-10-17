@@ -26,7 +26,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
   const reduceMotion = useReducedMotion();
 
   const shelf = pathname === "/shelf";
-  const embeddings = pathname === "/embeddings";
+  const article = pathname === "/embeddings" || pathname === "/windborne";
   const home = pathname === "/";
 
   return (
@@ -40,7 +40,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
         </header>
       )}
       <div
-        className={`composition${shelf ? " composition--shelf" : ""}${embeddings ? " composition--embeddings" : ""}`}
+        className={`composition${shelf ? " composition--shelf" : ""}${article ? " composition--article" : ""}`}
       >
         <div className={`link-column${home ? " is-home" : ""}`}>
           <Link href="/" aria-label="Home" className="portrait-link">

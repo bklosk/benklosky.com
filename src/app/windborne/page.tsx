@@ -1,16 +1,15 @@
 import type { Metadata } from "next";
-import { Ink } from "../ink";
+import Article from "./article.mdx";
+import "./windborne.css";
 
 export const metadata: Metadata = {
-  title: "WindBorne · Ben Klosky",
+  title: "A winning Semantle strategy · Ben Klosky",
 };
 
 export default function WindbornePage() {
   return (
-    <div className="intro">
-      <Ink>
-        <p>WindBorne — coming soon.</p>
-      </Ink>
-    </div>
+    <article className="windborne-page">
+      <Article />
+    </article>
   );
 }
