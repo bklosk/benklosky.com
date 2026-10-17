@@ -11,7 +11,7 @@ type Item = {
   label: string;
 };
 
-const BASE = "/windborne/making";
+const BASE = "/making";
 
 const ITEMS: Item[] = [
   { src: "IMG_1805.mp4", kind: "video", width: 720, height: 1280, label: "Test driving an electric go-kart" },
@@ -39,13 +39,13 @@ function LoopVideo({ src, label }: { src: string; label: string }) {
 
 export function MakingGallery() {
   return (
-    <ul className="windborne-mosaic">
+    <ul className="making-mosaic">
       {ITEMS.map((item) => {
         const ratio = item.width / item.height;
         return (
           <li
             key={item.src}
-            className="windborne-tile"
+            className="making-tile"
             tabIndex={0}
             style={{ "--ratio": ratio } as React.CSSProperties}
           >
@@ -60,7 +60,7 @@ export function MakingGallery() {
                 sizes="(max-width: 640px) 50vw, 280px"
               />
             )}
-            <span className="windborne-tile-label">{item.label}</span>
+            <span className="making-tile-label">{item.label}</span>
           </li>
         );
       })}

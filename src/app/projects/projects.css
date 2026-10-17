@@ -18,6 +18,10 @@
   touch-action: manipulation;
 }
 
+.project-shot--wide {
+  width: min(22rem, 100%);
+}
+
 .project-shot img,
 .project-shot video {
   display: block;

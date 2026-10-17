@@ -26,7 +26,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
   const reduceMotion = useReducedMotion();
 
   const shelf = pathname === "/shelf";
-  const article = pathname === "/embeddings" || pathname === "/windborne";
+  const article = pathname === "/embeddings" || pathname === "/windborne" || pathname === "/making";
   const home = pathname === "/";
 
   return (

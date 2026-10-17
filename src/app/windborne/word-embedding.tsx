@@ -82,15 +82,11 @@ export function WordEmbedding() {
     );
     world.add(origin);
 
-    const tipGeometry = track(new THREE.SphereGeometry(0.045, 16, 16));
     const stems = WORDS.map(({ v }) => {
       const material = track(new THREE.LineBasicMaterial({ color: FAR }));
       const line = new THREE.Line(track(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), v])), material);
-      const tipMaterial = track(new THREE.MeshBasicMaterial({ color: FAR }));
-      const tip = new THREE.Mesh(tipGeometry, tipMaterial);
-      tip.position.copy(v);
-      world.add(line, tip);
-      return { material, tipMaterial, tip };
+      world.add(line);
+      return { material };
     });
 
     const setSecret = (index: number | null) => {
@@ -102,8 +98,6 @@ export function WordEmbedding() {
               ? SECRET.clone()
               : FAR.clone().lerp(NEAR, Math.min(1, Math.max(0, score(word, WORDS[index]) / 100)));
         stems[i].material.color.copy(color);
-        stems[i].tipMaterial.color.copy(color);
-        stems[i].tip.scale.setScalar(i === index ? 1.5 : 1);
       });
     };
     sceneRef.current = { setSecret };

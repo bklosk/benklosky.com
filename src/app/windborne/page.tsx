@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Article from "./article.mdx";
+import "../making/making.css";
 import "./windborne.css";
 
 export const metadata: Metadata = {

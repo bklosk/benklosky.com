@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { Ink } from "../ink";
+import makingStage from "./making-stage.webp";
 import shelfStage from "./shelf-stage.jpg";
 import tasteStage from "./taste-stage.jpg";
 import "./projects.css";
@@ -20,6 +21,14 @@ export default function ProjectsPage() {
       </p>
       <Link href="/taste" className="project-shot">
         <Image src={tasteStage} alt="Claude Monet, Poppy Field" sizes="16rem" />
+      </Link>
+      <p className="intro">
+        <Ink>
+          <Link href="/making">The things we make</Link>
+        </Ink>
+      </p>
+      <Link href="/making" className="project-shot project-shot--wide">
+        <Image src={makingStage} alt="An espresso machine in pieces on my desk" sizes="22rem" />
       </Link>
       <p className="intro">
         <Ink>
