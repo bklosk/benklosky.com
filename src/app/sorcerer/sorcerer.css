@@ -1,0 +1,54 @@
+.sorcerer-page {
+  color: var(--foreground);
+  padding-top: 1.75rem;
+  padding-bottom: 3rem;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+.sorcerer-page > h1 {
+  margin: 3.5rem 0 1rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.sorcerer-page > p,
+.sorcerer-page > ol {
+  max-width: 34rem;
+  margin: 0 0 1.1rem;
+  font-size: 0.875rem;
+  line-height: 1.65;
+  color: #3a3834;
+}
+
+.sorcerer-page > p:first-child {
+  margin-bottom: 0;
+}
+
+.sorcerer-page > ol {
+  padding-left: 1.4rem;
+  list-style: decimal;
+}
+
+.sorcerer-page > ol li + li {
+  margin-top: 0.35rem;
+}
+
+.sorcerer-figure {
+  max-width: 34rem;
+  margin: 1.6rem 0 2rem;
+}
+
+.sorcerer-storm {
+  display: block;
+  width: 100%;
+  cursor: crosshair;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.sorcerer-buoy {
+  display: block;
+  image-rendering: pixelated;
+}
