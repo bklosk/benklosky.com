@@ -1,8 +1,10 @@
 "use client";
 
-// One connection to the Pi shared by the map layer and the history table.
+// One connection to the rail hub shared by the map layer and the history table. Everything the server sends is
+// already an hour old (see delay.ts).
 import { useSyncExternalStore } from "react";
-import { RAIL_BASE, type RailChannel, type RailClip } from "./rail";
+import { chicagoIso, delayedNow } from "./delay";
+import { RAIL_BASE, type MetraTrip, type RailChannel, type RailClip, type RailRun } from "./rail";
 
 export type RailFilters = { q: string; channel: string; eventsOnly: boolean };
 
@@ -13,13 +15,18 @@ type RailState = {
   history: RailClip[]; // newest first, filtered
   more: string | null; // cursor for older clips
   loading: boolean;
-  recent: Map<string, RailClip>; // last hour of meaningful clips, for the map
+  clips: Map<string, RailClip>; // the map's last few hours of meaningful clips, unfiltered
+  runs: RailRun[]; // Luna's runs over the same hours
+  trips: Map<string, MetraTrip>; // Metra GTFS trips those runs matched
   selected: string | null;
   selectedAt: number;
   filters: RailFilters;
 };
 
-const RECENT_MS = 60 * 60_000;
+const HORIZON_MS = 3 * 60 * 60_000;
+// The hub's runs route counts hours back from real time; this covers the horizon behind the delay line.
+const RUN_HOURS = 5;
+const RUNS_EVERY_MS = 60_000;
 const PAGE = 100;
 
 let state: RailState = {
@@ -29,13 +36,17 @@ let state: RailState = {
   history: [],
   more: null,
   loading: false,
-  recent: new Map(),
+  clips: new Map(),
+  runs: [],
+  trips: new Map(),
   selected: null,
   selectedAt: 0,
   filters: { q: "", channel: "", eventsOnly: false },
 };
 const listeners = new Set<() => void>();
+const clipListeners = new Set<(clip: RailClip) => void>();
 let stream: EventSource | null = null;
+let runsTimer: ReturnType<typeof setInterval> | undefined;
 let started = false;
 let users = 0;
 
@@ -70,20 +81,51 @@ function matches(clip: RailClip) {
 }
 
 function remember(clips: RailClip[]) {
-  const cutoff = Date.now() - RECENT_MS;
-  const recent = new Map(state.recent);
-  for (const clip of clips) if (clip.meaningful && clip.t >= cutoff) recent.set(clip.name, clip);
-  for (const [name, clip] of recent) if (clip.t < cutoff) recent.delete(name);
-  return recent;
+  const cutoff = delayedNow() - HORIZON_MS;
+  const kept = new Map(state.clips);
+  for (const clip of clips) if (clip.meaningful && clip.t >= cutoff) kept.set(clip.name, clip);
+  for (const [name, clip] of kept) if (clip.t < cutoff) kept.delete(name);
+  return kept;
 }
 
 async function loadHistory() {
   set({ loading: true });
   try {
     const page = await api<{ clips: RailClip[]; next_before: string | null }>(query());
-    set({ history: page.clips, more: page.next_before, recent: remember(page.clips), loading: false });
+    set({ history: page.clips, more: page.next_before, clips: remember(page.clips), loading: false });
   } catch {
     set({ loading: false });
+  }
+}
+
+// Every meaningful clip in the horizon, for trains and map dots, whatever the table is filtered to.
+async function loadClips() {
+  const params = new URLSearchParams({ limit: "300", meaningful: "1", after: chicagoIso(delayedNow() - HORIZON_MS) });
+  const found: RailClip[] = [];
+  try {
+    for (let page = 0; page < 6; page++) {
+      const { clips, next_before } = await api<{ clips: RailClip[]; next_before: string | null }>(`clips?${params}`);
+      found.push(...clips);
+      if (!next_before) break;
+      params.set("before", next_before);
+    }
+  } catch {
+    // Keep what arrived.
+  }
+  set({ clips: remember(found) });
+}
+
+async function loadRuns() {
+  try {
+    const { runs } = await api<{ runs: RailRun[] }>(`runs?hours=${RUN_HOURS}`);
+    const missing = [...new Set(runs.flatMap((run) => (run.gtfs_trip ? [run.gtfs_trip] : [])))].filter((id) => !state.trips.has(id));
+    if (missing.length) {
+      const { trips } = await api<{ trips: MetraTrip[] }>(`metra?trips=${missing.slice(0, 60).join(",")}`);
+      set({ trips: new Map([...state.trips, ...trips.map((trip) => [trip.trip_id, trip] as const)]) });
+    }
+    set({ runs });
+  } catch {
+    // Try again on the next round.
   }
 }
 
@@ -97,7 +139,8 @@ function openStream() {
       history.push(clip);
       history.sort((a, b) => b.t - a.t);
     }
-    set({ history, recent: remember([clip]) });
+    set({ history, clips: remember([clip]) });
+    for (const listener of clipListeners) listener(clip);
   });
 }
 
@@ -113,7 +156,9 @@ async function start() {
   }
   set({ status: "on" });
   api<{ channels: RailChannel[] }>("channels").then(({ channels }) => set({ channels }), () => {});
-  await loadHistory();
+  loadRuns();
+  runsTimer = setInterval(loadRuns, RUNS_EVERY_MS);
+  await Promise.all([loadHistory(), loadClips()]);
   openStream();
 }
 
@@ -128,12 +173,20 @@ export const rail = {
       if (users === 0) {
         stream?.close();
         stream = null;
+        clearInterval(runsTimer);
         started = false;
         set({ status: "off" });
       }
     };
   },
   get: () => state,
+  // New clips as they cross the delay line.
+  onClip(listener: (clip: RailClip) => void) {
+    clipListeners.add(listener);
+    return () => {
+      clipListeners.delete(listener);
+    };
+  },
   setFilters(filters: Partial<RailFilters>) {
     set({ filters: { ...state.filters, ...filters } });
     if (state.status === "on") loadHistory();
@@ -153,7 +206,7 @@ export const rail = {
     set({ selected: name, selectedAt: Date.now() });
   },
   find(name: string) {
-    return state.recent.get(name) ?? state.history.find((clip) => clip.name === name);
+    return state.clips.get(name) ?? state.history.find((clip) => clip.name === name);
   },
   url(path: string) {
     return `${state.base}${path}`;
