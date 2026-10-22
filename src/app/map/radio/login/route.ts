@@ -1,5 +1,8 @@
 // POST /map/radio/login: check RADIO_PASSWORD and start a 30-day session cookie, then back to the map.
 import { NextResponse, type NextRequest } from "next/server";
+
+// Relative Location: behind App Platform's proxy request.url is the internal localhost:8080 address.
+const to = (path: string) => new NextResponse(null, { status: 303, headers: { Location: path } });
 import { HINT_COOKIE, newSession, passwordMatches, radioConfigured, SESSION_COOKIE } from "../auth";
 
 export async function POST(request: NextRequest) {
@@ -8,10 +11,10 @@ export async function POST(request: NextRequest) {
   if (!radioConfigured() || !passwordMatches(password)) {
     // Slow down guessing; one person uses this.
     await new Promise((resolve) => setTimeout(resolve, 1500));
-    return NextResponse.redirect(new URL("/map/radio?wrong=1", request.url), 303);
+    return to("/map/radio?wrong=1");
   }
   const session = newSession();
-  const response = NextResponse.redirect(new URL("/map", request.url), 303);
+  const response = to("/map");
   response.cookies.set(SESSION_COOKIE, session.value, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
