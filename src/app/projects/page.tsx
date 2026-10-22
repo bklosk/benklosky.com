@@ -14,6 +14,11 @@ export const metadata: Metadata = {
 export default function ProjectsPage() {
   return (
     <div className="projects-content">
+      <p className="intro intro--solo">
+        <Ink>
+          <Link href="/rail">Inferring train positions from radio comms</Link>
+        </Ink>
+      </p>
       <p className="intro">
         <Ink>
           <Link href="/taste">Understand your own taste in movies and art</Link>

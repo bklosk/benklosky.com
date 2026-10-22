@@ -9,6 +9,11 @@
   padding-top: 0;
 }
 
+/* A project without a picture keeps the same gap before the next one. */
+.projects-content .intro--solo {
+  margin-bottom: 4.5rem;
+}
+
 .project-shot {
   display: block;
   width: min(16rem, 100%);
