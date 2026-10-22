@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ExpressionSpecification, GeoJSONSource, Map as MapLibreMap, MapLayerMouseEvent, Popup } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { mapStyle, palette } from "./map-style";
+import { buildGazetteer, categoryColors, clipTime, humanize, placeClip, summary, type Gazetteer, type RailClip } from "./rail";
+import { rail, useRail } from "./rail-store";
 import { HOME } from "./region";
 import { vesselKind, type Vessel, type VesselKind } from "./vessel";
 
@@ -139,6 +141,80 @@ function shipPopup(vessel: Vessel) {
     <p class="map-popup-muted">Heard ${ago(vessel.seen)}</p>`;
 }
 
+const categoryColor = [
+  "match",
+  ["get", "category"],
+  ...Object.entries(categoryColors).flat(),
+  categoryColors.communication,
+] as unknown as ExpressionSpecification;
+// Radio events fade over the hour after they were heard.
+const railFade: ExpressionSpecification = ["interpolate", ["linear"], ["get", "age"], 0, 1, 20, 0.7, 60, 0.12];
+const RAIL_LAYERS = ["rail-events-area", "rail-events"];
+
+function railEventData(clips: Iterable<RailClip>, gazetteer: Gazetteer | null): GeoJSON.FeatureCollection {
+  const now = Date.now();
+  const features: GeoJSON.Feature[] = [];
+  if (gazetteer) {
+    for (const clip of clips) {
+      const placement = placeClip(clip, gazetteer);
+      if (!placement) continue;
+      features.push({
+        type: "Feature",
+        geometry: { type: "Point", coordinates: [placement.lon, placement.lat] },
+        properties: {
+          name: clip.name,
+          category: clip.event?.event_category ?? "communication",
+          exact: placement.exact,
+          age: (now - clip.t) / 60_000,
+        },
+      });
+    }
+  }
+  return { type: "FeatureCollection", features };
+}
+
+function clipPopup(clip: RailClip, place: string | null) {
+  const event = clip.event;
+  const heading = summary(clip) || "Transmission";
+  const who = [humanize(event?.speaker_role), event?.addressee_role && event.addressee_role !== "unknown" ? `to ${humanize(event.addressee_role).toLowerCase()}` : null]
+    .filter((part) => part && part !== "Unknown")
+    .join(" ");
+  return `
+    <p class="map-popup-title">${escape(heading)}</p>
+    <p>${escape(clip.label || clip.channel)} · ${escape(clip.freq ?? "")} MHz</p>
+    <p class="map-popup-quote">“${escape(clip.text)}”</p>
+    ${who ? `<p>${escape(who)}${event?.direction ? ` · ${escape(event.direction)}bound` : ""}</p>` : ""}
+    ${clip.run_id ? `<p class="map-popup-muted">Run ${escape(clip.run_id)}</p>` : ""}
+    <p class="map-popup-muted">${escape(clipTime(clip, true))}${place ? ` · ${escape(place)}` : ""}</p>
+    ${clip.audio ? `<audio class="map-popup-audio" controls preload="none" src="${escape(rail.url(clip.audio))}"></audio>` : ""}`;
+}
+
+function LiveRadio() {
+  const audio = useRef<HTMLAudioElement>(null);
+  const [playing, setPlaying] = useState(false);
+  const toggle = () => {
+    const element = audio.current;
+    if (!element) return;
+    if (playing) {
+      element.pause();
+      element.removeAttribute("src");
+      element.load();
+      setPlaying(false);
+    } else {
+      // A fresh src each time joins the stream live instead of resuming a stale buffer.
+      element.src = `${rail.url("/live")}?t=${Date.now()}`;
+      element.play().then(() => setPlaying(true), () => setPlaying(false));
+    }
+  };
+  return (
+    <button type="button" className={`map-live${playing ? " map-live--on" : ""}`} onClick={toggle} aria-pressed={playing}>
+      <span className="map-live-dot" aria-hidden />
+      {playing ? "Listening live" : "Listen live"}
+      <audio ref={audio} preload="none" onPause={() => setPlaying(false)} />
+    </button>
+  );
+}
+
 function railPopup(properties: Record<string, unknown>) {
   const owner = String(properties.owner ?? "");
   const others = String(properties.freight ?? "")
@@ -153,6 +229,7 @@ function railPopup(properties: Record<string, unknown>) {
 
 export function LiveMap() {
   const container = useRef<HTMLDivElement>(null);
+  const railStatus = useRail().status;
 
   useEffect(() => {
     let disposed = false;
@@ -161,6 +238,8 @@ export function LiveMap() {
     let ager: ReturnType<typeof setInterval> | undefined;
     let frame = 0;
     const vessels = new Map<number, Vessel>();
+    let gazetteer: Gazetteer | null = null;
+    let unsubscribeRail = () => {};
 
     (async () => {
       const maplibre = await import("maplibre-gl");
@@ -204,6 +283,7 @@ export function LiveMap() {
         (map.getSource("ship-trails") as GeoJSONSource | undefined)?.setData(data.trails);
         const vessel = selected === null ? undefined : vessels.get(selected);
         if (vessel && popup) popup.setLngLat([vessel.lon, vessel.lat]).setHTML(shipPopup(vessel));
+        (map.getSource("rail-events") as GeoJSONSource | undefined)?.setData(railEventData(rail.get().recent.values(), gazetteer));
       };
       const schedule = () => {
         frame ||= requestAnimationFrame(render);
@@ -316,6 +396,74 @@ export function LiveMap() {
           paint: { "icon-opacity": fade },
         });
 
+        // Radio events from the home SDR, drawn above the ships. Hollow rings are placed only by channel.
+        map.addSource("rail-events", { type: "geojson", data: empty });
+        map.addLayer({
+          id: "rail-events-area",
+          type: "circle",
+          source: "rail-events",
+          filter: ["!=", ["get", "exact"], true],
+          paint: {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 7, 3.5, 12, 6, 15, 8],
+            "circle-color": categoryColor,
+            "circle-opacity": ["*", 0.14, railFade],
+            "circle-stroke-color": categoryColor,
+            "circle-stroke-width": 1.6,
+            "circle-stroke-opacity": railFade,
+          },
+        });
+        map.addLayer({
+          id: "rail-events",
+          type: "circle",
+          source: "rail-events",
+          filter: ["==", ["get", "exact"], true],
+          paint: {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 7, 3.5, 12, 5.5, 15, 7.5],
+            "circle-color": categoryColor,
+            "circle-opacity": railFade,
+            "circle-stroke-color": palette.land,
+            "circle-stroke-width": 1.4,
+            "circle-stroke-opacity": railFade,
+          },
+        });
+
+        const showClip = (clip: RailClip, fly: boolean) => {
+          const placement = gazetteer ? placeClip(clip, gazetteer) : null;
+          if (!placement) return;
+          if (fly) map!.flyTo({ center: [placement.lon, placement.lat], zoom: Math.max(map!.getZoom(), 11.5), duration: 900 });
+          openPopup([placement.lon, placement.lat], clipPopup(clip, placement.exact ? placement.place : `near ${placement.place}`), null);
+        };
+        for (const layer of RAIL_LAYERS) {
+          map.on("click", layer, (event) => {
+            const clip = rail.find(String(event.features?.[0]?.properties?.name));
+            if (clip) showClip(clip, false);
+          });
+        }
+
+        let loadingPlaces = false;
+        let lastSelection = rail.get().selectedAt;
+        const onRail = () => {
+          const current = rail.get();
+          if (current.status === "on" && !gazetteer && !loadingPlaces) {
+            loadingPlaces = true;
+            fetch("/map/rail-lines.geojson")
+              .then((response) => response.json())
+              .then((data: GeoJSON.FeatureCollection) => {
+                gazetteer = buildGazetteer(data);
+                schedule();
+              })
+              .catch(() => (loadingPlaces = false));
+          }
+          if (current.selectedAt !== lastSelection) {
+            lastSelection = current.selectedAt;
+            const clip = current.selected ? rail.find(current.selected) : undefined;
+            if (clip) showClip(clip, true);
+          }
+          schedule();
+        };
+        unsubscribeRail = rail.subscribe(onRail);
+        onRail();
+
         const vesselAt = (event: MapLayerMouseEvent) => {
           const mmsi = Number(event.features?.[0]?.properties?.mmsi);
           return vessels.get(mmsi);
@@ -327,12 +475,12 @@ export function LiveMap() {
           });
         }
         map.on("click", "rail-hit", (event) => {
-          // Ships sit above the track, so let their handler win.
-          if (map!.queryRenderedFeatures(event.point, { layers: ["ships-still", "ships-moving"] }).length) return;
+          // Ships and radio events sit above the track, so let their handlers win.
+          if (map!.queryRenderedFeatures(event.point, { layers: ["ships-still", "ships-moving", ...RAIL_LAYERS] }).length) return;
           const feature = event.features?.[0];
           if (feature) openPopup([event.lngLat.lng, event.lngLat.lat], railPopup(feature.properties), null);
         });
-        for (const layer of ["ships-still", "ships-moving", "rail-hit"]) {
+        for (const layer of ["ships-still", "ships-moving", "rail-hit", ...RAIL_LAYERS]) {
           map.on("mouseenter", layer, () => (map!.getCanvas().style.cursor = "pointer"));
           map.on("mouseleave", layer, () => (map!.getCanvas().style.cursor = ""));
         }
@@ -350,6 +498,7 @@ export function LiveMap() {
 
     return () => {
       disposed = true;
+      unsubscribeRail();
       events?.close();
       clearInterval(ager);
       cancelAnimationFrame(frame);
@@ -360,6 +509,7 @@ export function LiveMap() {
   return (
     <div className="map-frame">
       <div ref={container} className="live-map" />
+      {railStatus === "on" ? <LiveRadio /> : null}
     </div>
   );
 }

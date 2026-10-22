@@ -14,6 +14,12 @@ A live map of ships and freight rail around Chicago. It sits right of the sideba
 | [ships/route.ts](ships/route.ts) | `GET /map/ships`. Server-sent events: `status`, then a `vessels` snapshot, then `vessels` batches, with a keepalive every 20 seconds. |
 | [vessel.ts](vessel.ts) | `Vessel` type and AIS ship-type grouping, shared by server and client. |
 | [region.ts](region.ts) | The AIS subscription box and the opening view. |
+| [rail.ts](rail.ts) | Radio clip types and placing clips on the map (yard and subdivision centers from the BTS layer). |
+| [rail-store.ts](rail-store.ts) | Client store shared by the map and the table: checks the session, pages history, and listens to the event stream. |
+| [rail-history.tsx](rail-history.tsx) | The radio log table under the map: search, channel filter, clip playback, sign out. |
+| [radio/auth.ts](radio/auth.ts) | Server-only. The password check and the signed 30-day session cookie. |
+| [radio/page.tsx](radio/page.tsx) | `/map/radio`, the sign-in form. `radio/login` and `radio/logout` set and clear the session. |
+| [radio/[...path]/route.ts](radio/%5B...path%5D/route.ts) | `GET /map/radio/{api/*,audio/*,live}`. Checks the session, then relays to the rail hub over the VPC with a bearer token. |
 | [../../../scripts/build-rail-lines.mjs](../../../scripts/build-rail-lines.mjs) | Rebuilds `public/map/rail-lines.geojson` from BTS. |
 
 ## How ships get to the page
@@ -29,6 +35,22 @@ aisstream.io ──WebSocket──▶ ais.ts (one per server) ──SSE──▶
 
 This relies on a long-lived Node or Bun server, which is how `bun run start` runs on DigitalOcean App Platform. On serverless hosting each instance would hold its own upstream connection and its own cache.
 
+## Radio from the home SDR (only for Ben, for now)
+
+```
+RTL-SDR ─▶ rtl_airband ─▶ rail-classify ─▶ rail-transcribe (Parakeet) ─▶ rail-ship ──tailnet──▶ rail hub (oink droplet)
+                                         Raspberry Pi                                        SQLite WAL, Jev events, Luna runs,
+                                                                                             Grafana, daily Spaces backup
+browser ──▶ benklosky.com /map/radio/* (session cookie) ──VPC + bearer token──▶ rail hub read API ──tailnet──▶ Pi Icecast (live only)
+```
+
+- **The browser never reaches the Pi or the hub.** It calls this site's `/map/radio/*` routes. They check the session and relay to the hub's read API at its private VPC address (`RAIL_API_URL`) with `RAIL_API_TOKEN`. The hub's API listens only on the VPC and the tailnet.
+- **Sign in** at `/map/radio` with `RADIO_PASSWORD`. That sets an httpOnly session cookie signed with `RADIO_SESSION_SECRET`, plus a readable `map_radio_hint` cookie. The hint only tells the page to look for the radio layer, so other visitors' browsers never call the radio routes. `/map` stays a static page.
+- **Listen live** plays the Pi's Icecast mix of every AAR channel, relayed by the hub. Each clip plays its own MP3 from the hub, with Range support.
+- **Map dots** are meaningful transmissions from the last hour, colored by event category and fading as they age. A filled dot sits on the yard or numbered street the event names. A hollow ring is placed only by its channel's home yard or subdivision. Channels with no label aren't drawn, but they do appear in the table.
+- **The radio log** shows meaningful transmissions newest first. Search is SQLite full-text search on the hub. New clips arrive over server-sent events, and a row gets its event once Jev has read it.
+- **Local dev** sets `RAIL_API_URL=http://oink:8091` in `.env` and reaches the hub over the tailnet. The hub and Pi code lives in `~/trading/rail-extract/hub` (see its README).
+
 ## Running locally
 
 1. Put `AISSTREAM_API_KEY=...` in `.env` at the repo root. Get a free key at <https://aisstream.io>.
@@ -42,5 +64,5 @@ MapLibre 6 loads its web worker from a file next to its own module, which bundli
 
 ## Next steps
 
-- Feed transcribed calls from the home RTL-SDR at `sdr.local` into the map as events. See the sdr.local section in [data.md](data.md).
+- Draw Luna's train runs as paths through the places they visit, not only per-clip dots.
 - Add a Marey (stringline) view per subdivision, driven by the same timeline as the map.

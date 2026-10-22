@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { LiveMap } from "./live-map";
+import { RailHistory } from "./rail-history";
 import "./map.css";
 
 export const metadata: Metadata = {
@@ -8,5 +9,11 @@ export const metadata: Metadata = {
 };
 
 export default function MapPage() {
-  return <LiveMap />;
+  // The radio layer and log appear only for a signed-in session (/map/radio); the page itself stays static.
+  return (
+    <div className="map-page">
+      <LiveMap />
+      <RailHistory />
+    </div>
+  );
 }

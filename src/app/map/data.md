@@ -8,7 +8,7 @@ The data behind `/map`: what each source is, how the site gets it, and its terms
 | [OpenMHz](#openmhz) | Recorded radio calls from trunked systems | Not integrated in code | In use for listening; API blocked for server clients |
 | [BTS North American Rail Network](#bts-north-american-rail-network) | Freight rail track geometry and ownership | Snapshot built by a script | Live on the map |
 | [OpenFreeMap](#openfreemap) | Basemap vector tiles and fonts | Browser loads tiles directly | Live on the map |
-| [sdr.local](#sdrlocal-planned) | Radio audio from the home RTL-SDR | Not built yet | Planned replacement for third-party audio |
+| [sdr.local](#sdrlocal-home-rtl-sdr) | Railroad radio from the home RTL-SDR: audio, transcripts, events, runs | Private (tailnet only) | Ben's own receiver |
 
 ## aisstream.io
 
@@ -47,8 +47,18 @@ The data behind `/map`: what each source is, how the site gets it, and its terms
 - **Attribution:** OpenFreeMap asks for "OpenFreeMap · © OpenMapTiles · © OpenStreetMap" to be shown, and OpenStreetMap data is ODbL. The map currently shows no credit line; add one back on this page or in a site-wide footer if you want to meet that.
 - **Terms:** <https://openfreemap.org>.
 
-## sdr.local (planned)
+## sdr.local (home RTL-SDR)
 
-- **What:** An RTL-SDR on a Raspberry Pi on the home network at `sdr.local`, tuned to marine and railroad VHF. It will replace third-party audio feeds as the source for transcribed calls.
-- **Access:** Not built yet. `sdr.local` is an mDNS name, so it only resolves on the home LAN, and the production server can't reach it. The Pi should push outward, by posting transcribed events or short clips to an authenticated endpoint on the site, rather than having the site pull from it.
-- **Publishing rules:** Publish derived events (train, location, time, event type) and keep raw audio private by default. Leave out crew names and personal details. Delay anything live. Never decode encrypted, cellular, or pager traffic.
+- **What:** An RTL-SDR on a Raspberry Pi at home (`sdr` on the tailnet) recording the 97 AAR railroad channels.
+  - The Pi transcribes each transmission with Parakeet and pushes transcripts and meaningful clips to the rail hub on the `oink` droplet (nyc1) over Tailscale.
+  - On the hub, TypeSafe Jev extracts an event from each meaningful clip, and OpenAI `gpt-6-luna` summarizes each half hour of a channel into train runs.
+  - Everything lives in the hub's SQLite database, `/srv/rail/rail.db`.
+- **Access:** Private.
+  - The site's server reads the hub's API over DigitalOcean's VPC with a bearer token. The hub API isn't on the public internet.
+  - Browsers only see `/map/radio/*`, behind Ben's session cookie.
+  - The Pi keeps a 16-day outbox of transcripts and serves only its live Icecast stream, and only to the tailnet.
+- **Retention:**
+  - The hub keeps transcripts, events and runs indefinitely, and meaningful clips' audio.
+  - Every night it copies meaningful clips and per-day transcript JSONL to the `benklosky-data` Space under `sdr-rail/`.
+  - It also keeps a single latest database snapshot at `sdr-rail/db/rail.db.gz`.
+- **Publishing rules, if this ever goes public:** Publish derived events (train, location, time, event type) and keep raw audio private by default. Leave out crew names and personal details. Delay anything live. Never decode encrypted, cellular, or pager traffic.

@@ -72,3 +72,282 @@
     border-radius: 12px;
   }
 }
+
+/* ---------------------------------------------------------------- radio from the home SDR (tailnet only) */
+
+.map-page {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+  min-width: 0;
+  width: 100%;
+}
+
+.map-popup .map-popup-quote {
+  margin: 0.3rem 0;
+  color: var(--foreground);
+  font-style: italic;
+}
+
+.map-popup .map-popup-audio {
+  display: block;
+  width: 100%;
+  height: 2rem;
+  margin-top: 0.45rem;
+}
+
+.map-live {
+  position: absolute;
+  z-index: 2;
+  top: 0.75rem;
+  left: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.4rem 0.7rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--background);
+  box-shadow: 0 0 0 1px rgb(27 26 24 / 0.1), 0 4px 14px rgb(27 26 24 / 0.08);
+  color: var(--foreground);
+  font: 600 0.75rem/1 Arial, Helvetica, sans-serif;
+  cursor: pointer;
+}
+
+.map-live-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--muted);
+}
+
+.map-live--on .map-live-dot {
+  background: #b5402a;
+  animation: map-live-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes map-live-pulse {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+.rail-history {
+  margin-right: 2rem;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+}
+
+.rail-history-head h2 {
+  margin: 0 0 0.2rem;
+  font-size: 1rem;
+}
+
+.rail-history-head p,
+.rail-history-sub {
+  margin: 0 0 0.9rem;
+}
+
+.rail-muted {
+  color: var(--muted);
+}
+
+.rail-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.rail-controls input[type="search"],
+.rail-controls select {
+  padding: 0.35rem 0.55rem;
+  border: 1px solid rgb(27 26 24 / 0.15);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--foreground);
+  font: inherit;
+}
+
+.rail-controls input[type="search"] {
+  width: 14rem;
+}
+
+.rail-controls select {
+  max-width: 20rem;
+}
+
+.rail-controls label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.rail-table-wrap {
+  overflow-x: auto;
+  border-radius: 10px;
+  box-shadow: 0 0 0 1px rgb(27 26 24 / 0.08);
+}
+
+.rail-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.rail-table th {
+  position: sticky;
+  top: 0;
+  padding: 0.5rem 0.65rem;
+  background: #f1efea;
+  color: var(--muted);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.rail-table td {
+  padding: 0.45rem 0.65rem;
+  border-top: 1px solid rgb(27 26 24 / 0.06);
+  vertical-align: top;
+}
+
+.rail-table tbody tr {
+  cursor: pointer;
+}
+
+.rail-table tbody tr:hover {
+  background: rgb(27 26 24 / 0.03);
+}
+
+.rail-table tr.rail-selected {
+  background: rgb(30 58 138 / 0.06);
+}
+
+.rail-time {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.rail-channel {
+  min-width: 9rem;
+}
+
+.rail-channel span {
+  display: block;
+}
+
+.rail-text {
+  min-width: 16rem;
+  max-width: 28rem;
+}
+
+.rail-event {
+  display: inline-flex;
+  gap: 0.4rem;
+  min-width: 10rem;
+}
+
+.rail-swatch {
+  flex: none;
+  width: 0.55rem;
+  height: 0.55rem;
+  margin-top: 0.3rem;
+  border-radius: 50%;
+}
+
+.rail-run {
+  display: block;
+  color: var(--muted);
+  font-size: 0.6875rem;
+}
+
+.rail-play {
+  width: 1.8rem;
+  height: 1.8rem;
+  border: 0;
+  border-radius: 50%;
+  background: rgb(27 26 24 / 0.06);
+  color: var(--foreground);
+  font-size: 0.6875rem;
+  cursor: pointer;
+}
+
+.rail-play:hover {
+  background: rgb(27 26 24 / 0.12);
+}
+
+.rail-empty {
+  margin: 0;
+  padding: 1rem;
+}
+
+.rail-more {
+  margin-top: 0.75rem;
+  padding: 0.4rem 0.9rem;
+  border: 1px solid rgb(27 26 24 / 0.15);
+  border-radius: 6px;
+  background: var(--background);
+  color: var(--foreground);
+  font: inherit;
+  cursor: pointer;
+}
+
+@media (max-width: 640px) {
+  .rail-history {
+    margin-right: 0;
+  }
+}
+
+.rail-logout {
+  display: inline;
+}
+
+.rail-logout button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.radio-login {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  width: min(18rem, 100%);
+  font-size: 0.875rem;
+}
+
+.radio-login h1 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.radio-login p {
+  margin: 0;
+}
+
+.radio-login input,
+.radio-login button {
+  padding: 0.5rem 0.65rem;
+  border: 1px solid rgb(27 26 24 / 0.15);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--foreground);
+  font: inherit;
+}
+
+.radio-login button {
+  background: var(--foreground);
+  color: var(--background);
+  cursor: pointer;
+}
+
+.radio-wrong {
+  color: #b5402a;
+}
