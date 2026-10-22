@@ -1,12 +1,13 @@
 "use client";
 
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft, Folder, Linkedin, Mail, Twitter, type LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import { BubbleCanvas } from "./bubble-canvas";
+// A static import gets a content-hashed URL, so browsers and Cloudflare can cache the portrait forever.
+import portrait from "../../public/ben.jpg";
 
 const linkIconProps = {
   size: 15,
@@ -23,7 +24,6 @@ const links: { label: string; href: string; icon: LucideIcon; external?: boolean
 
 export function SiteShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const reduceMotion = useReducedMotion();
 
   const shelf = pathname === "/shelf";
   const map = pathname === "/rail";
@@ -45,7 +45,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
       >
         <div className={`link-column${home ? " is-home" : ""}`}>
           <Link href="/" aria-label="Home" className="portrait-link">
-            <Image className="portrait" src="/ben.jpg" alt="" width={80} height={80} priority />
+            <Image className="portrait" src={portrait} alt="" width={80} height={80} preload />
           </Link>
           <nav className="link-wall" aria-label="Links">
             {links.map((link) => {
@@ -65,17 +65,8 @@ export function SiteShell({ children }: { children: ReactNode }) {
           </nav>
         </div>
         <div className="page-content">
-          <AnimatePresence mode="wait" initial={false}>
-            <motion.div
-              key={pathname}
-              initial={reduceMotion ? false : { opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={reduceMotion ? undefined : { opacity: 0 }}
-              transition={{ duration: reduceMotion ? 0 : 0.22, ease: "easeInOut" }}
-            >
-              {children}
-            </motion.div>
-          </AnimatePresence>
+          {/* No route fade: the old page used to fade out before the new one faded in, so text popped in late. */}
+          {children}
         </div>
       </div>
     </BubbleCanvas>

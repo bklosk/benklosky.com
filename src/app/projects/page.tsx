@@ -2,7 +2,10 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { Ink } from "../ink";
+import tennisPoster from "../../../public/tennis/clip-poster.webp";
 import makingStage from "./making-stage.webp";
+import { ProjectVideo } from "./project-video";
+import railStage from "./rail-stage.webp";
 import shelfStage from "./shelf-stage.jpg";
 import tasteStage from "./taste-stage.jpg";
 import "./projects.css";
@@ -14,18 +17,27 @@ export const metadata: Metadata = {
 export default function ProjectsPage() {
   return (
     <div className="projects-content">
-      <p className="intro intro--solo">
+      <p className="intro">
         <Ink>
           <Link href="/rail">Inferring train positions from radio comms</Link>
         </Ink>
       </p>
+      <Link href="/rail" className="project-shot" aria-label="Rail map">
+        <ProjectVideo
+          src="/rail/preview.v1.mp4"
+          poster={railStage}
+          alt="Radio events on the Metra Electric and the CN Chicago line by the lakefront"
+          sizes="16rem"
+          eager
+        />
+      </Link>
       <p className="intro">
         <Ink>
           <Link href="/taste">Understand your own taste in movies and art</Link>
         </Ink>
       </p>
       <Link href="/taste" className="project-shot">
-        <Image src={tasteStage} alt="Claude Monet, Poppy Field" sizes="16rem" />
+        <Image src={tasteStage} alt="Claude Monet, Poppy Field" sizes="16rem" placeholder="blur" />
       </Link>
       <p className="intro">
         <Ink>
@@ -33,7 +45,7 @@ export default function ProjectsPage() {
         </Ink>
       </p>
       <Link href="/making" className="project-shot project-shot--wide">
-        <Image src={makingStage} alt="An espresso machine in pieces on my desk" sizes="22rem" />
+        <Image src={makingStage} alt="An espresso machine in pieces on my desk" sizes="22rem" placeholder="blur" />
       </Link>
       <p className="intro">
         <Ink>
@@ -41,18 +53,7 @@ export default function ProjectsPage() {
         </Ink>
       </p>
       <Link href="/tennis" className="project-shot" aria-label="Tennis">
-        <video
-          src="/tennis/clip.mp4"
-          poster="/tennis/clip-poster.webp"
-          width={640}
-          height={360}
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="none"
-          aria-hidden
-        />
+        <ProjectVideo src="/tennis/clip.mp4" poster={tennisPoster} alt="A tennis rally from a broadcast" sizes="16rem" />
       </Link>
       <p className="intro">
         <Ink>
@@ -60,7 +61,7 @@ export default function ProjectsPage() {
         </Ink>
       </p>
       <Link href="/shelf" className="project-shot">
-        <Image src={shelfStage} alt="The game shelf in 3D" sizes="16rem" />
+        <Image src={shelfStage} alt="The game shelf in 3D" sizes="16rem" placeholder="blur" />
       </Link>
     </div>
   );

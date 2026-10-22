@@ -9,11 +9,6 @@
   padding-top: 0;
 }
 
-/* A project without a picture keeps the same gap before the next one. */
-.projects-content .intro--solo {
-  margin-bottom: 4.5rem;
-}
-
 .project-shot {
   display: block;
   width: min(16rem, 100%);
@@ -32,6 +27,24 @@
   display: block;
   width: 100%;
   height: auto;
+}
+
+/* The poster holds the space; the video sits on top and fades in once it is actually playing. */
+.project-video {
+  position: relative;
+}
+
+.project-video video {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 240ms ease;
+}
+
+.project-video.is-playing video {
+  opacity: 1;
 }
 
 .project-shot:focus-visible {

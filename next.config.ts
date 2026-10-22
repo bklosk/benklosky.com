@@ -11,6 +11,18 @@ const nextConfig: NextConfig = {
         headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
       },
       {
+        // Versioned by name (preview.v1.mp4); bump the version to change it.
+        source: "/rail/preview.:version.mp4",
+        headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
+      },
+      {
+        // Unversioned public media. Public files default to max-age=0, which sends every view to the app
+        // instance; cache for a day and revalidate in the background instead. Exact file patterns only, so the
+        // /rail page and its /rail/radio API keep their own headers.
+        source: "/:file(rail/rail-lines\\.geojson|tennis/clip\\.mp4|tennis/clip-poster\\.webp)",
+        headers: [{ key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" }],
+      },
+      {
         // Open in the browser's PDF viewer, and save under a real name.
         source: "/resume",
         headers: [{ key: "Content-Disposition", value: 'inline; filename="Klosky Resume.pdf"' }],
