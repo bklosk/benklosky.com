@@ -4,7 +4,7 @@
 // already an hour old (see delay.ts).
 import { useSyncExternalStore } from "react";
 import { chicagoIso, delayedNow } from "./delay";
-import { RAIL_BASE, type MetraTrip, type RailChannel, type RailClip, type RailRun } from "./rail";
+import { RAIL_BASE, type MetraTrip, type RailChannel, type RailClip, type RailIncident, type RailRun } from "./rail";
 
 export type RailFilters = { q: string; channel: string; eventsOnly: boolean };
 
@@ -18,6 +18,7 @@ type RailState = {
   clips: Map<string, RailClip>; // the map's last few hours of meaningful clips, unfiltered
   runs: RailRun[]; // Luna's runs over the same hours
   trips: Map<string, MetraTrip>; // Metra GTFS trips those runs matched
+  incidents: RailIncident[]; // road-crossing incidents over the same hours
   selected: string | null;
   selectedAt: number;
   filters: RailFilters;
@@ -39,6 +40,7 @@ let state: RailState = {
   clips: new Map(),
   runs: [],
   trips: new Map(),
+  incidents: [],
   selected: null,
   selectedAt: 0,
   filters: { q: "", channel: "", eventsOnly: false },
@@ -124,6 +126,8 @@ async function loadRuns() {
       set({ trips: new Map([...state.trips, ...trips.map((trip) => [trip.trip_id, trip] as const)]) });
     }
     set({ runs });
+    const { incidents } = await api<{ incidents: RailIncident[] }>(`incidents?hours=${RUN_HOURS}`);
+    set({ incidents });
   } catch {
     // Try again on the next round.
   }

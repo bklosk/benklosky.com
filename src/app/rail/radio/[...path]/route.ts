@@ -5,10 +5,10 @@
 // and the hub's live mix isn't relayed at all. Metra's published schedule (api/metra) isn't live data, so it isn't.
 // Police and EMS radio and other private transmissions (isPrivate in rail.ts) are left out of every response.
 import { delayLine } from "../../delay";
-import { isPrivate, isPrivateClip, type RailClip, type RailRun } from "../../rail";
+import { CROSSING_INCIDENTS, isPrivate, isPrivateClip, type RailClip, type RailIncident, type RailRun } from "../../rail";
 import { radioHub } from "../../radio-hub";
 
-const API_ROUTES = new Set(["health", "channels", "clips", "runs", "metra"]);
+const API_ROUTES = new Set(["health", "channels", "clips", "runs", "incidents", "metra"]);
 const AUDIO = /^\d{4}\/\d{2}\/\d{2}\/(AAR\d{2})_(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(\d{2})\.mp3$/;
 const PASS_HEADERS = ["content-type", "content-length", "content-range", "accept-ranges", "cache-control"];
 
@@ -82,6 +82,18 @@ function delayRuns(runs: RailRun[]) {
         narrative: null,
       },
     ];
+  });
+}
+
+// Road-crossing incidents only, from public channels, as of the delay line: one that hadn't started yet isn't shown,
+// and one that ended after the line is still blocked as far as the page knows.
+function delayIncidents(incidents: RailIncident[]) {
+  const line = delayLine();
+  return incidents.flatMap((incident) => {
+    if (!CROSSING_INCIDENTS.has(incident.type) || isPrivate(incident.channel, null, null)) return [];
+    if (!incident.start_ts || incident.start_ts >= line) return [];
+    if (incident.end_ts && incident.end_ts >= line) return [{ ...incident, end_ts: null, status: "ongoing" }];
+    return [incident];
   });
 }
 
@@ -161,6 +173,10 @@ export async function GET(request: Request, { params }: { params: Promise<{ path
   if (segments[1] === "runs" && upstream.ok) {
     const { runs } = (await upstream.json()) as { runs: RailRun[] };
     return Response.json({ runs: delayRuns(runs) }, { headers: { "cache-control": "no-store" } });
+  }
+  if (segments[1] === "incidents" && upstream.ok) {
+    const { incidents } = (await upstream.json()) as { incidents: RailIncident[] };
+    return Response.json({ incidents: delayIncidents(incidents) }, { headers: { "cache-control": "no-store" } });
   }
   if (segments[1] === "clips" && upstream.ok) {
     // The cursor comes from the hub's full page, so paging still works when private clips are left out.

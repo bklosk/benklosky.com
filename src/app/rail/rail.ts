@@ -100,17 +100,36 @@ export type MetraTrip = {
 export const RAIL_BASE = "/rail/radio";
 
 // Police and EMS radio isn't published: Amtrak Police at Union Station (AAR17), outside agencies heard on railroad
-// channels, and anything Jev flags as sensitive (a member of the public's medical call, police contact, age, address
-// or phone number). The relay drops these before anything reaches a browser.
+// channels, and anything Jev flags police_ems_or_pii (police or EMS dealing with a member of the public, or their
+// name, age, address or phone number; older clips said "sensitive"). The relay drops these before anything reaches a
+// browser.
 const PRIVATE_CHANNELS = new Set(["AAR17"]);
 const PRIVATE_KINDS = new Set(["police_security", "non_rail"]);
 
 export function isPrivate(channel: string, clipKind: string | null | undefined, flags: string[] | null | undefined) {
-  return PRIVATE_CHANNELS.has(channel) || PRIVATE_KINDS.has(clipKind ?? "") || Boolean(flags?.includes("sensitive"));
+  return PRIVATE_CHANNELS.has(channel) || PRIVATE_KINDS.has(clipKind ?? "") || Boolean(flags?.includes("police_ems_or_pii") || flags?.includes("sensitive"));
 }
 
 export const isPrivateClip = (clip: Pick<RailClip, "channel" | "event">) =>
   isPrivate(clip.channel, clip.event?.clip_kind, clip.event?.flags);
+
+// A public-interest incident Luna found in a half-hour window (the hub's incidents table). The relay passes only
+// road-crossing incidents, held to the delay line like everything else.
+export type RailIncident = {
+  channel: string;
+  label: string;
+  window_start: string;
+  type: "crossing_blocked" | "crossing_malfunction" | "crossing_collision" | string;
+  location: string | null;
+  start_ts: string | null;
+  end_ts: string | null;
+  status: string | null;
+  run_id: string | null;
+  detail: string | null;
+  clips: string[];
+};
+
+export const CROSSING_INCIDENTS = new Set(["crossing_blocked", "crossing_malfunction", "crossing_collision"]);
 
 export const categoryColors: Record<string, string> = {
   authority: "#8e4b3c",
@@ -292,6 +311,24 @@ function streetLatitude(location: string) {
   return number >= 12 && number <= 140 ? 41.8674 - ((number - 12) / 8) * 0.014472 : null;
 }
 
+// Named Chicago streets that cross the railroads, on the grid: north-south ones by longitude, east-west ones by
+// latitude. A crossing on one is snapped to the channel's track where it meets the street.
+const STREET_LON: Record<string, number> = {
+  state: -87.6277, wentworth: -87.6315, michigan: -87.6232, indiana: -87.6213, halsted: -87.6468, racine: -87.6566,
+  ashland: -87.6656, wolcott: -87.6736, damen: -87.676, western: -87.6847, california: -87.6956, kedzie: -87.7056,
+  "central park": -87.7161, pulaski: -87.7262, kostner: -87.7358, cicero: -87.7448, laramie: -87.7552,
+  central: -87.7655, harlem: -87.8063, "cottage grove": -87.606, "stony island": -87.5856, torrence: -87.5594,
+  commercial: -87.5513, baltimore: -87.5447,
+};
+const STREET_LAT: Record<string, number> = {
+  roosevelt: 41.8674, cermak: 41.8523, pershing: 41.8232, lake: 41.8858, grand: 41.8915, north: 41.9104,
+};
+
+function streetLongitude(location: string) {
+  const name = location.toLowerCase().replace(/\b(avenue|ave|road|rd|street|st|boulevard|blvd)\b\.?/g, "").trim();
+  return STREET_LON[name] ?? null;
+}
+
 export type Placement = { lon: number; lat: number; exact: boolean; place: string };
 
 function jitter(name: string, meters: number): [number, number] {
@@ -310,7 +347,16 @@ function placeLocation(location: string, home: Place | null, gazetteer: Gazettee
     const [dx, dy] = jitter(seed, 250);
     return { lon: yard.lon + dx, lat: yard.lat + dy, exact: true, place: yard.name };
   }
-  const lat = streetLatitude(location);
+  const gridLon = streetLongitude(location);
+  if (gridLon !== null && home?.points?.length) {
+    const point = home.points.reduce((best, p) => (Math.abs(p[0] - gridLon) < Math.abs(best[0] - gridLon) ? p : best));
+    if (Math.abs(point[0] - gridLon) < 0.004) {
+      const [dx, dy] = jitter(seed, 60);
+      return { lon: point[0] + dx, lat: point[1] + dy, exact: true, place: location };
+    }
+  }
+  const named = STREET_LAT[location.toLowerCase().replace(/\b(avenue|ave|road|rd|street|st|boulevard|blvd)\b\.?/g, "").trim()];
+  const lat = named ?? streetLatitude(location);
   if (lat !== null && home) {
     // On a subdivision, snap to its track at that latitude; a yard or fixed point just takes the latitude.
     const lon = home.points?.length
@@ -323,6 +369,17 @@ function placeLocation(location: string, home: Place | null, gazetteer: Gazettee
     }
   }
   return null;
+}
+
+// Where a crossing incident is: its named crossing on the channel's line, otherwise near the channel's home.
+export function placeIncident(incident: RailIncident, gazetteer: Gazetteer): Placement | null {
+  const home = channelHome(incident, gazetteer);
+  const seed = `${incident.channel}|${incident.window_start}|${incident.start_ts}`;
+  const exact = incident.location ? placeLocation(incident.location, home, gazetteer, seed) : null;
+  if (exact) return exact;
+  if (!home) return null;
+  const [dx, dy] = jitter(seed, 600);
+  return { lon: home.lon + dx, lat: home.lat + dy, exact: false, place: home.name };
 }
 
 // Where to draw a clip: the place its event names when we can find it, otherwise around its channel's home.

@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { ExpressionSpecification, GeoJSONSource, Map as MapLibreMap, Popup } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { delayedNow } from "./delay";
+import { chicagoMs, delayedNow } from "./delay";
 import { mapStyle, palette } from "./map-style";
 import {
   buildGazetteer,
@@ -12,12 +12,14 @@ import {
   clipTime,
   humanize,
   placeClip,
+  placeIncident,
   scheduledPosition,
   summary,
   trainColors,
   trainGroupLabels,
   type Gazetteer,
   type RailClip,
+  type RailIncident,
   type ScheduledPosition,
   type Train,
   type TrainGroup,
@@ -223,7 +225,7 @@ const categoryColor = [
 const railFade: ExpressionSpecification = ["interpolate", ["linear"], ["get", "age"], 0, 1, 20, 0.7, 60, 0.12];
 const trainFade: ExpressionSpecification = ["interpolate", ["linear"], ["get", "age"], 0, 1, 20, 0.85, 45, 0.4];
 // Top first, so a click picks what's drawn on top.
-const CLICKABLE = ["trains", "rail-events", "rail-events-area", "ships-moving", "ships-still", "rail-hit"];
+const CLICKABLE = ["crossings", "trains", "rail-events", "rail-events-area", "ships-moving", "ships-still", "rail-hit"];
 
 // Transmissions from the last hour that no train on the map already carries.
 function railEventData(clips: Iterable<RailClip>, gazetteer: Gazetteer | null, carried: Set<string>, now: number): GeoJSON.FeatureCollection {
@@ -247,6 +249,77 @@ function railEventData(clips: Iterable<RailClip>, gazetteer: Gazetteer | null, c
     }
   }
   return { type: "FeatureCollection", features };
+}
+
+// Road crossings: shown while blocked (or not reported fixed) and for an hour after they clear.
+const CROSSING_AFTER_MS = 60 * 60_000;
+// A report whose end was never heard drops off after two hours rather than staying "still blocked".
+const CROSSING_OPEN_MS = 2 * 60 * 60_000;
+const crossingTitles: Record<string, string> = {
+  crossing_blocked: "Blocked crossing",
+  crossing_malfunction: "Crossing gates or lights malfunctioning",
+  crossing_collision: "Train struck something at a crossing",
+};
+
+type PlacedIncident = { incident: RailIncident; key: string; lon: number; lat: number; start: number; end: number | null };
+
+function placeIncidents(incidents: RailIncident[], gazetteer: Gazetteer | null, now: number): PlacedIncident[] {
+  if (!gazetteer) return [];
+  return incidents.flatMap((incident) => {
+    const start = incident.start_ts ? chicagoMs(incident.start_ts) : NaN;
+    const end = incident.end_ts ? chicagoMs(incident.end_ts) : null;
+    if (Number.isNaN(start) || start > now || (end !== null && now - end > CROSSING_AFTER_MS)) return [];
+    if (end === null && now - start > CROSSING_OPEN_MS) return [];
+    const place = placeIncident(incident, gazetteer);
+    if (!place) return [];
+    return [{ incident, key: `${incident.channel}|${incident.window_start}|${incident.start_ts}|${incident.type}`, lon: place.lon, lat: place.lat, start, end }];
+  });
+}
+
+function crossingData(placed: PlacedIncident[], now: number): GeoJSON.FeatureCollection {
+  return {
+    type: "FeatureCollection",
+    features: placed.map(({ key, lon, lat, end }) => ({
+      type: "Feature",
+      geometry: { type: "Point", coordinates: [lon, lat] },
+      properties: { key, open: end === null, since: end === null ? 0 : (now - end) / 60_000 },
+    })),
+  };
+}
+
+function crossingPopup({ incident, start, end }: PlacedIncident) {
+  const clock = (ms: number) => timetable.format(ms);
+  const minutes = (ms: number) => `${Math.max(1, Math.round(ms / 60_000))} min`;
+  const open = incident.type === "crossing_blocked" ? "still blocked when last heard" : "not reported fixed";
+  const when = end !== null ? `${clock(start)} to ${clock(end)} (${minutes(end - start)})` : `Since ${clock(start)} · ${open}`;
+  const where = incident.location ? title(incident.location) : `Somewhere on ${incident.label || incident.channel}`;
+  return `
+    <p class="map-popup-title">${escape(crossingTitles[incident.type] ?? "Road crossing")}</p>
+    <p>${escape(where)}</p>
+    <p class="map-popup-muted">${escape(when)}</p>
+    ${incident.detail ? `<p class="map-popup-status">${escape(incident.detail)}</p>` : ""}
+    <p class="map-popup-muted map-popup-foot">From Luna's reading of ${incident.clips.length} transmission${incident.clips.length === 1 ? "" : "s"} on ${escape(incident.label || incident.channel)}</p>`;
+}
+
+// A crossbuck, the sign at a railroad crossing, drawn at 2x.
+function crossingIcon() {
+  const size = 30;
+  const canvas = document.createElement("canvas");
+  canvas.width = size;
+  canvas.height = size;
+  const context = canvas.getContext("2d")!;
+  context.lineCap = "round";
+  for (const [width, color] of [[11, palette.land], [6, categoryColors.crossing]] as const) {
+    context.lineWidth = width;
+    context.strokeStyle = color;
+    context.beginPath();
+    context.moveTo(6, 6);
+    context.lineTo(size - 6, size - 6);
+    context.moveTo(size - 6, 6);
+    context.lineTo(6, size - 6);
+    context.stroke();
+  }
+  return context.getImageData(0, 0, size, size);
 }
 
 function trainData(trains: PlacedTrain[], now: number, selected: string | null): GeoJSON.FeatureCollection {
@@ -456,6 +529,7 @@ export function LiveMap() {
     const vessels = new Map<number, Vessel>();
     let gazetteer: Gazetteer | null = null;
     let trains: Train[] = [];
+    let crossings: PlacedIncident[] = [];
     let builtFrom: unknown[] = [];
     let unsubscribeRail = () => {};
     const player = new Audio();
@@ -554,6 +628,8 @@ export function LiveMap() {
         const selectedTrain = selection?.kind === "train" ? selection.key : null;
         (map.getSource("trains") as GeoJSONSource | undefined)?.setData(trainData(current, now, selectedTrain));
         (map.getSource("rail-events") as GeoJSONSource | undefined)?.setData(railEventData(state.clips.values(), gazetteer, carried, now));
+        crossings = placeIncidents(state.incidents, gazetteer, now);
+        (map.getSource("crossings") as GeoJSONSource | undefined)?.setData(crossingData(crossings, now));
 
         let trail: GeoJSON.FeatureCollection = { type: "FeatureCollection", features: [] };
         let color = trailColor;
@@ -592,6 +668,7 @@ export function LiveMap() {
         for (const [kind, color] of Object.entries(kindColors)) {
           map.addImage(`ship-${kind}`, shipIcon(color), { pixelRatio: 2 });
         }
+        map.addImage("crossing", crossingIcon(), { pixelRatio: 2 });
         for (const [group, color] of Object.entries(trainColors) as [TrainGroup, string][]) {
           for (const hollow of [false, true]) {
             const { image, options } = trainIcon(color, hollow);
@@ -776,6 +853,21 @@ export function LiveMap() {
           },
         });
 
+        // Road-crossing incidents on top of everything: a crossbuck, faded once the crossing has cleared.
+        map.addSource("crossings", { type: "geojson", data: empty });
+        map.addLayer({
+          id: "crossings",
+          type: "symbol",
+          source: "crossings",
+          layout: {
+            "icon-image": "crossing",
+            "icon-size": ["interpolate", ["linear"], ["zoom"], 8, 0.8, 13, 1.15],
+            "icon-allow-overlap": true,
+            "icon-ignore-placement": true,
+          },
+          paint: { "icon-opacity": ["case", ["get", "open"], 1, ["interpolate", ["linear"], ["get", "since"], 0, 0.75, 60, 0.3]] },
+        });
+
         const showClip = (clip: RailClip, fly: boolean) => {
           const train = trains.find((candidate) => candidate.stops.some((stop) => stop.clip?.name === clip.name));
           const placed = train ? placeTrain(train, delayedNow()) : null;
@@ -790,7 +882,10 @@ export function LiveMap() {
           const feature = map!.queryRenderedFeatures(event.point, { layers: CLICKABLE })[0];
           if (!feature) return;
           const properties = feature.properties ?? {};
-          if (feature.layer.id === "trains") {
+          if (feature.layer.id === "crossings") {
+            const placed = crossings.find((candidate) => candidate.key === properties.key);
+            if (placed) openPopup([placed.lon, placed.lat], crossingPopup(placed), null, "17rem");
+          } else if (feature.layer.id === "trains") {
             const train = trains.find((candidate) => candidate.key === properties.key);
             const placed = train ? placeTrain(train, delayedNow()) : null;
             if (placed) showTrain(placed, null, false);
