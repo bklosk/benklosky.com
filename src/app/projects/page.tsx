@@ -5,7 +5,6 @@ import { Ink } from "../ink";
 import tennisPoster from "../../../public/tennis/clip-poster.webp";
 import makingStage from "./making-stage.webp";
 import { ProjectVideo } from "./project-video";
-import railStage from "./rail-stage.webp";
 import shelfStage from "./shelf-stage.jpg";
 import tasteStage from "./taste-stage.jpg";
 import "./projects.css";
@@ -17,20 +16,6 @@ export const metadata: Metadata = {
 export default function ProjectsPage() {
   return (
     <div className="projects-content">
-      <p className="intro">
-        <Ink>
-          <Link href="/rail">Inferring train positions from radio comms</Link>
-        </Ink>
-      </p>
-      <Link href="/rail" className="project-shot" aria-label="Rail map">
-        <ProjectVideo
-          src="/rail/preview.v1.mp4"
-          poster={railStage}
-          alt="Radio events on the Metra Electric and the CN Chicago line by the lakefront"
-          sizes="16rem"
-          eager
-        />
-      </Link>
       <p className="intro">
         <Ink>
           <Link href="/taste">Understand your own taste in movies and art</Link>
