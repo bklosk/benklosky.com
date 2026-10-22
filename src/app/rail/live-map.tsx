@@ -295,7 +295,7 @@ export function LiveMap() {
           map.addImage(`ship-${kind}`, shipIcon(color), { pixelRatio: 2 });
         }
 
-        map.addSource("rail", { type: "geojson", data: "/map/rail-lines.geojson" });
+        map.addSource("rail", { type: "geojson", data: "/rail/rail-lines.geojson" });
         map.addLayer(
           {
             id: "rail-minor",
@@ -446,7 +446,7 @@ export function LiveMap() {
           const current = rail.get();
           if (current.status === "on" && !gazetteer && !loadingPlaces) {
             loadingPlaces = true;
-            fetch("/map/rail-lines.geojson")
+            fetch("/rail/rail-lines.geojson")
               .then((response) => response.json())
               .then((data: GeoJSON.FeatureCollection) => {
                 gazetteer = buildGazetteer(data);
@@ -485,7 +485,7 @@ export function LiveMap() {
           map.on("mouseleave", layer, () => (map!.getCanvas().style.cursor = ""));
         }
 
-        events = new EventSource("/map/ships");
+        events = new EventSource("/rail/ships");
         events.addEventListener("vessels", (event) => {
           for (const vessel of JSON.parse(event.data) as Vessel[]) vessels.set(vessel.mmsi, vessel);
           schedule();

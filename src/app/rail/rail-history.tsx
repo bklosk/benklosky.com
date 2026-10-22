@@ -1,7 +1,7 @@
 "use client";
 
 // Every meaningful transmission the home SDR heard, newest first, with the event Jev extracted from it.
-// Renders nothing unless this browser has a radio session (sign in at /map/radio; see radio/auth.ts).
+// Renders nothing until the rail hub answers (and nothing if it can't be reached).
 import { useEffect, useRef, useState } from "react";
 import { categoryColors, clipTime, humanize, type RailClip } from "./rail";
 import { rail, useRail } from "./rail-store";
@@ -63,12 +63,7 @@ export function RailHistory() {
     <section className="rail-history" aria-label="Radio history">
       <header className="rail-history-head">
         <h2>Radio log</h2>
-        <div className="rail-muted rail-history-sub">
-          From the home RTL-SDR: Parakeet transcripts, events from Jev, runs from Luna.{" "}
-          <form method="post" action="/map/radio/logout" className="rail-logout">
-            <button type="submit">Sign out</button>
-          </form>
-        </div>
+        <p className="rail-muted">From a home RTL-SDR: Parakeet transcripts, events from Jev, runs from Luna.</p>
       </header>
       <div className="rail-controls">
         <input type="search" placeholder="Search transcripts" value={q} onChange={(event) => setQ(event.target.value)} />

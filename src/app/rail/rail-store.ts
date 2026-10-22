@@ -39,9 +39,6 @@ let stream: EventSource | null = null;
 let started = false;
 let users = 0;
 
-// Set at sign-in next to the real (httpOnly) session cookie, so other visitors never probe the radio routes.
-const signedIn = () => document.cookie.split("; ").includes("map_radio_hint=1");
-
 function set(patch: Partial<RailState>) {
   state = { ...state, ...patch };
   for (const listener of listeners) listener();
@@ -105,7 +102,7 @@ function openStream() {
 }
 
 async function start() {
-  if (started || !signedIn()) return;
+  if (started) return;
   started = true;
   set({ status: "probing", base: RAIL_BASE });
   try {

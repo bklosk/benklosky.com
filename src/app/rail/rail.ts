@@ -1,5 +1,5 @@
 // Railroad radio from the home RTL-SDR: types, the site's proxy routes, and placing events on the map.
-// The browser only talks to this site (/map/radio/...); the server relays to the rail hub over the VPC.
+// The browser only talks to this site (/rail/radio/...); the server relays to the rail hub over the VPC.
 
 export type RailEvent = {
   clip_kind: string | null;
@@ -39,8 +39,8 @@ export type RailClip = {
 
 export type RailChannel = { name: string; freq: string; label: string | null; enabled: boolean; noisy: boolean };
 
-// Same-origin routes in src/app/map/radio/[...path]; they need the radio session cookie.
-export const RAIL_BASE = "/map/radio";
+// Same-origin routes in src/app/rail/radio/[...path].
+export const RAIL_BASE = "/rail/radio";
 
 export const categoryColors: Record<string, string> = {
   authority: "#8e4b3c",

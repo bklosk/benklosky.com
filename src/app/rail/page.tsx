@@ -4,12 +4,12 @@ import { RailHistory } from "./rail-history";
 import "./map.css";
 
 export const metadata: Metadata = {
-  title: "Map · Ben Klosky",
-  description: "Ships and freight rail around Chicago.",
+  title: "Rail · Ben Klosky",
+  description: "Freight rail, railroad radio, and ships around Chicago.",
 };
 
 export default function MapPage() {
-  // The radio layer and log appear only for a signed-in session (/map/radio); the page itself stays static.
+  // The radio layer and log appear once the rail hub answers; the page itself stays static.
   return (
     <div className="map-page">
       <LiveMap />

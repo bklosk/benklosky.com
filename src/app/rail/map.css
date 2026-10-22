@@ -143,8 +143,7 @@
   font-size: 1rem;
 }
 
-.rail-history-head p,
-.rail-history-sub {
+.rail-history-head p {
   margin: 0 0 0.9rem;
 }
 
@@ -301,53 +300,3 @@
   }
 }
 
-.rail-logout {
-  display: inline;
-}
-
-.rail-logout button {
-  padding: 0;
-  border: 0;
-  background: none;
-  color: var(--muted);
-  font: inherit;
-  text-decoration: underline;
-  cursor: pointer;
-}
-
-.radio-login {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-  width: min(18rem, 100%);
-  font-size: 0.875rem;
-}
-
-.radio-login h1 {
-  margin: 0;
-  font-size: 1.1rem;
-}
-
-.radio-login p {
-  margin: 0;
-}
-
-.radio-login input,
-.radio-login button {
-  padding: 0.5rem 0.65rem;
-  border: 1px solid rgb(27 26 24 / 0.15);
-  border-radius: 6px;
-  background: #fff;
-  color: var(--foreground);
-  font: inherit;
-}
-
-.radio-login button {
-  background: var(--foreground);
-  color: var(--background);
-  cursor: pointer;
-}
-
-.radio-wrong {
-  color: #b5402a;
-}

@@ -1,6 +1,6 @@
 # Map data sources
 
-The data behind `/map`: what each source is, how the site gets it, and its terms. Update this file whenever a source is added, dropped, or changes how it's accessed.
+The data behind `/rail`: what each source is, how the site gets it, and its terms. Update this file whenever a source is added, dropped, or changes how it's accessed.
 
 | Source | What it gives | How the site gets it | Status |
 | --- | --- | --- | --- |
@@ -8,13 +8,13 @@ The data behind `/map`: what each source is, how the site gets it, and its terms
 | [OpenMHz](#openmhz) | Recorded radio calls from trunked systems | Not integrated in code | In use for listening; API blocked for server clients |
 | [BTS North American Rail Network](#bts-north-american-rail-network) | Freight rail track geometry and ownership | Snapshot built by a script | Live on the map |
 | [OpenFreeMap](#openfreemap) | Basemap vector tiles and fonts | Browser loads tiles directly | Live on the map |
-| [sdr.local](#sdrlocal-home-rtl-sdr) | Railroad radio from the home RTL-SDR: audio, transcripts, events, runs | Private (tailnet only) | Ben's own receiver |
+| [sdr.local](#sdrlocal-home-rtl-sdr) | Railroad radio from the home RTL-SDR: audio, transcripts, events, runs | Public on /rail | Ben's own receiver |
 
 ## aisstream.io
 
 - **What:** Terrestrial AIS messages, worldwide, as a WebSocket stream. The map subscribes to the `REGION` box in [region.ts](region.ts), which covers Chicagoland, southern Lake Michigan, and the top of the Illinois Waterway.
 - **Messages used:** `PositionReport`, `StandardClassBPositionReport`, and `ExtendedClassBPositionReport` give position, course, speed, and heading. `ShipStaticData` and `StaticDataReport` give name, type, destination, and length. Static messages broadcast about every 6 minutes, so a vessel's type and color can lag its first position.
-- **Access:** `wss://stream.aisstream.io/v0/stream` with an API key sent in the subscription message. The key must stay server-side, so [ais.ts](ais.ts) holds one shared upstream connection per server process. [ships/route.ts](ships/route.ts) relays it to browsers as server-sent events at `/map/ships`.
+- **Access:** `wss://stream.aisstream.io/v0/stream` with an API key sent in the subscription message. The key must stay server-side, so [ais.ts](ais.ts) holds one shared upstream connection per server process. [ships/route.ts](ships/route.ts) relays it to browsers as server-sent events at `/rail/ships`.
 - **Credentials:** `AISSTREAM_API_KEY`. Locally it lives in the gitignored `.env`. In production it's an encrypted run-time secret on the `benklosky-com` component of the DigitalOcean app `coral-app` (doctl context `default`).
 - **Retention:** Nothing is stored. The relay keeps vessels heard in the last 30 minutes in memory, and up to 40 recent positions each for trails.
 - **Limits:** The stream is free and best-effort, with no uptime guarantee. Coverage depends on volunteer shore stations, and is good on the lakefront and Chicago River. In a quiet hour the region may send only a few messages a minute.
@@ -30,7 +30,7 @@ The data behind `/map`: what each source is, how the site gets it, and its terms
 ## BTS North American Rail Network
 
 - **What:** The NTAD North American Rail Network Lines dataset from the Bureau of Transportation Statistics. It has track geometry with owner, trackage rights, subdivision, yard name, network class, and track count.
-- **Access:** [scripts/build-rail-lines.mjs](../../../scripts/build-rail-lines.mjs) queries the public ArcGIS FeatureServer and writes `public/map/rail-lines.geojson`. Run it again to refresh:
+- **Access:** [scripts/build-rail-lines.mjs](../../../scripts/build-rail-lines.mjs) queries the public ArcGIS FeatureServer and writes `public/rail/rail-lines.geojson`. Run it again to refresh:
 
   ```bash
   node scripts/build-rail-lines.mjs
@@ -53,12 +53,12 @@ The data behind `/map`: what each source is, how the site gets it, and its terms
   - The Pi transcribes each transmission with Parakeet and pushes transcripts and meaningful clips to the rail hub on the `oink` droplet (nyc1) over Tailscale.
   - On the hub, TypeSafe Jev extracts an event from each meaningful clip, and OpenAI `gpt-6-luna` summarizes each half hour of a channel into train runs.
   - Everything lives in the hub's SQLite database, `/srv/rail/rail.db`.
-- **Access:** Private.
+- **Access:** Public on `/rail`, with no sign-in.
   - The site's server reads the hub's API over DigitalOcean's VPC with a bearer token. The hub API isn't on the public internet.
-  - Browsers only see `/map/radio/*`, behind Ben's session cookie.
-  - The Pi keeps a 16-day outbox of transcripts and serves only its live Icecast stream, and only to the tailnet.
+  - Browsers only see `/rail/radio/*`: transcripts, extracted events, clip audio, and the live mix.
+  - The Pi keeps a 16-day outbox of transcripts and serves its live Icecast stream only to the tailnet.
 - **Retention:**
   - The hub keeps transcripts, events and runs indefinitely, and meaningful clips' audio.
   - Every night it copies meaningful clips and per-day transcript JSONL to the `benklosky-data` Space under `sdr-rail/`.
   - It also keeps a single latest database snapshot at `sdr-rail/db/rail.db.gz`.
-- **Publishing rules, if this ever goes public:** Publish derived events (train, location, time, event type) and keep raw audio private by default. Leave out crew names and personal details. Delay anything live. Never decode encrypted, cellular, or pager traffic.
+- **Publishing rules (published since 2026-10-22, with live audio):** Publish derived events (train, location, time, event type) and keep raw audio private by default. Leave out crew names and personal details. Delay anything live. Never decode encrypted, cellular, or pager traffic.

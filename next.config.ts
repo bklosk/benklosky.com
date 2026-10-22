@@ -17,6 +17,13 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  async redirects() {
+    // /map was renamed /rail.
+    return [
+      { source: "/map", destination: "/rail", permanent: true },
+      { source: "/map/:path*", destination: "/rail/:path*", permanent: true },
+    ];
+  },
   async rewrites() {
     return [{ source: "/resume", destination: "/klosky-resume.pdf" }];
   },

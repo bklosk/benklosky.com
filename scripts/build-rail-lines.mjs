@@ -1,13 +1,13 @@
 // Usage: node scripts/build-rail-lines.mjs
-// Snapshots freight rail around Chicago from the BTS North American Rail Network into public/map.
+// Snapshots freight rail around Chicago from the BTS North American Rail Network into public/rail.
 // Track used only by passenger operators (Metra, South Shore, Amtrak, CTA) is dropped.
 import { writeFile } from "node:fs/promises";
 
 const service =
   "https://services.arcgis.com/xOi1kZaI0eWDREZv/arcgis/rest/services/NTAD_North_American_Rail_Network_Lines/FeatureServer/0/query";
-// [west, south, east, north]. Keep in step with REGION in src/app/map/region.ts.
+// [west, south, east, north]. Keep in step with REGION in src/app/rail/region.ts.
 const bbox = [-89.2, 40.9, -86.2, 43.2];
-const output = "public/map/rail-lines.geojson";
+const output = "public/rail/rail-lines.geojson";
 
 // Main, other, yard, industry, and siding track. Skips abandoned (A), railbanked (R),
 // out of service (X), and transit (T) segments.

@@ -1,5 +1,5 @@
 // One shared aisstream.io connection per server process. Browsers can't hold the API key,
-// so /map/ships relays this hub to each visitor as server-sent events.
+// so /rail/ships relays this hub to each visitor as server-sent events.
 import { REGION } from "./region";
 import type { ShipStatus, Vessel } from "./vessel";
 
